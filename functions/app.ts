@@ -27,7 +27,10 @@ app.get("/user/:username/:page", async (req, res) => {
         const page = parseInt(req.params.page)
         const user = await twitterApp.v2.userByUsername(username);
 
-        const likedTweets = await twitterApp.v2.userLikedTweets(user.data.id, { "expansions": ["attachments.media_keys"], "media.fields": ["url"] })
+        const likedTweets = await twitterApp.v2.userLikedTweets(user.data.id, {
+            "expansions": ["attachments.media_keys"],
+            "media.fields": ["url"]
+        })
 
         let tweets = await likedTweets.fetchNext()
         let i = 1
