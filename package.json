@@ -25,12 +25,12 @@
   },
   "scripts": {
     "start": "next start",
-    "serve": "cd functions && npm run start:dev",
+    "serve": "cd backend && npm run start:dev",
     "build": "next build",
     "dev": "next dev",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "postinstall": "cd functions && npm i"
+    "postinstall": "cd backend && npm i"
   },
   "eslintConfig": {
     "extends": [

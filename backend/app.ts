@@ -1,7 +1,7 @@
 import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
-import TwitterApi from 'twitter-api-v2'
+import TwitterApi from "twitter-api-v2"
 
 if (process.env.NODE_ENV === "development") {
     dotenv.config()
@@ -20,6 +20,10 @@ const userClient = new TwitterApi({
 let twitterApp: TwitterApi | null = null
 
 userClient.appLogin().then(api => twitterApp = api);
+
+app.get("/", (req, res) => {
+    res.send("Hello world!")
+})
 
 app.get("/user/:username/:page", async (req, res) => {
     try {
