@@ -1,10 +1,10 @@
 import express from "express"
 import cors from "cors"
-import dotenv from "dotenv"
+
 import TwitterApi from "twitter-api-v2"
 
 if (process.env.NODE_ENV === "development") {
-    dotenv.config()
+    require("dotenv").config()
 }
 
 // Express setup
