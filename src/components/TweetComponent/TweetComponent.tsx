@@ -1,31 +1,37 @@
 import ReactVisibilitySensor from "react-visibility-sensor";
-import { TwitterTweetEmbed } from "react-twitter-embed";
+import { Tweet } from "react-static-tweets";
 import { useState } from "react";
+import styled from "styled-components";
+
+const TweetWrapper = styled.div`
+  width: 400px;
+  height: fit-content;
+  min-height: 300px;
+  margin: 5px;
+  padding: 5px;
+  background-color: #6edfdf;
+`;
+
+const EmptyTweet = styled.div`
+  min-height: 500px;
+  height: 500px;
+`;
 
 export default function TweetComponent(props: {
   tweetId: string;
   order: number;
 }) {
-  const [visible, setVisible] = useState(false);
-
   return (
-    <ReactVisibilitySensor>
-      {(isVisible) => {
-        if (isVisible) {
-          setTimeout(() => setVisible(true), props.order * 500);
-          if (visible) {
-            return (
-              <div>
-                <TwitterTweetEmbed tweetId={props.tweetId} />
-              </div>
-            );
-          } else {
-            return <></>;
+    <TweetWrapper>
+      <ReactVisibilitySensor>
+        {(visible) => {
+          if (visible) return <Tweet id={props.tweetId} />;
+          else {
+            console.log("Don't draw!!");
+            return <EmptyTweet />;
           }
-        } else {
-          return <></>;
-        }
-      }}
-    </ReactVisibilitySensor>
+        }}
+      </ReactVisibilitySensor>
+    </TweetWrapper>
   );
 }
