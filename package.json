@@ -2,6 +2,14 @@
   "name": "twitter-art-collection",
   "version": "0.1.0",
   "private": true,
+  "scripts": {
+    "start": "next start",
+    "build": "next build",
+    "dev": "next dev",
+    "lint": "next lint",
+    "serve": "cd backend && npm run start:dev",
+    "postinstall": "cd backend && npm i"
+  },
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.2",
@@ -23,20 +31,10 @@
     "typescript": "^4.5.5",
     "web-vitals": "^2.1.4"
   },
-  "scripts": {
-    "start": "next start",
-    "serve": "cd backend && npm run start:dev",
-    "build": "next build",
-    "dev": "next dev",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "postinstall": "cd backend && npm i"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "devDependencies": {
+    "@types/styled-components": "^5.1.22",
+    "eslint": "8.9.0",
+    "eslint-config-next": "12.1.0"
   },
   "browserslist": {
     "production": [
@@ -49,9 +47,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@types/styled-components": "^5.1.22",
-    "eslint": "^8.9.0"
   }
 }
