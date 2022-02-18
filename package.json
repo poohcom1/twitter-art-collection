@@ -27,6 +27,7 @@
     "react-visibility-sensor": "^5.1.1",
     "static-tweets": "^0.5.5",
     "styled-components": "^5.3.3",
+    "twitter-api-v2": "^1.11.0",
     "twitter-types": "^0.22.0",
     "typescript": "^4.5.5",
     "web-vitals": "^2.1.4"

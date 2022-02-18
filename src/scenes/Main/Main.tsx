@@ -22,7 +22,7 @@ function Main() {
   let username = "poohcom1";
 
   const getUser = () => {
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/user/${username}/0`, {
+    fetch(`/api/likes/${username}/0`, {
       method: "GET",
       mode: "cors",
       cache: "force-cache",
