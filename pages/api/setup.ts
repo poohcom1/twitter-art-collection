@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             await UserModel.findOneAndUpdate({ uid: session.user.id }, {
                 $setOnInsert: {
                     uid: session.user.id,
-                    categories: []
+                    tags: []
                 }
             },
                 {

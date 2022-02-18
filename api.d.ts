@@ -2,7 +2,7 @@
 
 type Platform = "twitter"
 
-export interface PostCategoryBody extends CategorySchema {
+export interface PostTagBody extends TagSchema {
     userId: string
 }
 
@@ -12,12 +12,12 @@ export interface ImageSchema {
     platform: Platform
 }
 
-export interface CategorySchema {
+export interface TagSchema {
     name: string
     images: Array<ImageSchema>
 }
 
 export interface UserSchema {
     uid: string
-    categories: Array<CategorySchema>
+    tags: Array<TagSchema>
 }

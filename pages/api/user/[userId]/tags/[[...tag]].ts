@@ -1,31 +1,31 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import type { PostCategoryBody } from "api";
+import type { PostTagBody } from "api";
 import { getSession } from "next-auth/react";
 import UserModel from "schemas/User";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     switch (req.method) {
         case "GET":
-            return getCategory(req, res)
+            return getTags(req, res)
         case "POST":
-            return postCategory(req, res)
+            return postTag(req, res)
     }
 }
 
-async function getCategory(req: NextApiRequest, res: NextApiResponse) {
+async function getTags(req: NextApiRequest, res: NextApiResponse) {
     try {
         const user = await UserModel.findOne({ uid: req.query.userId })
 
-        res.status(200).send(user?.categories)
+        res.status(200).send(user?.tags)
     } catch (e) {
-        console.error("[GET category] " + e)
+        console.error("[GET tag] " + e)
         res.status(500).send("Error: " + e)
     }
 }
 
 
-async function postCategory(req: NextApiRequest, res: NextApiResponse) {
-    const body: PostCategoryBody = req.body
+async function postTag(req: NextApiRequest, res: NextApiResponse) {
+    const body: PostTagBody = req.body
 
     const session = await getSession({ req })
 
@@ -42,7 +42,7 @@ async function postCategory(req: NextApiRequest, res: NextApiResponse) {
         res.status(200)
 
     } catch (e) {
-        console.error("[POST category] " + e)
+        console.error("[POST tag] " + e)
         res.status(500).send("Error: " + e)
     }
 }

@@ -1,9 +1,9 @@
 
-interface Category {
+interface Tag {
     name: string;
 }
 
 interface TweetWrapper {
     tweetId: string;
-    categories: Array<Category>
+    tags: Array<Tag>
 }

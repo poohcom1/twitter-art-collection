@@ -1,4 +1,4 @@
-import { CategorySchema, ImageSchema } from "api"
+import { TagSchema, ImageSchema } from "api"
 import { Schema, model } from "mongoose"
 
 const imageSchema = new Schema<ImageSchema>({
@@ -8,7 +8,7 @@ const imageSchema = new Schema<ImageSchema>({
 
 imageSchema.index({ id: 1, platform: 1 }, { unique: true })
 
-const categorySchema = new Schema<CategorySchema>({
+const tagSchema = new Schema<TagSchema>({
     name: {
         type: String,
         unique: true,
@@ -19,4 +19,4 @@ const categorySchema = new Schema<CategorySchema>({
     }
 })
 
-export { categorySchema }
+export { tagSchema }

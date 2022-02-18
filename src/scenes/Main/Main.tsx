@@ -77,7 +77,7 @@ function Main() {
         setTweetList(
           payload.data
             .filter((t) => tweetFilter(t, payload))
-            .map((data) => ({ tweetId: data.id, categories: [] }))
+            .map((data) => ({ tweetId: data.id, tags: [] }))
         );
       })
       .catch((err) => console.log("[Likes fetch error] " + err));

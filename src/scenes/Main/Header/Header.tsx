@@ -3,9 +3,10 @@ import { TwitterLogin } from "src/components";
 import styled from "styled-components";
 import { AiOutlineQuestionCircle as QuestionCircle } from "react-icons/ai";
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyledPopup, PopupItem } from "src/components";
-import { CategorySchema } from "api";
+import { TagSchema } from "api";
+import TagsPanel from "./TagsPanel";
 
 const Avatar = styled.div`
   border-radius: 50%;
@@ -124,13 +125,11 @@ function SearchBar() {
 }
 
 const HeaderDiv = styled.div`
-  display: flex;
-
   background-color: white;
   width: 100%;
   height: 15%;
 
-  padding: 30px;
+  padding: 30px 30px 0 30px;
 
   & * {
     margin-left: 5px;
@@ -140,24 +139,30 @@ const HeaderDiv = styled.div`
 export default function Header() {
   const session = useSession();
 
-  const [categories, setCategories] = useState<Array<CategorySchema> | null>(
-    null
-  );
+  const [tags, setTags] = useState<Array<TagSchema>>([]);
 
-  if (!categories) {
+  useEffect(() => {
     if (session.data) {
-      fetch(`/api/user/${session.data.user.id}/categories`, {
+      fetch(`/api/user/${session.data.user.id}/tags`, {
         method: "GET",
       })
         .then((res) => res.json())
-        .then(setCategories);
+        .then((tags) => {
+          console.log(tags);
+          setTags(tags);
+        });
     }
-  }
+  }, [session.data]);
 
   return (
-    <HeaderDiv>
-      <UserSection />
-      <SearchBar />
-    </HeaderDiv>
+    <div>
+      <HeaderDiv>
+        <div style={{ display: "flex" }}>
+          <UserSection />
+          <SearchBar />
+        </div>
+        <TagsPanel tags={tags} />
+      </HeaderDiv>
+    </div>
   );
 }
