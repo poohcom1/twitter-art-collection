@@ -55,7 +55,7 @@ function Main() {
           })
         );
       })
-      .catch(console.error);
+      .catch((err) => console.log("[Likes fetch error] " + err));
   };
 
   const createColumns = () => {
