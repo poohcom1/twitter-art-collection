@@ -1,6 +1,5 @@
 import ReactVisibilitySensor from "react-visibility-sensor";
 import { Tweet } from "react-static-tweets";
-import { useState } from "react";
 import styled from "styled-components";
 
 const TweetWrapper = styled.div`
