@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { MultipleTweetsLookupResponse } from "twitter-types";
-import { TweetComponent } from "../../components";
+import { TweetComponent, TwitterLogin } from "../../components";
 import styled from "styled-components";
-import { TweetWrapper } from "../../types";
+import { useSession } from "next-auth/react";
 
 const Rows = styled.div`
   display: flex;
@@ -16,13 +16,21 @@ const DisplayDiv = styled.div`
 `;
 
 function Main() {
+  const session = useSession();
+
   const [columns, setColumns] = useState(4);
   const [tweetList, setTweetList] = useState<Array<TweetWrapper>>([]);
 
-  let username = "poohcom1";
+  let usernameOrId = "poohcom1";
+  let useId = false;
+
+  if (session.data) {
+    usernameOrId = session.data.user.id;
+    useId = true;
+  }
 
   const getUser = () => {
-    fetch(`/api/likes/${username}/0`, {
+    fetch(`/api/likes/${usernameOrId}/0?useId=${useId}`, {
       method: "GET",
       mode: "cors",
       cache: "force-cache",
@@ -86,6 +94,7 @@ function Main() {
 
   return (
     <div className="App">
+      <TwitterLogin />
       <button onClick={getUser}>Click me</button>
       <Rows>{createColumns()}</Rows>
     </div>

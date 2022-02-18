@@ -1,9 +1,9 @@
 
-export interface Category {
+interface Category {
     name: string;
 }
 
-export interface TweetWrapper {
+interface TweetWrapper {
     tweetId: string;
     categories: Array<Category>
 }

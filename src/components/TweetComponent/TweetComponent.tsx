@@ -26,7 +26,6 @@ export default function TweetComponent(props: {
         {(visible) => {
           if (visible) return <Tweet id={props.tweetId} />;
           else {
-            console.log("Don't draw!!");
             return <EmptyTweet />;
           }
         }}

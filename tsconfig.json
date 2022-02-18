@@ -15,8 +15,9 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "preserve",
-    "incremental": true
+    "incremental": true,
+    "baseUrl": "."
   },
-  "include": ["src", "pages"],
+  "include": ["src", "pages", "lib"],
   "exclude": ["node_modules"]
 }
