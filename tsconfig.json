@@ -18,6 +18,14 @@
     "incremental": true,
     "baseUrl": "."
   },
-  "include": ["src", "pages", "lib"],
+  "include": [
+    "src",
+    "pages",
+    "lib",
+    "schemas",
+    "types.d.ts",
+    "twitter.d.ts",
+    "api.d.ts"
+  ],
   "exclude": ["node_modules"]
 }

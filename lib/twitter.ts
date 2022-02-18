@@ -8,18 +8,14 @@ export function getTwitterClient() {
         return cachedClient
     }
 
-    const appKey = process.env.TWITTER_API_KEY
-    const appSecret = process.env.TWITTER_API_SECRET
+    const bearerToken = process.env.TWITTER_BEARER_TOKEN
 
-    if (!appKey || !appSecret) {
-        throw new Error("Missing TWITTER_API_KEY or TWITTER_API_SECRET environment variables!")
+    if (!bearerToken) {
+        throw new Error("Missing TWITTER_BEARER_TOKEN environment variables!")
     }
 
     // Twitter setup
-    cachedClient = new TwitterApi({
-        appKey,
-        appSecret,
-    });
+    cachedClient = new TwitterApi(bearerToken);
 
     return cachedClient
 }
@@ -29,9 +25,7 @@ export async function getTwitterApi(): Promise<TwitterApiReadOnly> {
         return cachedApi
     }
 
-    const twitterClient = getTwitterClient()
-
-    const twitterApi = await twitterClient.appLogin()
+    const twitterApi = getTwitterClient()
 
     cachedApi = twitterApi.readOnly
 
