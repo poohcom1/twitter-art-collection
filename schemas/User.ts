@@ -3,8 +3,8 @@ import type { UserSchema } from "api"
 import { tagSchema } from "./Tag"
 
 export const userSchema = new Schema<UserSchema>({
-    uid: { type: String, index: true, unique: true },
-    tags: { type: [tagSchema] }
+    uid: { type: String, index: true, unique: true, required: true },
+    tags: { type: Map }
 })
 
 const UserModel: mongoose.Model<UserSchema> = mongoose.models.users || model("users", userSchema)

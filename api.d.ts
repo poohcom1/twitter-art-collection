@@ -11,7 +11,7 @@ export interface TagSchema {
     images: Array<ImageSchema>
 }
 
-type TagCollection = Array<TagSchema>
+type TagCollection = Map<string, TagSchema>
 
 export interface UserSchema {
     uid: string

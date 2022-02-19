@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             await UserModel.findOneAndUpdate({ uid: session.user.id }, {
                 $setOnInsert: {
                     uid: session.user.id,
-                    tags: []
+                    tags: {}
                 }
             },
                 {
@@ -25,9 +25,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 })
         }
 
-        res.status(200)
+        res.status(200).send("Ok")
     } catch (e) {
         console.log(e)
-        res.status(500)
+        res.status(500).send("Error")
     }
 }

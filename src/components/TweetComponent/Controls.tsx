@@ -1,4 +1,4 @@
-import { ImageSchema, TagSchema } from "api";
+import type { TagCollection, ImageSchema, TagSchema } from "api";
 import { AiOutlinePlusCircle as PlusCircle } from "react-icons/ai";
 import styled from "styled-components";
 import { PopupItem, StyledPopup } from "..";
@@ -36,7 +36,7 @@ export default function Controls(props: {
   image: ImageSchema;
   tags: TagCollection;
 }) {
-  const includedTags = props.tags.filter((tag) =>
+  const includedTags = Array.from(props.tags.values()).filter((tag) =>
     tag.images.includes(props.image)
   );
 
@@ -52,7 +52,7 @@ export default function Controls(props: {
         }
         closeOnDocumentClick
       >
-        {props.tags.map((tag, key) => (
+        {Array.from(props.tags.values()).map((tag, key) => (
           <PopupItem text={tag.name} key={key} onClick={() => {}} />
         ))}
       </StyledPopup>

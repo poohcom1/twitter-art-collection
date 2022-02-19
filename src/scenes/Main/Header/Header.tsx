@@ -48,16 +48,6 @@ export default function Header(props: { height: number }) {
   const session = useSession();
   let { tags, setTags } = useContext(TagsContext);
 
-  useEffect(() => {
-    if (session.data) {
-      fetch(`/api/user/${session.data.user.id}/tags`, {
-        method: "GET",
-      })
-        .then((res) => res.json())
-        .then(setTags);
-    }
-  }, [session.data, setTags]);
-
   return (
     <div>
       <HeaderDiv height={props.height}>

@@ -70,7 +70,9 @@ function NewTag() {
       images: [],
     };
 
-    setTags([...tags, body]);
+    tags.set(body.name, body);
+
+    setTags(new Map(tags));
 
     fetch(`/api/user/${session.data.user.id}/tags/`, {
       method: "POST",
@@ -112,7 +114,7 @@ export default function TagsPanel(props: { tags: TagCollection }) {
   return (
     <StyledTagsPanel>
       <NewTag />
-      {props.tags.map((tag, i) => (
+      {Array.from(props.tags.values()).map((tag, i) => (
         <Tag tag={tag} key={i} />
       ))}
     </StyledTagsPanel>

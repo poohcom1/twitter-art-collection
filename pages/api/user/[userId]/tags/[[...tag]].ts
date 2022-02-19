@@ -32,12 +32,17 @@ async function postTag(req: NextApiRequest, res: NextApiResponse) {
     console.info("[POST tag] Tag added: " + tag.name)
 
     try {
-        await UserModel.updateOne(
-            { uid: req.query.userId },
-            { $push: { tags: { name: tag.name, images: tag.images } } }
-        );
+        const user = await UserModel.findOne({ uid: req.query.userId })
 
-        res.status(200)
+        if (!user || tag.name in user.tags) {
+            throw new Error("Tag already exists")
+        }
+
+        user.tags.set(tag.name, tag)
+
+        await user.save()
+
+        res.status(200).send("Ok")
 
     } catch (e) {
         console.error("[POST tag] " + e)

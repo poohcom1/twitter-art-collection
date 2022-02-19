@@ -6,7 +6,7 @@ import Header from "./Header/Header";
 import styled, { keyframes } from "styled-components";
 import { fadeIn } from "react-animations";
 import TagsContext from "src/context/TagsContext";
-import { TagSchema } from "api";
+import { TagCollection, TagSchema } from "api";
 
 // Styles
 const HEADER_HEIGHT = 150;
@@ -67,7 +67,7 @@ function tweetFilter(tweet: APITweet, payload: MultipleTweetsLookupResponse) {
 export default function Main() {
   const session = useSession();
 
-  const [tags, setTags] = useState<TagCollection>([]);
+  const [tags, setTags] = useState<TagCollection>(new Map());
 
   const [loaded, setLoaded] = useState(false);
   const [columns, setColumns] = useState(4);
@@ -77,6 +77,7 @@ export default function Main() {
     if (session.data) {
       const username = session.data.user.id;
 
+      // Get tweets
       fetch(`/api/likes/${username}/0?useId=true`, {
         method: "GET",
         cache: "force-cache",
@@ -90,6 +91,16 @@ export default function Main() {
           );
         })
         .catch((err) => console.log("[Likes fetch error] " + err));
+
+      // Get tags
+
+      fetch(`/api/user/${session.data.user.id}/tags`, {
+        method: "GET",
+      })
+        .then((res) => res.json())
+        .then((newTags) => {
+          setTags(new Map(Object.entries(newTags)));
+        });
     }
   }, [session.data]);
 

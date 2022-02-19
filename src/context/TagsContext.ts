@@ -7,7 +7,7 @@ interface ITagContext {
 }
 
 const TagsContext = createContext<ITagContext>(
-    { tags: [], setTags: (tags) => { } }
+    { tags: new Map(), setTags: (tags) => { } }
 )
 
 
