@@ -66,11 +66,7 @@ function Main() {
   const getUser = () => {
     fetch(`/api/likes/${usernameOrId}/0?useId=${useId}`, {
       method: "GET",
-      mode: "cors",
       cache: "force-cache",
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-      },
     })
       .then((res) => res.json())
       .then((payload: MultipleTweetsLookupResponse) => {

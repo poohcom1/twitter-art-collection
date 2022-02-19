@@ -26,12 +26,10 @@ function UserAvatar(props: {
       trigger={
         <Avatar>
           <Image
-            className="image"
             src={props.image}
             alt={props.name ?? "usernames"}
             height={48}
             width={48}
-            quality={100}
           />
         </Avatar>
       }
@@ -147,10 +145,7 @@ export default function Header() {
         method: "GET",
       })
         .then((res) => res.json())
-        .then((tags) => {
-          console.log(tags);
-          setTags(tags);
-        });
+        .then(setTags);
     }
   }, [session.data]);
 

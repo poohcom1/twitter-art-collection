@@ -4,9 +4,22 @@ import styled from "styled-components";
 const StyledTag = styled.div`
   padding: 3px 10px;
   margin: 10px;
+  height: 3em;
+
+  display: flex;
+
+  align-items: center;
 
   background-color: aliceblue;
-  border-radius: 40%;
+  border-radius: 1.5em;
+
+  cursor: pointer;
+
+  & p {
+    margin: auto;
+    height: fit-content;
+    cursor: pointer;
+  }
 
   &:hover {
     background-color: grey;
