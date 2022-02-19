@@ -1,4 +1,3 @@
-import { TagSchema, ImageSchema } from "api"
 import { Schema, model } from "mongoose"
 
 const imageSchema = new Schema<ImageSchema>({

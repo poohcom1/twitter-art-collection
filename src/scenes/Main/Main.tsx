@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import type { APITweet, MultipleTweetsLookupResponse } from "twitter-types";
-import { TweetComponent, TwitterLogin } from "../../components";
 import { useSession } from "next-auth/react";
 import Header from "./Header/Header";
+import fetchBuilder from "fetch-retry-ts";
 import styled, { keyframes } from "styled-components";
 import { fadeIn } from "react-animations";
+import { TweetComponent, TwitterLogin } from "../../components";
 import TagsContext from "src/context/TagsContext";
-import { TagCollection, TagSchema } from "api";
+
+//
+const fetchRetry = fetchBuilder(fetch);
 
 // Styles
 const HEADER_HEIGHT = 150;
@@ -23,7 +26,7 @@ const LoadingDiv = styled.div`
 `;
 
 // Helper functions
-function createColumns(columns: number, tweetList: Array<TweetWrapper>) {
+function createColumns(columns: number, tweetList: Array<string>) {
   const columnDivs = [];
 
   for (let i = 0; i < columns; i++) {
@@ -33,11 +36,7 @@ function createColumns(columns: number, tweetList: Array<TweetWrapper>) {
           const tweets = [];
           for (let j = i; j < tweetList.length; j += columns) {
             tweets.push(
-              <TweetComponent
-                tweetId={`${tweetList[j].tweetId}`}
-                order={j}
-                key={j}
-              />
+              <TweetComponent tweetId={`${tweetList[j]}`} order={j} key={j} />
             );
           }
           return tweets;
@@ -71,7 +70,7 @@ export default function Main() {
 
   const [loaded, setLoaded] = useState(false);
   const [columns, setColumns] = useState(4);
-  const [tweetList, setTweetList] = useState<Array<TweetWrapper>>([]);
+  const [tweetList, setTweetList] = useState<Array<string>>([]);
 
   useEffect(() => {
     if (session.data) {
@@ -87,20 +86,21 @@ export default function Main() {
           setTweetList(
             payload.data
               .filter((t) => tweetFilter(t, payload))
-              .map((data) => ({ tweetId: data.id, tags: [] }))
+              .map((data) => data.id)
           );
         })
         .catch((err) => console.log("[Likes fetch error] " + err));
 
       // Get tags
 
-      fetch(`/api/user/${session.data.user.id}/tags`, {
+      fetchRetry(`/api/user/${session.data.user.id}/tags`, {
         method: "GET",
       })
         .then((res) => res.json())
         .then((newTags) => {
           setTags(new Map(Object.entries(newTags)));
-        });
+        })
+        .catch(console.error);
     }
   }, [session.data]);
 

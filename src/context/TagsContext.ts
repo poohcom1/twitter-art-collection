@@ -1,4 +1,3 @@
-import type { TagCollection, TagSchema } from "api";
 import { createContext } from "react";
 
 interface ITagContext {

@@ -1,12 +1,5 @@
-import type { PostTagBody, TagCollection, TagSchema } from "api";
 import { useSession } from "next-auth/react";
-import React, {
-  forwardRef,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { forwardRef, useContext, useRef, useState } from "react";
 import { StyledPopup } from "src/components";
 import TagsContext from "src/context/TagsContext";
 import styled from "styled-components";

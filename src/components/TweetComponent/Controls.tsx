@@ -1,4 +1,3 @@
-import type { TagCollection, ImageSchema, TagSchema } from "api";
 import { AiOutlinePlusCircle as PlusCircle } from "react-icons/ai";
 import styled from "styled-components";
 import { PopupItem, StyledPopup } from "..";

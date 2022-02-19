@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import type { PostTagBody, PutTagBody } from "api";
 import { getSession } from "next-auth/react";
 import UserModel from "schemas/User";
 

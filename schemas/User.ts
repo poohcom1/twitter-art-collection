@@ -1,5 +1,4 @@
 import mongoose, { Schema, model } from "mongoose"
-import type { UserSchema } from "api"
 import { tagSchema } from "./Tag"
 
 export const userSchema = new Schema<UserSchema>({

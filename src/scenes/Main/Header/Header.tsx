@@ -1,11 +1,6 @@
-import { signOut, useSession } from "next-auth/react";
-import { TwitterLogin } from "src/components";
+import { useSession } from "next-auth/react";
 import styled from "styled-components";
-import { AiOutlineQuestionCircle as QuestionCircle } from "react-icons/ai";
-import Image from "next/image";
-import { useContext, useEffect, useState } from "react";
-import { StyledPopup, PopupItem } from "src/components";
-import { TagSchema } from "api";
+import { useContext } from "react";
 import TagsPanel from "./TagsPanel";
 import UserSection from "./UserPanel";
 import TagsContext from "src/context/TagsContext";
