@@ -1,21 +1,28 @@
+import { useRef, useLayoutEffect, useState, useEffect } from "react";
 import ReactVisibilitySensor from "react-visibility-sensor";
 import { Tweet } from "react-static-tweets";
-import styled from "styled-components";
-import { useRef, useLayoutEffect, useState, useEffect } from "react";
+import styled, { keyframes } from "styled-components";
+import { fadeIn } from "react-animations";
+import Controls from "./Controls";
+import { useContext } from "react";
+import TagsContext from "src/context/TagsContext";
 
 const TweetWrapper = styled.div`
-  position: relative;
-  flex: none;
   width: 400px;
   height: fit-content;
-  min-height: 300px;
   margin: 5px;
   padding: 5px;
-  background-color: #6edfdf;
+  /* background-color: var(--bg-primary); */
+`;
+
+const fadeInAnim = keyframes`${fadeIn}`;
+
+const RenderedTweet = styled.div`
+  animation: 0.5s ${fadeInAnim};
 `;
 
 const EmptyTweet = styled.div<{ height: number }>`
-  min-height: ${(props) => props.height ?? 500}px;
+  min-height: ${(props) => props.height ?? 50}px;
 `;
 
 export default function TweetComponent(props: {
@@ -24,8 +31,14 @@ export default function TweetComponent(props: {
 }) {
   const tweetRef = useRef<HTMLDivElement>(null);
 
-  const [seen, setSeen] = useState(true);
-  const [height, setHeight] = useState(500);
+  const { tags, setTags } = useContext(TagsContext);
+
+  const [load, setLoad] = useState(false);
+  const [height, setHeight] = useState(50);
+
+  useEffect(() => {
+    setTimeout(() => setLoad(true), Math.min(props.order * 100, 5000));
+  }, [props.order]);
 
   useLayoutEffect(() => {
     const tweetHeight = tweetRef.current?.clientHeight;
@@ -35,29 +48,35 @@ export default function TweetComponent(props: {
     }
   }, [tweetRef.current?.clientHeight, height]);
 
-  useEffect(() => {
-    document.onkeydown = (e) => {
-      if (e.key === "Enter") {
-        setSeen(!seen);
-        console.log(seen);
-      }
-    };
-  }, [seen]);
-
   return (
-    <TweetWrapper>
-      <ReactVisibilitySensor
-        partialVisibility={true}
-        offset={{ top: -500, bottom: -500 }}
-      >
-        {(sensor) => {
-          if (sensor.isVisible && seen) {
-            return <Tweet id={props.tweetId} ref={tweetRef} />;
-          } else {
-            return <EmptyTweet height={height} />;
-          }
-        }}
-      </ReactVisibilitySensor>
-    </TweetWrapper>
+    <ReactVisibilitySensor
+      partialVisibility={true}
+      offset={{ top: -2000, bottom: -2000 }}
+    >
+      {(sensor) => {
+        if (load && sensor.isVisible) {
+          return (
+            <TweetWrapper>
+              <Controls
+                tags={tags}
+                image={{
+                  id: props.tweetId,
+                  platform: "twitter",
+                }}
+              />
+              <RenderedTweet>
+                <Tweet id={props.tweetId} ref={tweetRef} />
+              </RenderedTweet>
+            </TweetWrapper>
+          );
+        } else {
+          return (
+            <TweetWrapper>
+              <EmptyTweet height={height} />
+            </TweetWrapper>
+          );
+        }
+      }}
+    </ReactVisibilitySensor>
   );
 }

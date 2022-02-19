@@ -28,7 +28,6 @@ const StyledPopup = styled(Popup)`
 
   &-arrow {
     color: white;
-    box-shadow: 0 0 10px;
   }
 `;
 

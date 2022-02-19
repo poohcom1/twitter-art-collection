@@ -1,3 +1,16 @@
+:root {
+  --primary: black;
+  --secondary: white;
+  --primary-hover: grey;
+
+  --bg-primary: #f6f5f4;
+  --bg-secondary: white;
+
+  --element: var(--bg-primary);
+  --hover: rgb(204, 204, 204);
+  --selected: #afafaf;
+}
+
 html,
 body {
   padding: 0;

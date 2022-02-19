@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import type { PostTagBody } from "api";
+import type { PostTagBody, PutTagBody } from "api";
 import { getSession } from "next-auth/react";
 import UserModel from "schemas/User";
 
@@ -9,6 +9,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             return getTags(req, res)
         case "POST":
             return postTag(req, res)
+        case "PUT":
+            return putTag(req, res)
     }
 }
 
@@ -25,16 +27,29 @@ async function getTags(req: NextApiRequest, res: NextApiResponse) {
 
 
 async function postTag(req: NextApiRequest, res: NextApiResponse) {
-    const body: PostTagBody = req.body
+    const tag: PostTagBody = req.body
 
-    const session = await getSession({ req })
-
-    if (!session) {
-        return res.status(500)
-    }
+    console.info("[POST tag] Tag added: " + tag.name)
 
     try {
-        UserModel.updateOne(
+        await UserModel.updateOne(
+            { uid: req.query.userId },
+            { $push: { tags: { name: tag.name, images: tag.images } } }
+        );
+
+        res.status(200)
+
+    } catch (e) {
+        console.error("[POST tag] " + e)
+        res.status(500).send("Error: " + e)
+    }
+}
+
+async function putTag(req: NextApiRequest, res: NextApiResponse) {
+    const body: PutTagBody = req.body
+
+    try {
+        await UserModel.updateOne(
             { uid: req.query.userId },
             { $push: { name: body.name, images: body.images } }
         );

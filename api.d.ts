@@ -1,12 +1,6 @@
-// API Objects
-
+// DB Schema
 type Platform = "twitter"
 
-export interface PostTagBody extends TagSchema {
-    userId: string
-}
-
-// DB Schema
 export interface ImageSchema {
     id: string
     platform: Platform
@@ -17,7 +11,15 @@ export interface TagSchema {
     images: Array<ImageSchema>
 }
 
+type TagCollection = Array<TagSchema>
+
 export interface UserSchema {
     uid: string
-    tags: Array<TagSchema>
+    tags: TagCollection
 }
+
+// API Objects
+
+export interface PostTagBody extends TagSchema { }
+
+export interface PutTagBody extends TagSchema { }

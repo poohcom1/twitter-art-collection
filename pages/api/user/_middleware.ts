@@ -17,7 +17,5 @@ export default async function middleware(req: NextRequest) {
         })
     }
 
-    console.info("[user] Authenticated user: " + session.uid)
-
     return NextResponse.next()
 }

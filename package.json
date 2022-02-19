@@ -25,6 +25,7 @@
     "next": "^12.1.0",
     "next-auth": "^4.2.1",
     "react": "^17.0.2",
+    "react-animations": "^1.0.0",
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",
     "react-static-tweets": "^0.5.4",
@@ -39,6 +40,7 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "@types/react-animations": "^1.0.0",
     "@types/styled-components": "^5.1.22",
     "babel-plugin-styled-components": "^2.0.2",
     "eslint": "8.9.0",
