@@ -2,8 +2,11 @@
   --primary: black;
   --secondary: white;
   --primary-hover: grey;
+
   --primary-selected: white;
   --secondary-selected: black;
+  --primary-selected-hober: grey;
+  --secondary-selected-hover: black;
 
   --highlight: coral;
 

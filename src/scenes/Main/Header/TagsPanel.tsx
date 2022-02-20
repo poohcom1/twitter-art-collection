@@ -1,23 +1,37 @@
 import { useSession } from "next-auth/react";
 import React, { forwardRef, useContext, useRef, useState } from "react";
 import { StyledPopup } from "src/components";
+import SelectedTagContext from "src/context/SelectedTagContext";
 import TagsContext from "src/context/TagsContext";
 import styled from "styled-components";
 
-const StyledTag = styled.div<React.HTMLProps<HTMLDivElement>>`
+const DEFAULT_TAG_WIDTH = "75px";
+
+type TagProps = React.HTMLProps<HTMLDivElement> & {
+  selected?: boolean;
+};
+
+const Tag = styled.div<TagProps>`
   padding: 3px 10px;
   margin: 10px;
   height: 3em;
 
   display: flex;
 
+  justify-content: center;
   align-items: center;
 
-  color: var(--secondary);
-  background-color: var(--primary);
+  color: ${(props) =>
+    props.selected ? "var(--secondary-selected)" : "var(--secondary)"};
+  background-color: ${(props) =>
+    props.selected ? "var(--primary-selected)" : "var(--primary)"};
   font-weight: 700;
 
   border-radius: 1.5em;
+  border-width: 2px;
+  border-style: solid;
+  border-color: ${(props) =>
+    props.selected ? "var(--secondary-selected)" : "var(--secondary)"};
 
   cursor: pointer;
 
@@ -31,16 +45,6 @@ const StyledTag = styled.div<React.HTMLProps<HTMLDivElement>>`
     background-color: var(--primary-hover);
   }
 `;
-
-const Tag = forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElement>>(
-  function InnerTag(props, ref) {
-    return (
-      <StyledTag onClick={props.onClick} ref={ref}>
-        {props.children}
-      </StyledTag>
-    );
-  }
-);
 
 const StyledTagsPanel = styled.div`
   display: flex;
@@ -104,7 +108,7 @@ function NewTag() {
 
   return (
     <StyledPopup
-      trigger={<Tag style={{ width: 50 }}>+ New</Tag>}
+      trigger={<Tag style={{ width: DEFAULT_TAG_WIDTH }}>+ New</Tag>}
       position="bottom left"
       nested
     >
@@ -126,11 +130,26 @@ function NewTag() {
 }
 
 export default function TagsPanel(props: { tags: TagCollection }) {
+  const { selectedTag, setSelectedTag } = useContext(SelectedTagContext);
+
   return (
     <StyledTagsPanel>
       <NewTag />
+      <Tag
+        style={{ width: DEFAULT_TAG_WIDTH }}
+        onClick={() => setSelectedTag(undefined)}
+        selected={!selectedTag}
+      >
+        All
+      </Tag>
       {Array.from(props.tags.values()).map((tag, i) => (
-        <Tag key={i}>{tag.name}</Tag>
+        <Tag
+          key={i}
+          onClick={() => setSelectedTag(tag)}
+          selected={selectedTag === tag}
+        >
+          {tag.name}
+        </Tag>
       ))}
     </StyledTagsPanel>
   );

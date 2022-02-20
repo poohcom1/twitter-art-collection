@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import type { APITweet, MultipleTweetsLookupResponse } from "twitter-types";
 import { useSession } from "next-auth/react";
 import Header from "./Header/Header";
@@ -9,6 +9,7 @@ import { TweetComponent } from "../../components";
 import TagsContext from "src/context/TagsContext";
 import { FetchErrors, getLikes, getTags } from "src/adapters";
 import { useRouter } from "next/router";
+import SelectedTagContext from "src/context/SelectedTagContext";
 
 //
 const fetchRetry = fetchBuilder(fetch, {
@@ -71,9 +72,11 @@ export default function Main() {
   const session = useSession();
 
   const { setTags } = useContext(TagsContext);
+  const { selectedTag } = useContext(SelectedTagContext);
 
   const [columns, setColumns] = useState(4);
-  const [tweetList, setTweetList] = useState<Array<string>>([]);
+  let tweetIds = useRef<Array<string>>([]);
+  const [filteredTweets, setFilteredTweets] = useState<Array<string>>([]);
 
   useEffect(() => {
     if (session.data) {
@@ -81,22 +84,32 @@ export default function Main() {
 
       // Get tweets
       getLikes(uid)
-        .then((payload) =>
-          setTweetList(
-            payload.data
-              .filter((t) => tweetFilter(t, payload))
-              .map((data) => data.id)
-          )
-        )
+        .then((payload) => {
+          tweetIds.current = payload.data
+            .filter((t) => tweetFilter(t, payload))
+            .map((data) => data.id);
+
+          setFilteredTweets(tweetIds.current);
+        })
         .catch(console.error);
     }
   }, [session.data, setTags]);
+
+  const filterTags = useCallback(() => {
+    if (selectedTag) {
+      return tweetIds.current.filter((id) =>
+        selectedTag.images.find((image) => image.id === id)
+      );
+    } else {
+      return tweetIds.current;
+    }
+  }, [selectedTag]);
 
   return (
     <div className="App">
       <Header height={HEADER_HEIGHT} />
       <div style={{ height: `${HEADER_HEIGHT}px` }} />
-      <Columns>{createColumns(columns, tweetList)}</Columns>
+      <Columns>{createColumns(columns, filterTags())}</Columns>
     </div>
   );
 }

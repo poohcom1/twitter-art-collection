@@ -7,6 +7,7 @@ import { getTags } from "src/adapters";
 import TagsContext from "src/context/TagsContext";
 import { Main, LoadingScene } from "../src/scenes";
 import Link from "next/link";
+import SelectedTagContext from "src/context/SelectedTagContext";
 
 const TAG_FETCH_RETRY_MAX = 5;
 const TAG_FETCH_RETRY_KEY = "fetchRetryCount";
@@ -17,6 +18,7 @@ export default function Index() {
   const router = useRouter();
 
   const [tags, setTags] = useState<TagCollection>(new Map());
+  const [selectedTag, setSelectedTag] = useState<TagSchema | undefined>();
   const [setup, setSetup] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
@@ -73,7 +75,13 @@ export default function Index() {
           <title>Twitter Art Collection</title>
         </Head>{" "}
         <TagsContext.Provider value={{ tags, setTags }}>
-          {setup && loaded ? <Main /> : <LoadingScene />}
+          <SelectedTagContext.Provider value={{ selectedTag, setSelectedTag }}>
+            {!session.data?.user || (setup && loaded) ? (
+              <Main />
+            ) : (
+              <LoadingScene />
+            )}
+          </SelectedTagContext.Provider>
         </TagsContext.Provider>
       </>
     );
