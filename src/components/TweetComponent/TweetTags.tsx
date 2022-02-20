@@ -3,11 +3,16 @@ import { useSession } from "next-auth/react";
 import { useContext } from "react";
 import { AiOutlinePlusCircle as PlusCircle } from "react-icons/ai";
 import { putTags } from "src/adapters";
+import SelectedTagContext from "src/context/SelectedTagContext";
 import TagsContext from "src/context/TagsContext";
 import styled from "styled-components";
 import { PopupItem, StyledPopup } from "..";
 
 const BUTTON_SIZE = 35;
+
+type TabProps = React.HTMLProps<HTMLDivElement> & {
+  selected?: boolean;
+};
 
 const ControlStyles = styled.div`
   display: flex;
@@ -22,7 +27,7 @@ const StyledButton = styled.div`
   width: ${BUTTON_SIZE}px;
 `;
 
-const StyledTab = styled.div`
+const StyledTab = styled.div<TabProps>`
   cursor: pointer;
   background-color: var(--primary);
   padding: 5px 10px;
@@ -34,21 +39,26 @@ const StyledTab = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  color: var(--secondary);
+
+  color: ${(props) =>
+    props.theme.color.primary[props.selected ? "textSelected" : "text"]};
+  background-color: ${(props) =>
+    props.theme.color.primary[props.selected ? "selected" : "main"]};
+  border-color: ${(props) =>
+    props.theme.color.primary[props.selected ? "selected" : "main"]};
+
   font-weight: 700;
+  border-width: 2px;
+  border-style: solid;
 
   &:hover {
-    background-color: var(--primary-hover);
+    background-color: ${(props) => props.theme.color.primary.hover};
   }
 `;
 
-function updateTag(uid: string, tag: TagSchema, image: ImageSchema) {
-  tag.images.push(image);
-  putTags(uid, tag).then().catch(console.error);
-}
-
 export default function Controls(props: { image: ImageSchema }) {
   const { tags, setTags } = useContext(TagsContext);
+  const { selectedTag, setSelectedTag } = useContext(SelectedTagContext);
 
   const tagsValues = Array.from(tags.values());
 
@@ -96,7 +106,13 @@ export default function Controls(props: { image: ImageSchema }) {
         }
       </StyledPopup>
       {includedTags.map((tag, key) => (
-        <StyledTab key={key}>{tag.name}</StyledTab>
+        <StyledTab
+          key={key}
+          selected={tag === selectedTag}
+          onClick={() => setSelectedTag(tag)}
+        >
+          {tag.name}
+        </StyledTab>
       ))}
     </ControlStyles>
   );

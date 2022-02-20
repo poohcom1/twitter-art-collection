@@ -3,18 +3,13 @@ import type { APITweet, MultipleTweetsLookupResponse } from "twitter-types";
 import { useSession } from "next-auth/react";
 import Header from "./Header/Header";
 import fetchBuilder from "fetch-retry-ts";
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes, ThemeProvider } from "styled-components";
 import { fadeIn } from "react-animations";
 import { TweetComponent } from "../../components";
 import TagsContext from "src/context/TagsContext";
-import { FetchErrors, getLikes, getTags } from "src/adapters";
-import { useRouter } from "next/router";
 import SelectedTagContext from "src/context/SelectedTagContext";
-
-//
-const fetchRetry = fetchBuilder(fetch, {
-  retries: 5,
-});
+import { getLikes } from "src/adapters";
+import { lightTheme } from "src/themes";
 
 // Styles
 const HEADER_HEIGHT = 150;
@@ -68,7 +63,7 @@ function tweetFilter(tweet: APITweet, payload: MultipleTweetsLookupResponse) {
   return false;
 }
 
-export default function Main() {
+export default function MainScene() {
   const session = useSession();
 
   const { setTags } = useContext(TagsContext);
@@ -107,9 +102,11 @@ export default function Main() {
 
   return (
     <div className="App">
-      <Header height={HEADER_HEIGHT} />
-      <div style={{ height: `${HEADER_HEIGHT}px` }} />
-      <Columns>{createColumns(columns, filterTags())}</Columns>
+      <ThemeProvider theme={lightTheme}>
+        <Header height={HEADER_HEIGHT} />
+        <div style={{ height: `${HEADER_HEIGHT}px` }} />
+        <Columns>{createColumns(columns, filterTags())}</Columns>
+      </ThemeProvider>
     </div>
   );
 }

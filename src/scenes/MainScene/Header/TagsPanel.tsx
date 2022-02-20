@@ -22,16 +22,21 @@ const Tag = styled.div<TagProps>`
   align-items: center;
 
   color: ${(props) =>
-    props.selected ? "var(--secondary-selected)" : "var(--secondary)"};
+    props.theme.color.primary[props.selected ? "textSelected" : "text"]};
   background-color: ${(props) =>
-    props.selected ? "var(--primary-selected)" : "var(--primary)"};
-  font-weight: 700;
+    props.theme.color.primary[props.selected ? "selected" : "main"]};
 
+  border-color: ${(props) =>
+    props.theme.color.primary[props.selected ? "textSelected" : "text"]};
+
+  &:hover {
+    background-color: ${(props) => props.theme.color.primary.hover};
+  }
+
+  font-weight: 700;
   border-radius: 1.5em;
   border-width: 2px;
   border-style: solid;
-  border-color: ${(props) =>
-    props.selected ? "var(--secondary-selected)" : "var(--secondary)"};
 
   cursor: pointer;
 
@@ -39,15 +44,15 @@ const Tag = styled.div<TagProps>`
     margin: auto;
     height: fit-content;
     cursor: pointer;
+    user-select: none;
   }
 
-  &:hover {
-    background-color: var(--primary-hover);
-  }
+  transition: all 0.2s;
 `;
 
 const StyledTagsPanel = styled.div`
   display: flex;
+  justify-content: start;
 `;
 
 function NewTag() {
@@ -142,6 +147,7 @@ export default function TagsPanel(props: { tags: TagCollection }) {
       >
         All
       </Tag>
+      <div style={{ width: "1px", margin: "5px", backgroundColor: "grey" }} />
       {Array.from(props.tags.values()).map((tag, i) => (
         <Tag
           key={i}

@@ -3,7 +3,7 @@ import ReactVisibilitySensor from "react-visibility-sensor";
 import { Tweet } from "react-static-tweets";
 import styled, { keyframes } from "styled-components";
 import { fadeIn } from "react-animations";
-import Controls from "./Controls";
+import Controls from "./TweetTags";
 import { useContext } from "react";
 import TagsContext from "src/context/TagsContext";
 

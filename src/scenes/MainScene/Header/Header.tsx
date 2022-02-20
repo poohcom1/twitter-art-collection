@@ -10,16 +10,17 @@ const SearchDiv = styled.input`
   padding: 15px;
   border-radius: 50px;
   border-width: 0;
-  background-color: var(--bg-primary);
+  color: ${(props) => props.theme.color.field.text};
+  background-color: ${(props) => props.theme.color.field.main};
 
   &:focus {
     outline: none;
-    background-color: var(--hover);
+    background-color: ${(props) => props.theme.color.field.hover};
   }
 `;
 
 const HeaderDiv = styled.div<{ height: number }>`
-  background-color: var(--bg-secondary);
+  background-color: ${(props) => props.theme.color.bg.primary};
   width: 100%;
   height: ${(props) => props.height}px;
 
@@ -28,7 +29,7 @@ const HeaderDiv = styled.div<{ height: number }>`
   position: fixed;
   z-index: 10;
 
-  box-shadow: 0 0 10px #00000068;
+  box-shadow: 0 0 10px ${(props) => props.theme.color.shadow};
 
   & * {
     margin-left: 5px;

@@ -1,2 +1,2 @@
 export { default as LoadingScene } from "./LoadingScene/LoadingScene"
-export { default as Main } from "./Main/Main"
+export { default as MainScene } from "./MainScene/MainScene"

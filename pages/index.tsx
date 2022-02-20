@@ -5,7 +5,7 @@ import "react-static-tweets/styles.css";
 import { useEffect, useState } from "react";
 import { getTags } from "src/adapters";
 import TagsContext from "src/context/TagsContext";
-import { Main, LoadingScene } from "../src/scenes";
+import { MainScene, LoadingScene } from "../src/scenes";
 import Link from "next/link";
 import SelectedTagContext from "src/context/SelectedTagContext";
 
@@ -77,7 +77,7 @@ export default function Index() {
         <TagsContext.Provider value={{ tags, setTags }}>
           <SelectedTagContext.Provider value={{ selectedTag, setSelectedTag }}>
             {!session.data?.user || (setup && loaded) ? (
-              <Main />
+              <MainScene />
             ) : (
               <LoadingScene />
             )}
