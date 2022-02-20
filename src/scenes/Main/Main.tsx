@@ -91,15 +91,7 @@ export default function Main() {
         .catch(console.error);
 
       // Get tags
-      getTags(uid)
-        .then(setTags)
-        .catch((err: Error) => {
-          // Hack to force vercel to not fail here on first load
-          if (err.message == FetchErrors.Server) {
-            window.location.reload();
-          }
-          console.error(err);
-        });
+      getTags(uid).then(setTags).catch(console.error);
     }
   }, [session.data]);
 

@@ -51,14 +51,13 @@ export default function TweetComponent(props: {
   return (
     <ReactVisibilitySensor
       partialVisibility={true}
-      // offset={{ top: -2000, bottom: -2000 }}
+      offset={{ top: -2000, bottom: -2000 }}
     >
       {(sensor) => {
         if (load && sensor.isVisible) {
           return (
             <TweetWrapper>
               <Controls
-                tags={tags}
                 image={{
                   id: props.tweetId,
                   platform: "twitter",
@@ -71,7 +70,6 @@ export default function TweetComponent(props: {
           return (
             <TweetWrapper>
               <Controls
-                tags={tags}
                 image={{
                   id: props.tweetId,
                   platform: "twitter",

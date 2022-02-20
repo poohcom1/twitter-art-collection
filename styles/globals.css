@@ -9,6 +9,8 @@
   --element: var(--bg-primary);
   --hover: rgb(204, 204, 204);
   --selected: #afafaf;
+
+  --bg-error: rgb(238, 119, 119);
 }
 
 html,

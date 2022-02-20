@@ -32,16 +32,15 @@ const StyledTag = styled.div<React.HTMLProps<HTMLDivElement>>`
   }
 `;
 
-const Tag = forwardRef<
-  HTMLDivElement,
-  { tag: TagSchema } & React.HTMLProps<HTMLDivElement>
->(function InnerTag(props, ref) {
-  return (
-    <StyledTag onClick={props.onClick} ref={ref}>
-      <p>{props.tag.name}</p>
-    </StyledTag>
-  );
-});
+const Tag = forwardRef<HTMLDivElement, React.HTMLProps<HTMLDivElement>>(
+  function InnerTag(props, ref) {
+    return (
+      <StyledTag onClick={props.onClick} ref={ref}>
+        {props.children}
+      </StyledTag>
+    );
+  }
+);
 
 const StyledTagsPanel = styled.div`
   display: flex;
@@ -54,9 +53,16 @@ function NewTag() {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [tagName, setTagName] = useState("");
+  const [error, setError] = useState(false);
 
-  const createTagHandler = () => {
-    if (!session.data) return;
+  const createTagHandler = (): boolean => {
+    if (!session.data) return true;
+
+    if (tagName.length <= 1 || !tagName.match(/^[a-z0-9-]+$/)) {
+      setError(true);
+
+      return false;
+    }
 
     const body: PostTagBody = {
       name: tagName,
@@ -78,23 +84,39 @@ function NewTag() {
       .catch(alert);
 
     setTagName("");
+    return true;
+  };
+
+  const tagInputHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newString = e.target.value
+      .toLowerCase()
+      .replace(" ", "-")
+      .replace("_", "-");
+
+    if (newString !== "" && !newString.match(/^[a-z0-9-]+$/)) {
+      e.preventDefault();
+      return;
+    }
+
+    setError(false);
+    setTagName(newString);
   };
 
   return (
     <StyledPopup
-      trigger={<Tag tag={{ name: "+ New", images: [] }} />}
+      trigger={<Tag style={{ width: 50 }}>+ New</Tag>}
       position="bottom left"
+      nested
     >
       {(close: Function) => (
         <input
           ref={inputRef}
           type="text"
           value={tagName}
-          onChange={(e) => setTagName(e.target.value)}
+          onChange={tagInputHandler}
           onKeyUp={(e) => {
             if (e.key === "Enter") {
-              createTagHandler();
-              close();
+              if (createTagHandler()) close();
             }
           }}
         />
@@ -108,7 +130,7 @@ export default function TagsPanel(props: { tags: TagCollection }) {
     <StyledTagsPanel>
       <NewTag />
       {Array.from(props.tags.values()).map((tag, i) => (
-        <Tag tag={tag} key={i} />
+        <Tag key={i}>{tag.name}</Tag>
       ))}
     </StyledTagsPanel>
   );

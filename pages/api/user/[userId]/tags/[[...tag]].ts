@@ -1,9 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getSession } from "next-auth/react";
 import UserModel from "models/User";
 import getMongoConnection from "lib/mongodb";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    await getMongoConnection()
+
     switch (req.method) {
         case "GET":
             return getTags(req, res)
@@ -29,6 +30,11 @@ async function getTags(req: NextApiRequest, res: NextApiResponse) {
 async function postTag(req: NextApiRequest, res: NextApiResponse) {
     const tag: PostTagBody = req.body
 
+    if (!tag.name.match(/^[a-z0-9-]+$/)) {
+        console.error("[POST tag] Validation failed")
+        res.status(500).send("Server error")
+    }
+
     console.info("[POST tag] Tag added: " + tag.name)
 
     try {
@@ -50,19 +56,19 @@ async function postTag(req: NextApiRequest, res: NextApiResponse) {
     }
 }
 
+
 async function putTag(req: NextApiRequest, res: NextApiResponse) {
     const body: PutTagBody = req.body
 
     try {
         await UserModel.updateOne(
             { uid: req.query.userId },
-            { $push: { name: body.name, images: body.images } }
+            { $set: { [`tags.${body.name}`]: { name: body.name, images: body.images } } }
         );
 
-        res.status(200)
-
+        res.status(200).send("Ok")
     } catch (e) {
-        console.error("[POST tag] " + e)
+        console.error("[PUT tag] " + e)
         res.status(500).send("Error: " + e)
     }
 }

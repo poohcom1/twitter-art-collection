@@ -9,3 +9,23 @@ export async function getTags(uid: string): Promise<TagCollection> {
 
     return new Map(Object.entries(object))
 }
+
+export async function postTag(uid: string, tag: TagSchema): Promise<Response> {
+    return fetch(`/api/user/${uid}/tags/`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(tag),
+    })
+}
+
+export async function putTags(uid: string, tag: TagSchema): Promise<Response> {
+    return fetch(`/api/user/${uid}/tags/`, {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(tag),
+    })
+} 

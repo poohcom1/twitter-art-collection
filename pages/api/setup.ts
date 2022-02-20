@@ -7,8 +7,6 @@ import { getTwitterApi } from "../../lib/twitter";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
-        await getTwitterApi()
-
         await getMongoConnection()
 
         const session = await getSession({ req })
@@ -24,6 +22,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                     upsert: true
                 })
         }
+
+        await getTwitterApi()
 
         res.status(200).send("Ok")
     } catch (e) {
