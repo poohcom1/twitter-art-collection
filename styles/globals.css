@@ -2,6 +2,10 @@
   --primary: black;
   --secondary: white;
   --primary-hover: grey;
+  --primary-selected: white;
+  --secondary-selected: black;
+
+  --highlight: coral;
 
   --bg-primary: #f6f5f4;
   --bg-secondary: white;

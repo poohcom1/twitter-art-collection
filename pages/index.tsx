@@ -57,7 +57,7 @@ export default function Index() {
         });
     } else if (router.query["error"] !== undefined) {
     }
-  });
+  }, [router, session.data]);
 
   if (router.query["error"] !== undefined) {
     return (
