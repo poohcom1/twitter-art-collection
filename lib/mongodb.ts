@@ -3,12 +3,11 @@ import mongoose, { connect } from "mongoose";
 const uri = process.env.MONGODB_URI
 const options = {}
 
-let mongoClientCache: typeof mongoose | null = null
-
+let mongoClientCache: typeof mongoose
 
 export default async function getMongoConnection(): Promise<typeof mongoose> {
     if (mongoClientCache) {
-        return mongoClientCache
+        return mongoClientCache as typeof mongoose
     }
 
     if (!uri) {
@@ -16,5 +15,5 @@ export default async function getMongoConnection(): Promise<typeof mongoose> {
     }
 
     mongoClientCache = await connect(uri, options)
-    return mongoClientCache
+    return mongoClientCache as typeof mongoose
 }

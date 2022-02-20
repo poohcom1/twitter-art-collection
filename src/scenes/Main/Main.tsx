@@ -7,6 +7,7 @@ import styled, { keyframes } from "styled-components";
 import { fadeIn } from "react-animations";
 import { TweetComponent } from "../../components";
 import TagsContext from "src/context/TagsContext";
+import { FetchErrors, getLikes, getTags } from "src/adapters";
 
 //
 const fetchRetry = fetchBuilder(fetch, {
@@ -76,33 +77,29 @@ export default function Main() {
 
   useEffect(() => {
     if (session.data) {
-      const username = session.data.user.id;
+      const uid = session.data.user.id;
 
       // Get tweets
-      fetchRetry(`/api/likes/${username}/0?useId=true`, {
-        method: "GET",
-        cache: "force-cache",
-      })
-        .then((res) => res.json())
-        .then((payload: MultipleTweetsLookupResponse) => {
+      getLikes(uid)
+        .then((payload) =>
           setTweetList(
             payload.data
               .filter((t) => tweetFilter(t, payload))
               .map((data) => data.id)
-          );
-        })
-        .catch((err) => console.log("[Likes fetch error] " + err));
+          )
+        )
+        .catch(console.error);
 
       // Get tags
-
-      fetchRetry(`/api/user/${session.data.user.id}/tags`, {
-        method: "GET",
-      })
-        .then((res) => res.json())
-        .then((newTags) => {
-          setTags(new Map(Object.entries(newTags)));
-        })
-        .catch(console.error);
+      getTags(uid)
+        .then(setTags)
+        .catch((err: Error) => {
+          // Hack to force vercel to not fail here on first load
+          if (err.message == FetchErrors.Server) {
+            window.location.reload();
+          }
+          console.error(err);
+        });
     }
   }, [session.data]);
 

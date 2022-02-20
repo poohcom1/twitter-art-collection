@@ -1,0 +1,2 @@
+
+declare let mongoClientCache: object
