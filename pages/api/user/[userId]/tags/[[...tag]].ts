@@ -16,16 +16,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 }
 
 async function getTags(req: NextApiRequest, res: NextApiResponse) {
-    setTimeout(() => { res.status(500).send("") }, 1000)
+    try {
+        const user = await UserModel.findOne({ uid: req.query.userId })
 
-    // try {
-    //     const user = await UserModel.findOne({ uid: req.query.userId })
-
-    //     res.status(200).send(user?.tags)
-    // } catch (e) {
-    //     console.error("[GET tag] " + e)
-    //     res.status(500).send("Error: " + e)
-    // }
+        res.status(200).send(user?.tags)
+    } catch (e) {
+        console.error("[GET tag] " + e)
+        res.status(500).send("Error: " + e)
+    }
 }
 
 

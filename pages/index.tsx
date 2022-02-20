@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { getTags } from "src/adapters";
 import TagsContext from "src/context/TagsContext";
 import { Main, LoadingScene } from "../src/scenes";
+import Link from "next/link";
 
 const TAG_FETCH_RETRY_MAX = 5;
 const TAG_FETCH_RETRY_KEY = "fetchRetryCount";
@@ -54,11 +55,17 @@ export default function Index() {
             });
           }
         });
+    } else if (router.query["error"] !== undefined) {
     }
   });
 
   if (router.query["error"] !== undefined) {
-    return <div className="main">Oh noes something went wrong</div>;
+    return (
+      <div className="main">
+        <h1>Oh noes something went wrong</h1>
+        <Link href="/">Return to home</Link>
+      </div>
+    );
   } else {
     return (
       <>
