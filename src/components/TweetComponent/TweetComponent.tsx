@@ -31,8 +31,6 @@ export default function TweetComponent(props: {
 }) {
   const tweetRef = useRef<HTMLDivElement>(null);
 
-  const { tags, setTags } = useContext(TagsContext);
-
   const [load, setLoad] = useState(false);
   const [height, setHeight] = useState(50);
 
