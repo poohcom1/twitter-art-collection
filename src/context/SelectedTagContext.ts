@@ -2,11 +2,12 @@ import { createContext } from "react";
 
 interface ISelectedTagContext {
     selectedTag?: TagSchema;
-    setSelectedTag: (tag: TagSchema | undefined) => void;
+    setSelection: (tag: TagSchema | undefined, invert?: boolean) => void;
+    inverted: boolean;
 }
 
 const SelectedTagContext = createContext<ISelectedTagContext>(
-    { selectedTag: undefined, setSelectedTag: (tags) => { } }
+    { selectedTag: undefined, setSelection: (_tags) => { }, inverted: false }
 )
 
 

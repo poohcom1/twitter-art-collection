@@ -18,9 +18,20 @@ export default function Index() {
   const router = useRouter();
 
   const [tags, setTags] = useState<TagCollection>(new Map());
-  const [selectedTag, setSelectedTag] = useState<TagSchema | undefined>();
+
   const [setup, setSetup] = useState(false);
   const [loaded, setLoaded] = useState(false);
+
+  const [selectedTag, setSelectedTag] = useState<TagSchema | undefined>();
+  const [inverted, setInverted] = useState(false);
+
+  const setSelection = (
+    tag: TagSchema | undefined,
+    invert: boolean = false
+  ) => {
+    setSelectedTag(tag);
+    setInverted(invert);
+  };
 
   const session = useSession();
 
@@ -75,7 +86,13 @@ export default function Index() {
           <title>Twitter Art Collection</title>
         </Head>{" "}
         <TagsContext.Provider value={{ tags, setTags }}>
-          <SelectedTagContext.Provider value={{ selectedTag, setSelectedTag }}>
+          <SelectedTagContext.Provider
+            value={{
+              selectedTag,
+              setSelection,
+              inverted,
+            }}
+          >
             {!session.data?.user || (setup && loaded) ? (
               <MainScene />
             ) : (

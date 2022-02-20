@@ -58,7 +58,7 @@ const StyledTab = styled.div<TabProps>`
 
 export default function Controls(props: { image: ImageSchema }) {
   const { tags, setTags } = useContext(TagsContext);
-  const { selectedTag, setSelectedTag } = useContext(SelectedTagContext);
+  const { selectedTag, setSelection } = useContext(SelectedTagContext);
 
   const tagsValues = Array.from(tags.values());
 
@@ -109,7 +109,7 @@ export default function Controls(props: { image: ImageSchema }) {
         <StyledTab
           key={key}
           selected={tag === selectedTag}
-          onClick={() => setSelectedTag(tag)}
+          onClick={() => setSelection(tag)}
         >
           {tag.name}
         </StyledTab>

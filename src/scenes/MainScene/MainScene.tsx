@@ -1,4 +1,11 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { APITweet, MultipleTweetsLookupResponse } from "twitter-types";
 import { useSession } from "next-auth/react";
 import Header from "./Header/Header";
@@ -66,8 +73,8 @@ function tweetFilter(tweet: APITweet, payload: MultipleTweetsLookupResponse) {
 export default function MainScene() {
   const session = useSession();
 
-  const { setTags } = useContext(TagsContext);
-  const { selectedTag } = useContext(SelectedTagContext);
+  const { tags, setTags } = useContext(TagsContext);
+  const { selectedTag, inverted } = useContext(SelectedTagContext);
 
   const [columns, setColumns] = useState(4);
   let tweetIds = useRef<Array<string>>([]);
@@ -90,22 +97,39 @@ export default function MainScene() {
     }
   }, [session.data, setTags]);
 
-  const filterTags = useCallback(() => {
+  const filterTags = useMemo(() => {
     if (selectedTag) {
       return tweetIds.current.filter((id) =>
         selectedTag.images.find((image) => image.id === id)
       );
     } else {
-      return tweetIds.current;
+      if (inverted) {
+        const tagList = Array.from(tags.values());
+        const categorized = new Set<string>();
+
+        for (const tag of tagList) {
+          for (const image of tag.images) {
+            categorized.add(image.id);
+          }
+        }
+
+        const uncategorized = tweetIds.current.filter(
+          (id) => !categorized.has(id)
+        );
+
+        return uncategorized;
+      } else {
+        return tweetIds.current;
+      }
     }
-  }, [selectedTag]);
+  }, [selectedTag, inverted, tags]);
 
   return (
     <div className="App">
       <ThemeProvider theme={lightTheme}>
         <Header height={HEADER_HEIGHT} />
         <div style={{ height: `${HEADER_HEIGHT}px` }} />
-        <Columns>{createColumns(columns, filterTags())}</Columns>
+        <Columns>{createColumns(columns, filterTags)}</Columns>
       </ThemeProvider>
     </div>
   );

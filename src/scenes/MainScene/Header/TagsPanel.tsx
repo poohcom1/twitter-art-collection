@@ -135,23 +135,30 @@ function NewTag() {
 }
 
 export default function TagsPanel(props: { tags: TagCollection }) {
-  const { selectedTag, setSelectedTag } = useContext(SelectedTagContext);
+  const { selectedTag, setSelection, inverted } =
+    useContext(SelectedTagContext);
 
   return (
     <StyledTagsPanel>
       <NewTag />
       <Tag
         style={{ width: DEFAULT_TAG_WIDTH }}
-        onClick={() => setSelectedTag(undefined)}
-        selected={!selectedTag}
+        onClick={() => setSelection(undefined, false)}
+        selected={!selectedTag && !inverted}
       >
         All
+      </Tag>
+      <Tag
+        onClick={() => setSelection(undefined, true)}
+        selected={!selectedTag && inverted}
+      >
+        Uncategorized
       </Tag>
       <div style={{ width: "1px", margin: "5px", backgroundColor: "grey" }} />
       {Array.from(props.tags.values()).map((tag, i) => (
         <Tag
           key={i}
-          onClick={() => setSelectedTag(tag)}
+          onClick={() => setSelection(tag)}
           selected={selectedTag === tag}
         >
           {tag.name}
