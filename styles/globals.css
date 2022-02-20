@@ -29,3 +29,14 @@ a {
 * {
   box-sizing: border-box;
 }
+
+.main {
+  height: 100vh;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  font-weight: 800;
+}
