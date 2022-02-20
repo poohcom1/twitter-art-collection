@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
-import UserModel from "schemas/User";
+import UserModel from "models/User";
+import getMongoConnection from "lib/mongodb";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     switch (req.method) {

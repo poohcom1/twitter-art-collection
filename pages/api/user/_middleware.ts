@@ -8,6 +8,12 @@ import { getToken } from "next-auth/jwt";
  * As such, all endpoints can use the userId without getSession().
  */
 export default async function middleware(req: NextRequest) {
+    /**
+     * Not currently possible. getMongoClient should be put in all handler endpoints
+     * @see https://github.com/vercel/next.js/issues/32369
+     */
+    // await getMongoClient()
+
     const session = await getToken({ req: req as unknown as NextApiRequest, secret: process.env.NEXTAUTH_SECRET })
 
     if (!session || !req.page.params || session.uid !== req.page.params.userId) {

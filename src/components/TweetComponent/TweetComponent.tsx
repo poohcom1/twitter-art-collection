@@ -42,7 +42,6 @@ export default function TweetComponent(props: {
 
   useLayoutEffect(() => {
     const tweetHeight = tweetRef.current?.clientHeight;
-    console.log(tweetHeight);
 
     if (tweetHeight && tweetHeight > height) {
       setHeight(tweetHeight);

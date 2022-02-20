@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { connect } from "mongoose";
 
 const uri = process.env.MONGODB_URI
 const options = {}
@@ -6,7 +6,7 @@ const options = {}
 let mongoClientCache: typeof mongoose | null = null
 
 
-export default async function getMongoClient(): Promise<typeof mongoose> {
+export default async function getMongoConnection(): Promise<typeof mongoose> {
     if (mongoClientCache) {
         return mongoClientCache
     }
@@ -15,6 +15,6 @@ export default async function getMongoClient(): Promise<typeof mongoose> {
         throw new Error('Please add your Mongo URI to .env.local')
     }
 
-    mongoClientCache = await mongoose.connect(uri, options)
+    mongoClientCache = await connect(uri, options)
     return mongoClientCache
 }

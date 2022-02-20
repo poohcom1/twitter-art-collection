@@ -6,17 +6,9 @@
     "start": "next start",
     "build": "next build",
     "dev": "next dev",
-    "lint": "next lint",
-    "serve": "cd backend && npm run start:dev",
-    "postinstall": "cd backend && npm i"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@testing-library/jest-dom": "^5.16.2",
-    "@testing-library/react": "^12.1.2",
-    "@testing-library/user-event": "^13.5.0",
-    "@types/jest": "^27.4.0",
-    "@types/react": "^17.0.39",
-    "@types/react-dom": "^17.0.11",
     "babel-preset-next": "^1.4.0",
     "cors": "^2.8.5",
     "date-fns": "^2.28.0",
@@ -41,11 +33,18 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.2",
+    "@testing-library/react": "^12.1.2",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.4.0",
+    "@types/react": "^17.0.39",
     "@types/react-animations": "^1.0.0",
+    "@types/react-dom": "^17.0.11",
     "@types/styled-components": "^5.1.22",
-    "babel-plugin-styled-components": "^2.0.2",
+    "babel-plugin-styled-components": "^2.0.3",
     "eslint": "8.9.0",
-    "eslint-config-next": "12.1.0"
+    "eslint-config-next": "12.1.0",
+    "jest": "^27.5.1"
   },
   "browserslist": {
     "production": [

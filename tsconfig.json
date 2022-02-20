@@ -18,6 +18,6 @@
     "incremental": true,
     "baseUrl": "."
   },
-  "include": ["src", "pages", "lib", "schemas"],
+  "include": ["src", "pages", "lib", "models"],
   "exclude": ["node_modules"]
 }
