@@ -8,6 +8,7 @@ if (process.env.NODE_ENV === "development") {
 
   console.warn = (message?: any, ...optionalParams: any[]) => {
     if (typeof message === "string") {
+      // Put warnings phrases here
       const conditions = [
         'may not render properly with a parent using position:"static". Consider changing the parent style to position:"relative" with a width and height.',
       ];

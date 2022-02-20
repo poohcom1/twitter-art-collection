@@ -1,15 +1,17 @@
-import Main from "../src/scenes/Main/Main";
-import "react-static-tweets/styles.css";
 import Head from "next/head";
+import "react-static-tweets/styles.css";
 import { useState } from "react";
+import { Main, LoadingScene } from "../src/scenes";
 
 export default function Index() {
   const [setup, setSetup] = useState(false);
 
   if (!setup) {
-    setSetup(true);
     fetch("/api/setup")
-      .then(() => console.log("Setup ok!"))
+      .then(() => {
+        setSetup(true);
+        console.log("Setup ok!");
+      })
       .catch((err) => console.log("[Setup error] " + err));
   }
 
@@ -18,7 +20,7 @@ export default function Index() {
       <Head>
         <title>Twitter Art Collection</title>
       </Head>{" "}
-      <Main />
+      {setup ? <Main /> : <LoadingScene />}
     </>
   );
 }

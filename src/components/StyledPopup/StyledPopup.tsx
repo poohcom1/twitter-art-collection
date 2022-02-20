@@ -31,8 +31,6 @@ const StyledPopup = styled(Popup)`
   }
 `;
 
-export default StyledPopup;
-
 const Item = styled.div`
   background-color: white;
   padding: 5px 15px;
@@ -46,3 +44,5 @@ const Item = styled.div`
 export function PopupItem(props: { text: string; onClick: MouseEventHandler }) {
   return <Item onClick={props.onClick}>{props.text}</Item>;
 }
+
+export default StyledPopup;

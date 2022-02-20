@@ -1,5 +1,3 @@
-import StyledPopup, { PopupItem } from './StyledPopup/StyledPopup'
-import TweetComponent from './TweetComponent/TweetComponent'
-import TwitterLogin from './TwitterLogin/TwitterLogin'
-
-export { StyledPopup, PopupItem, TweetComponent, TwitterLogin }
+export { default as StyledPopup, PopupItem } from './StyledPopup/StyledPopup'
+export { default as TweetComponent } from './TweetComponent/TweetComponent'
+export { default as TwitterLogin } from './TwitterLogin/TwitterLogin'

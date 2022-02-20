@@ -5,11 +5,13 @@ import Header from "./Header/Header";
 import fetchBuilder from "fetch-retry-ts";
 import styled, { keyframes } from "styled-components";
 import { fadeIn } from "react-animations";
-import { TweetComponent, TwitterLogin } from "../../components";
+import { TweetComponent } from "../../components";
 import TagsContext from "src/context/TagsContext";
 
 //
-const fetchRetry = fetchBuilder(fetch);
+const fetchRetry = fetchBuilder(fetch, {
+  retries: 5,
+});
 
 // Styles
 const HEADER_HEIGHT = 150;
@@ -77,7 +79,7 @@ export default function Main() {
       const username = session.data.user.id;
 
       // Get tweets
-      fetch(`/api/likes/${username}/0?useId=true`, {
+      fetchRetry(`/api/likes/${username}/0?useId=true`, {
         method: "GET",
         cache: "force-cache",
       })

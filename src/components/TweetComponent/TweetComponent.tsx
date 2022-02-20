@@ -18,7 +18,7 @@ const TweetWrapper = styled.div`
 const fadeInAnim = keyframes`${fadeIn}`;
 
 const RenderedTweet = styled.div`
-  animation: 0.5s ${fadeInAnim};
+  /* animation: 0.5s ${fadeInAnim}; */
 `;
 
 const EmptyTweet = styled.div<{ height: number }>`
@@ -37,11 +37,12 @@ export default function TweetComponent(props: {
   const [height, setHeight] = useState(50);
 
   useEffect(() => {
-    setTimeout(() => setLoad(true), Math.min(props.order * 100, 5000));
+    setTimeout(() => setLoad(true), Math.min(props.order * 100, 2000));
   }, [props.order]);
 
   useLayoutEffect(() => {
     const tweetHeight = tweetRef.current?.clientHeight;
+    console.log(tweetHeight);
 
     if (tweetHeight && tweetHeight > height) {
       setHeight(tweetHeight);
@@ -51,7 +52,7 @@ export default function TweetComponent(props: {
   return (
     <ReactVisibilitySensor
       partialVisibility={true}
-      offset={{ top: -2000, bottom: -2000 }}
+      // offset={{ top: -2000, bottom: -2000 }}
     >
       {(sensor) => {
         if (load && sensor.isVisible) {
@@ -64,14 +65,19 @@ export default function TweetComponent(props: {
                   platform: "twitter",
                 }}
               />
-              <RenderedTweet>
-                <Tweet id={props.tweetId} ref={tweetRef} />
-              </RenderedTweet>
+              <Tweet id={props.tweetId} ref={tweetRef} />
             </TweetWrapper>
           );
         } else {
           return (
             <TweetWrapper>
+              <Controls
+                tags={tags}
+                image={{
+                  id: props.tweetId,
+                  platform: "twitter",
+                }}
+              />
               <EmptyTweet height={height} />
             </TweetWrapper>
           );
