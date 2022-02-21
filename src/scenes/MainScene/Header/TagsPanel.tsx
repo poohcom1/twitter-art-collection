@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { StyledPopup } from "src/components";
+import { StyledPopup, StyledTab } from "src/components";
 import SelectedTagContext from "src/context/SelectedTagContext";
 import TagsContext from "src/context/TagsContext";
 import styled from "styled-components";
@@ -16,34 +16,17 @@ interface TagProps extends InputHTMLAttributes<HTMLDivElement> {
   selected?: boolean;
 }
 
-const Tag = styled.div<TagProps>`
+const Tag = styled(StyledTab)`
   padding: 3px 10px;
   margin: 10px;
   height: 3em;
 
-  display: flex;
+  border-radius: 1.5em;
 
-  justify-content: center;
-  align-items: center;
-
-  color: ${(props) =>
-    props.theme.color.primary[props.selected ? "textSelected" : "text"]};
-  background-color: ${(props) =>
-    props.theme.color.primary[props.selected ? "selected" : "main"]};
+  cursor: pointer;
 
   border-color: ${(props) =>
     props.theme.color.primary[props.selected ? "textSelected" : "text"]};
-
-  &:hover {
-    background-color: ${(props) => props.theme.color.primary.hover};
-  }
-
-  font-weight: 700;
-  border-radius: 1.5em;
-  border-width: 2px;
-  border-style: solid;
-
-  cursor: pointer;
 
   & p {
     margin: auto;
@@ -51,8 +34,6 @@ const Tag = styled.div<TagProps>`
     cursor: pointer;
     user-select: none;
   }
-
-  transition: all 0.2s;
 `;
 
 const StyledTagsPanel = styled.div`

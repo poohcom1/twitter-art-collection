@@ -1,5 +1,6 @@
 export { default as Spinner } from "./Spinner/Spinner"
 export { default as StyledPopup, PopupItem } from "./StyledPopup/StyledPopup"
+export { default as StyledTab } from "./StyledTab/StyledTab"
 export { default as TweetComponent } from "./TweetComponent/TweetComponent"
 export { default as TwitterLogin } from "./TwitterLogin/TwitterLogin"
 export { default as ResizableMasonry } from "./ResizableMasonry/ResizableMasonry"

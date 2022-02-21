@@ -6,13 +6,9 @@ import { putTags } from "src/adapters";
 import SelectedTagContext from "src/context/SelectedTagContext";
 import TagsContext from "src/context/TagsContext";
 import styled from "styled-components";
-import { PopupItem, StyledPopup } from "..";
+import { PopupItem, StyledPopup, StyledTab } from "..";
 
 const BUTTON_SIZE = 35;
-
-type TabProps = React.HTMLProps<HTMLDivElement> & {
-  selected?: boolean;
-};
 
 const ControlStyles = styled.div`
   display: flex;
@@ -27,33 +23,12 @@ const StyledButton = styled.div`
   width: ${BUTTON_SIZE}px;
 `;
 
-const StyledTab = styled.div<TabProps>`
-  cursor: pointer;
-  background-color: var(--primary);
+const Tab = styled(StyledTab)`
   padding: 5px 10px;
   margin: 0 5px;
 
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  color: ${(props) =>
-    props.theme.color.primary[props.selected ? "textSelected" : "text"]};
-  background-color: ${(props) =>
-    props.theme.color.primary[props.selected ? "selected" : "main"]};
-  border-color: ${(props) =>
-    props.theme.color.primary[props.selected ? "selected" : "main"]};
-
-  font-weight: 700;
-  border-width: 2px;
-  border-style: solid;
-
-  &:hover {
-    background-color: ${(props) => props.theme.color.primary.hover};
-  }
 `;
 
 export default function Controls(props: { image: ImageSchema }) {
@@ -82,11 +57,11 @@ export default function Controls(props: { image: ImageSchema }) {
     <ControlStyles>
       <StyledPopup
         trigger={
-          <StyledTab>
+          <Tab>
             <StyledButton>
               <PlusCircle size={BUTTON_SIZE} onClick={() => {}} />
             </StyledButton>
-          </StyledTab>
+          </Tab>
         }
         closeOnDocumentClick
       >
@@ -115,13 +90,13 @@ export default function Controls(props: { image: ImageSchema }) {
         }
       </StyledPopup>
       {includedTags.map((tag, key) => (
-        <StyledTab
+        <Tab
           key={key}
           selected={tag === selectedTag}
           onClick={() => setSelection(tag)}
         >
           {tag.name}
-        </StyledTab>
+        </Tab>
       ))}
     </ControlStyles>
   );
