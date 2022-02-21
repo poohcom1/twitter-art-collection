@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { useSession } from "next-auth/react";
-import { useContext } from "react";
+import { InputHTMLAttributes, useContext } from "react";
 import { AiOutlinePlusCircle as PlusCircle } from "react-icons/ai";
 import { putTags } from "src/adapters";
 import SelectedTagContext from "src/context/SelectedTagContext";
@@ -10,9 +10,9 @@ import { PopupItem, StyledPopup } from "..";
 
 const BUTTON_SIZE = 35;
 
-type TabProps = React.HTMLProps<HTMLDivElement> & {
+interface TabProps extends InputHTMLAttributes<HTMLDivElement> {
   selected?: boolean;
-};
+}
 
 const ControlStyles = styled.div`
   display: flex;

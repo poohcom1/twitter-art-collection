@@ -73,12 +73,12 @@ function tweetFilter(tweet: APITweet, payload: MultipleTweetsLookupResponse) {
 export default function MainScene() {
   const session = useSession();
 
-  const { tags, setTags } = useContext(TagsContext);
+  const { tags } = useContext(TagsContext);
   const { selectedTag, inverted } = useContext(SelectedTagContext);
 
-  const [columns, setColumns] = useState(4);
-  let tweetIds = useRef<Array<string>>([]);
-  const [filteredTweets, setFilteredTweets] = useState<Array<string>>([]);
+  const [render, forceRerender] = useState(false);
+  const [columns] = useState(4);
+  const tweetIds = useRef<Array<string>>([]);
 
   useEffect(() => {
     if (session.data) {
@@ -91,13 +91,13 @@ export default function MainScene() {
             .filter((t) => tweetFilter(t, payload))
             .map((data) => data.id);
 
-          setFilteredTweets(tweetIds.current);
+          forceRerender(!render);
         })
         .catch(console.error);
     }
-  }, [session.data, setTags]);
+  }, [render, session.data]);
 
-  const filterTags = useMemo(() => {
+  const filterTags = useCallback(() => {
     if (selectedTag) {
       return tweetIds.current.filter((id) =>
         selectedTag.images.find((image) => image.id === id)
@@ -129,7 +129,7 @@ export default function MainScene() {
       <ThemeProvider theme={lightTheme}>
         <Header height={HEADER_HEIGHT} />
         <div style={{ height: `${HEADER_HEIGHT}px` }} />
-        <Columns>{createColumns(columns, filterTags)}</Columns>
+        <Columns>{createColumns(columns, filterTags())}</Columns>
       </ThemeProvider>
     </div>
   );

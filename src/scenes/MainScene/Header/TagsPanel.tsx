@@ -1,5 +1,10 @@
 import { useSession } from "next-auth/react";
-import React, { forwardRef, useContext, useRef, useState } from "react";
+import React, {
+  InputHTMLAttributes,
+  useContext,
+  useRef,
+  useState,
+} from "react";
 import { StyledPopup } from "src/components";
 import SelectedTagContext from "src/context/SelectedTagContext";
 import TagsContext from "src/context/TagsContext";
@@ -7,9 +12,9 @@ import styled from "styled-components";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
-type TagProps = React.HTMLProps<HTMLDivElement> & {
+interface TagProps extends InputHTMLAttributes<HTMLDivElement> {
   selected?: boolean;
-};
+}
 
 const Tag = styled.div<TagProps>`
   padding: 3px 10px;

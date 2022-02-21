@@ -1,5 +1,10 @@
+import React, { ForwardedRef, forwardRef, InputHTMLAttributes } from "react";
 import { ImSpinner8 as SpinnerIcon } from "react-icons/im";
 import styled, { keyframes } from "styled-components";
+
+interface SpinnerDivProps extends InputHTMLAttributes<HTMLDivElement> {
+  size?: number;
+}
 
 const rotate = keyframes`
   from {
@@ -11,17 +16,24 @@ const rotate = keyframes`
   }
 `;
 
-const SpinnerDiv = styled.div`
+const SpinnerDiv = styled.div<SpinnerDivProps>`
   animation: ${rotate} 1s linear infinite;
+
+  width: fit-content;
+  height: fit-content;
 
   padding: 0;
   display: flex;
 `;
 
-export default function Spinner(props: { size: number }) {
+function Spinner(props: SpinnerDivProps, ref: ForwardedRef<HTMLDivElement>) {
   return (
-    <SpinnerDiv>
-      <SpinnerIcon size={props.size} />
-    </SpinnerDiv>
+    <div {...props} ref={ref}>
+      <SpinnerDiv>
+        <SpinnerIcon size={props.size} />
+      </SpinnerDiv>
+    </div>
   );
 }
+
+export default forwardRef(Spinner);
