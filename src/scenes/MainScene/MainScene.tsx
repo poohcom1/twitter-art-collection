@@ -76,9 +76,9 @@ export default function MainScene() {
   const { tags } = useContext(TagsContext);
   const { selectedTag, inverted } = useContext(SelectedTagContext);
 
-  const [render, forceRerender] = useState(false);
   const [columns] = useState(4);
-  const tweetIds = useRef<Array<string>>([]);
+  const [tweetsLoaded, setTweetsLoaded] = useState(false);
+  let tweetIds = useRef<Array<string>>([]);
 
   useEffect(() => {
     if (session.data) {
@@ -91,13 +91,17 @@ export default function MainScene() {
             .filter((t) => tweetFilter(t, payload))
             .map((data) => data.id);
 
-          forceRerender(!render);
+          setTweetsLoaded(true);
         })
         .catch(console.error);
     }
-  }, [render, session.data]);
+  }, [session.data]);
 
-  const filterTags = useCallback(() => {
+  const filterTags = useMemo(() => {
+    if (!tweetsLoaded) {
+      return [];
+    }
+
     if (selectedTag) {
       return tweetIds.current.filter((id) =>
         selectedTag.images.find((image) => image.id === id)
@@ -122,14 +126,14 @@ export default function MainScene() {
         return tweetIds.current;
       }
     }
-  }, [selectedTag, inverted, tags]);
+  }, [inverted, selectedTag, tags, tweetsLoaded]);
 
   return (
     <div className="App">
       <ThemeProvider theme={lightTheme}>
         <Header height={HEADER_HEIGHT} />
         <div style={{ height: `${HEADER_HEIGHT}px` }} />
-        <Columns>{createColumns(columns, filterTags())}</Columns>
+        <Columns>{createColumns(columns, filterTags)}</Columns>
       </ThemeProvider>
     </div>
   );
