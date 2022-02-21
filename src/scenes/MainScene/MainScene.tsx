@@ -9,6 +9,7 @@ import TagsContext from "src/context/TagsContext";
 import SelectedTagContext from "src/context/SelectedTagContext";
 import { getLikes } from "src/adapters";
 import { lightTheme } from "src/themes";
+import { RenderComponentProps } from "masonic";
 
 // Styles
 const HEADER_HEIGHT = 150;
@@ -88,20 +89,21 @@ export default function MainScene() {
     }
   }, [session.data]);
 
-  const filterTags = useMemo(() => {
+  const filteredTags = useMemo(() => {
     if (!tweetsLoaded) {
       return [];
     }
 
+    // Regular filter
     if (selectedTag) {
-      return tweetIds.current.filter((id) =>
-        selectedTag.images.find((image) => image.id === id)
-      );
+      return selectedTag.images.map((im) => im.id);
     } else {
+      // Untagged
       if (inverted) {
         const tagList = Array.from(tags.values());
         const categorized = new Set<string>();
 
+        console.time("untaggedTime");
         for (const tag of tagList) {
           for (const image of tag.images) {
             categorized.add(image.id);
@@ -114,6 +116,7 @@ export default function MainScene() {
 
         return uncategorized;
       } else {
+        // All tags
         return tweetIds.current;
       }
     }
@@ -126,7 +129,7 @@ export default function MainScene() {
         <div style={{ minHeight: `${HEADER_HEIGHT}px` }} />
         <div style={{ padding: "32px" }}>
           <ResizableMasonry
-            items={filterTags.map((tag) => ({
+            items={filteredTags.map((tag) => ({
               id: tag,
             }))}
             render={MasonryCard}
@@ -139,8 +142,6 @@ export default function MainScene() {
   );
 }
 
-const MasonryCard = (props: {
-  index: number;
-  data: { id: string };
-  width: number;
-}) => <TweetComponent tweetId={props.data.id} order={props.index} />;
+const MasonryCard = (props: RenderComponentProps<{ id: string }>) => (
+  <TweetComponent tweetId={props.data.id} order={props.index} />
+);

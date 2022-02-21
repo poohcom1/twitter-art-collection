@@ -56,7 +56,7 @@ const StyledTab = styled.div<TabProps>`
   }
 `;
 
-export default function TweetTags(props: { image: ImageSchema }) {
+export default function Controls(props: { image: ImageSchema }) {
   const { selectedTag, setSelection } = useContext(SelectedTagContext);
   const { tags } = useContext(TagsContext);
 

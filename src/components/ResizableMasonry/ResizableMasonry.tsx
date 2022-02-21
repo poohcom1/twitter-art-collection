@@ -5,19 +5,18 @@ import {
   usePositioner,
   useContainerPosition,
   useScroller,
-  UseMasonryOptions,
   RenderComponentProps,
   useResizeObserver,
 } from "masonic";
 
-interface MasonryProps {
+interface MasonryProps<T> {
   columnWidth: number;
   columnGutter: number;
-  items: Array<{ id: string }>;
-  render: React.ComponentType<RenderComponentProps<{ id: string }>>;
+  items: Array<T>;
+  render: React.ComponentType<RenderComponentProps<T>>;
 }
 
-export default function ResizableMasonry(props: MasonryProps) {
+export default function ResizableMasonry<Item>(props: MasonryProps<Item>) {
   const containerRef = React.useRef(null);
   const [windowWidth, height] = useWindowSize();
   const { offset, width } = useContainerPosition(containerRef, [
