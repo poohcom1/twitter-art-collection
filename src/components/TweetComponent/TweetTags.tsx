@@ -1,6 +1,6 @@
 import _ from "lodash";
 import { useSession } from "next-auth/react";
-import { InputHTMLAttributes, useContext } from "react";
+import { useContext, useMemo, useState } from "react";
 import { AiOutlinePlusCircle as PlusCircle } from "react-icons/ai";
 import { putTags } from "src/adapters";
 import SelectedTagContext from "src/context/SelectedTagContext";
@@ -10,9 +10,9 @@ import { PopupItem, StyledPopup } from "..";
 
 const BUTTON_SIZE = 35;
 
-interface TabProps extends InputHTMLAttributes<HTMLDivElement> {
+type TabProps = React.HTMLProps<HTMLDivElement> & {
   selected?: boolean;
-}
+};
 
 const ControlStyles = styled.div`
   display: flex;
@@ -57,18 +57,24 @@ const StyledTab = styled.div<TabProps>`
 `;
 
 export default function Controls(props: { image: ImageSchema }) {
-  const { tags, setTags } = useContext(TagsContext);
   const { selectedTag, setSelection } = useContext(SelectedTagContext);
+  const { tags } = useContext(TagsContext);
+
+  // As tags is a context used by the entire page, using the context will cause an uncessarily large re-render
+  // As setting tags from an tweet component will only affect the control list in the current tweet,
+  //  we can use a local state to just update re-render the local tags
+  const [, setLocalTags] = useState(tags);
 
   const tagsValues = Array.from(tags.values());
 
-  const includedTags = tagsValues.filter((tag) =>
-    _.find(tag.images, props.image)
+  const includedTags = useMemo(
+    () => tagsValues.filter((tag) => _.find(tag.images, props.image)),
+    [props.image, tagsValues]
   );
 
-  const notIncludedTags = tagsValues.filter(
-    (tag) => !_.find(includedTags, tag)
-  );
+  const notIncludedTags = useMemo(() => {
+    return tagsValues.filter((tag) => !_.find(includedTags, tag));
+  }, [includedTags, tagsValues]);
 
   const session = useSession();
 
@@ -96,7 +102,10 @@ export default function Controls(props: { image: ImageSchema }) {
                     .then()
                     .catch(console.error);
 
-                  setTags(new Map(tags.set(tag.name, tag)));
+                  // Update global tag context, but without setTags to prevent re-render
+                  tags.set(tag.name, tag);
+                  // Only re-render current tweet
+                  setLocalTags(new Map(tags));
 
                   close();
                 }
