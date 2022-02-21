@@ -1,19 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import UserModel from "models/User";
-import getMongoConnection from "lib/mongodb";
+import { methodHandler } from "lib/restAPI";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    await getMongoConnection()
-
-    switch (req.method) {
-        case "GET":
-            return getTags(req, res)
-        case "POST":
-            return postTag(req, res)
-        case "PUT":
-            return putTag(req, res)
-    }
-}
+export default methodHandler({ GET: getTags, POST: postTag, PUT: putTag })
 
 async function getTags(req: NextApiRequest, res: NextApiResponse) {
     try {
