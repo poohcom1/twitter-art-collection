@@ -1,18 +1,10 @@
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import type { APITweet, MultipleTweetsLookupResponse } from "twitter-types";
 import { useSession } from "next-auth/react";
 import Header from "./Header/Header";
-import fetchBuilder from "fetch-retry-ts";
 import styled, { keyframes, ThemeProvider } from "styled-components";
 import { fadeIn } from "react-animations";
-import { TweetComponent } from "../../components";
+import { TweetComponent, ResizableMasonry } from "../../components";
 import TagsContext from "src/context/TagsContext";
 import SelectedTagContext from "src/context/SelectedTagContext";
 import { getLikes } from "src/adapters";
@@ -132,9 +124,24 @@ export default function MainScene() {
     <div className="App">
       <ThemeProvider theme={lightTheme}>
         <Header height={HEADER_HEIGHT} />
-        <div style={{ height: `${HEADER_HEIGHT}px` }} />
-        <Columns>{createColumns(columns, filterTags)}</Columns>
+        <div style={{ minHeight: `${HEADER_HEIGHT}px` }} />
+        <div style={{ padding: "32px" }}>
+          <ResizableMasonry
+            items={filterTags.map((tag) => ({
+              id: tag,
+            }))}
+            render={MasonryCard}
+            columnWidth={300}
+            columnGutter={24}
+          />
+        </div>
       </ThemeProvider>
     </div>
   );
 }
+
+const MasonryCard = (props: {
+  index: number;
+  data: { id: string };
+  width: number;
+}) => <TweetComponent tweetId={props.data.id} order={props.index} />;
