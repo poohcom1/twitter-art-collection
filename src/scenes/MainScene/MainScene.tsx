@@ -68,7 +68,6 @@ export default function MainScene() {
   const { tags } = useContext(TagsContext);
   const { selectedTag, inverted } = useContext(SelectedTagContext);
 
-  const [columns] = useState(4);
   const [tweetsLoaded, setTweetsLoaded] = useState(false);
   let tweetIds = useRef<Array<string>>([]);
 

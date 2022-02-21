@@ -1,5 +1,5 @@
 import { Tweet } from "react-static-tweets";
-import Controls from "./TweetTags";
+import TweetTags from "./TweetTags";
 
 export default function TweetComponent(props: {
   tweetId: string;
@@ -7,7 +7,7 @@ export default function TweetComponent(props: {
 }) {
   return (
     <div style={{ flex: 1 }}>
-      <Controls
+      <TweetTags
         image={{
           id: props.tweetId,
           platform: "twitter",

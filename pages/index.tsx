@@ -41,36 +41,41 @@ export default function Index() {
     if (session.data && router.query["error"] === undefined) {
       const uid = session.data.user.id;
 
-      fetch("/api/setup")
-        .then(() => {
-          setSetup(true);
-          console.log("Setup ok!");
-        })
-        .catch((err) => console.log("[Setup error] " + err));
+      if (!setup) {
+        fetch("/api/setup")
+          .then(() => {
+            setSetup(true);
+            console.info("Setup ok!");
+          })
+          .catch((err) => console.error("[Setup error] " + err));
+      }
 
-      // Get tags
-      getTags(uid)
-        .then((tags) => {
-          setTags(tags);
-          setLoaded(true);
-        })
-        .catch((err) => {
-          console.error(err);
+      if (!loaded) {
+        // Get tags
+        getTags(uid)
+          .then((tags) => {
+            setTags(tags);
+            setLoaded(true);
+          })
+          .catch((err) => {
+            console.error(err);
 
-          // FIXME: Hack to force refresh since API seems to always fail on first load
-          if (parseInt(retryCount as string) >= TAG_FETCH_RETRY_MAX) {
-            router.replace({ query: { error: TAG_FETCH_ERROR } });
-          } else {
-            router.push({
-              query: {
-                [TAG_FETCH_RETRY_KEY]: `${parseInt(retryCount as string) + 1}`,
-              },
-            });
-          }
-        });
-    } else if (router.query["error"] !== undefined) {
+            // FIXME: Hack to force refresh since API seems to always fail on first load
+            if (parseInt(retryCount as string) >= TAG_FETCH_RETRY_MAX) {
+              router.replace({ query: { error: TAG_FETCH_ERROR } });
+            } else {
+              router.push({
+                query: {
+                  [TAG_FETCH_RETRY_KEY]: `${
+                    parseInt(retryCount as string) + 1
+                  }`,
+                },
+              });
+            }
+          });
+      }
     }
-  }, [router, session.data]);
+  }, [loaded, router, session.data, setup]);
 
   if (router.query["error"] !== undefined) {
     return (
