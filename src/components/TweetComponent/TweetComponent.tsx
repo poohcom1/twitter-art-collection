@@ -4,9 +4,10 @@ import { Tweet } from "react-static-tweets";
 import styled, { keyframes } from "styled-components";
 import { fadeIn } from "react-animations";
 import Controls from "./TweetTags";
-import { useContext } from "react";
-import TagsContext from "src/context/TagsContext";
 import { Spinner } from "..";
+import { useResizeDetector } from "react-resize-detector";
+
+const VISIBILITY_RANGE = 2000;
 
 const TweetWrapper = styled.div<{ height: number; loaded: boolean }>`
   display: flex;
@@ -19,8 +20,6 @@ const TweetWrapper = styled.div<{ height: number; loaded: boolean }>`
   min-height: ${(props) => (props.loaded ? props.height : 500)}px;
   margin: 5px;
   padding: 5px;
-  background-color: ${(props) =>
-    props.loaded ? "transparent" : props.theme.color.field.hover};
 `;
 
 const fadeInAnim = keyframes`${fadeIn}`;
@@ -37,12 +36,13 @@ export default function TweetComponent(props: {
   tweetId: string;
   order: number;
 }) {
-  const idRef = useRef(props.tweetId);
-  const tweetRef = useRef<HTMLDivElement>(null);
+  const idRef = useRef("");
 
-  const [load, setLoad] = useState(false);
+  const [loaded, setLoaded] = useState(false);
   // Expands to max height when tweet is loaded, so height is still retained when not visible
-  const [height, setHeight] = useState(0);
+  const [divHeight, setHeight] = useState(0);
+
+  const { ref, height } = useResizeDetector();
 
   useEffect(() => {
     // TweetComponents are reused on re-renders, so image could change
@@ -54,42 +54,41 @@ export default function TweetComponent(props: {
     }
 
     // Render the components in order with a cap, so higher up images get priority
-    setTimeout(() => setLoad(true), Math.min(props.order * 100, 2000));
+    setTimeout(() => setLoaded(true), Math.min(props.order * 100, 2000));
   }, [props.order, props.tweetId]);
 
   // Expand image on layout change
   useLayoutEffect(() => {
-    const tweetHeight = tweetRef.current?.clientHeight;
+    const tweetHeight = ref.current?.clientHeight;
 
-    if (tweetHeight && tweetHeight > height) {
+    if (height && tweetHeight && tweetHeight > divHeight) {
+      console.log("New height: " + height);
       setHeight(tweetHeight);
     }
-  }, [tweetRef.current?.clientHeight, height]);
+  }, [divHeight, height, ref]);
 
   return (
-    <TweetWrapper height={height} ref={tweetRef} loaded={load}>
-      <ReactVisibilitySensor
-        partialVisibility={true}
-        offset={{ top: -500, bottom: -500 }}
-      >
-        {(sensor) => {
-          if (load && sensor.isVisible) {
-            return (
-              <div style={{ flex: 1 }}>
-                <Controls
-                  image={{
-                    id: props.tweetId,
-                    platform: "twitter",
-                  }}
-                />
-                <Tweet id={props.tweetId} />
-              </div>
-            );
-          } else {
-            return <Spinner size={30} />;
-          }
-        }}
-      </ReactVisibilitySensor>
-    </TweetWrapper>
+    <ReactVisibilitySensor
+      partialVisibility={true}
+      offset={{ top: -VISIBILITY_RANGE, bottom: -VISIBILITY_RANGE }}
+    >
+      {(sensor) => (
+        <TweetWrapper height={divHeight} ref={ref} loaded={loaded}>
+          {loaded && sensor.isVisible ? (
+            <div style={{ flex: 1 }}>
+              <Controls
+                image={{
+                  id: props.tweetId,
+                  platform: "twitter",
+                }}
+              />
+              <Tweet id={props.tweetId} />
+            </div>
+          ) : (
+            <Spinner size={30} />
+          )}
+        </TweetWrapper>
+      )}
+    </ReactVisibilitySensor>
   );
 }

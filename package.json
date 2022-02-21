@@ -22,6 +22,7 @@
     "react-animations": "^1.0.0",
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",
+    "react-resize-detector": "^7.0.0",
     "react-static-tweets": "^0.5.4",
     "react-twitter-embed": "^4.0.4",
     "react-visibility-sensor": "^5.1.1",
