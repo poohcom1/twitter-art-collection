@@ -66,7 +66,7 @@ async function deleteTag(req: NextApiRequest, res: NextApiResponse) {
     try {
         await UserModel.updateOne(
             { uid: req.query.userId },
-            { $unset: { tags: req.query.tag } }
+            { $unset: { [`tags.${req.query.tag}`]: 1 } }
         );
 
         res.status(200).send("Ok")

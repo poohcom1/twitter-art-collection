@@ -16,7 +16,7 @@ interface ImageAction extends Action<"add_image" | "remove_image"> {
   tag: TagSchema;
 }
 
-interface TagAction extends Action<"add_tag"> {
+interface TagAction extends Action<"add_tag" | "remove_tag"> {
   tag: TagSchema;
 }
 
@@ -44,6 +44,9 @@ function tagsReducer(state: TagCollection, action: TagActions): TagCollection {
       return new Map(state.set(action.tag.name, action.tag));
     case "replace_tags":
       return new Map(action.tags);
+    case "remove_tag":
+      state.delete(action.tag.name);
+      return new Map(state);
   }
 }
 

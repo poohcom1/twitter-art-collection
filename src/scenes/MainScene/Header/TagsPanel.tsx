@@ -11,6 +11,7 @@ import { useTags } from "src/context/TagsContext";
 import { useEditMode } from "src/context/EditModeContext";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { AiOutlineCloseCircle as CloseCircle } from "react-icons/ai";
+import { deleteTag } from "src/adapters";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
@@ -119,9 +120,10 @@ function NewTag() {
 }
 
 export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
-  const { tags } = useTags();
+  const { tags, dispatchTags } = useTags();
   const { selectedTag, setSelection, inverted } = useSelectedTag();
   const { editMode } = useEditMode();
+  const session = useSession();
 
   return (
     <StyledTagsPanel>
@@ -177,6 +179,16 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
                 cancelText="Cancel"
                 acceptColor={props.theme.color.buttonDanger}
                 closeCallback={close}
+                onAccept={() => {
+                  if (session.data) {
+                    dispatchTags({ type: "remove_tag", tag: tag });
+                    if (selectedTag === tag) {
+                      setSelection(undefined);
+                    }
+                    deleteTag(session.data.user.id, tag).then();
+                    close();
+                  }
+                }}
               />
             )}
           </StyledModel>
