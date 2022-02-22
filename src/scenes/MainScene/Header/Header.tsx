@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { useContext } from "react";
 import TagsPanel from "./TagsPanel";
 import UserSection from "./UserPanel";
-import TagsContext from "src/context/TagsContext";
+import { useTags } from "src/context/TagsContext";
 
 const SearchDiv = styled.input`
   flex-grow: 1;
@@ -41,9 +41,6 @@ function SearchBar() {
 }
 
 export default function Header(props: { height: number }) {
-  const session = useSession();
-  let { tags, setTags } = useContext(TagsContext);
-
   return (
     <div>
       <HeaderDiv height={props.height}>
@@ -51,7 +48,7 @@ export default function Header(props: { height: number }) {
           <UserSection />
           <SearchBar />
         </div>
-        <TagsPanel tags={tags} />
+        <TagsPanel />
       </HeaderDiv>
     </div>
   );

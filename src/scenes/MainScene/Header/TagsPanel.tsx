@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import { StyledPopup, StyledTab } from "src/components";
 import SelectedTagContext from "src/context/SelectedTagContext";
-import TagsContext from "src/context/TagsContext";
+import { useTags } from "src/context/TagsContext";
 import styled from "styled-components";
 
 const DEFAULT_TAG_WIDTH = "75px";
@@ -44,7 +44,7 @@ const StyledTagsPanel = styled.div`
 function NewTag() {
   const session = useSession();
 
-  const { tags, setTags } = useContext(TagsContext);
+  const { tags, dispatchTags } = useTags();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [tagName, setTagName] = useState("");
@@ -64,9 +64,7 @@ function NewTag() {
       images: [],
     };
 
-    tags.set(body.name, body);
-
-    setTags(new Map(tags));
+    dispatchTags({ type: "add_tag", tag: body });
 
     fetch(`/api/user/${session.data.user.id}/tags/`, {
       method: "POST",
@@ -120,7 +118,8 @@ function NewTag() {
   );
 }
 
-export default function TagsPanel(props: { tags: TagCollection }) {
+export default function TagsPanel() {
+  const { tags } = useTags();
   const { selectedTag, setSelection, inverted } =
     useContext(SelectedTagContext);
 
@@ -141,7 +140,7 @@ export default function TagsPanel(props: { tags: TagCollection }) {
         Uncategorized
       </Tag>
       <div style={{ width: "1px", margin: "5px", backgroundColor: "grey" }} />
-      {Array.from(props.tags.values()).map((tag, i) => (
+      {Array.from(tags.values()).map((tag, i) => (
         <Tag
           key={i}
           onClick={() => setSelection(tag)}

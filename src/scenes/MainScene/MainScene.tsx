@@ -5,7 +5,7 @@ import Header from "./Header/Header";
 import styled, { keyframes, ThemeProvider } from "styled-components";
 import { fadeIn } from "react-animations";
 import { TweetComponent, ResizableMasonry } from "../../components";
-import TagsContext from "src/context/TagsContext";
+import { useTags } from "src/context/TagsContext";
 import SelectedTagContext from "src/context/SelectedTagContext";
 import { getLikes } from "src/adapters";
 import { lightTheme } from "src/themes";
@@ -35,7 +35,7 @@ function tweetFilter(tweet: APITweet, payload: MultipleTweetsLookupResponse) {
 export default function MainScene() {
   const session = useSession();
 
-  const { tags } = useContext(TagsContext);
+  const { tags } = useTags();
   const { selectedTag, inverted } = useContext(SelectedTagContext);
 
   const [tweetsLoaded, setTweetsLoaded] = useState(false);

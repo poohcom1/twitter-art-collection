@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import "react-static-tweets/styles.css";
 import { useEffect, useState } from "react";
 import { getTags } from "src/adapters";
-import TagsContext from "src/context/TagsContext";
+import { TagsProvider } from "src/context/TagsContext";
 import { MainScene, LoadingScene } from "../src/scenes";
 import Link from "next/link";
 import SelectedTagContext from "src/context/SelectedTagContext";
@@ -14,7 +14,7 @@ const TAG_FETCH_RETRY_KEY = "fetchRetryCount";
 
 const TAG_FETCH_ERROR = "tagsFetchFailed";
 
-const USER_LOADED_DELAY = 500;
+const USER_LOADED_DELAY = 700;
 
 export default function Index() {
   const router = useRouter();
@@ -94,8 +94,8 @@ export default function Index() {
       <>
         <Head>
           <title>Twitter Art Collection</title>
-        </Head>{" "}
-        <TagsContext.Provider value={{ tags, setTags }}>
+        </Head>
+        <TagsProvider tags={tags}>
           <SelectedTagContext.Provider
             value={{
               selectedTag,
@@ -109,7 +109,7 @@ export default function Index() {
               <LoadingScene />
             )}
           </SelectedTagContext.Provider>
-        </TagsContext.Provider>
+        </TagsProvider>
       </>
     );
   }
