@@ -14,16 +14,21 @@ const TAG_FETCH_RETRY_KEY = "fetchRetryCount";
 
 const TAG_FETCH_ERROR = "tagsFetchFailed";
 
+const USER_LOADED_DELAY = 500;
+
 export default function Index() {
   const router = useRouter();
 
+  const session = useSession();
+  // State for delay timeout to prevent loading screen flash when session is being loaded.
+  const [userExists, setUserExists] = useState<boolean>(true);
+
   const [tags, setTags] = useState<TagCollection>(new Map());
-
-  const [setup, setSetup] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-
   const [selectedTag, setSelectedTag] = useState<TagSchema | undefined>();
   const [inverted, setInverted] = useState(false);
+
+  const [setup, setSetup] = useState(false);
+  const [tagsLoaded, setTagLoaded] = useState(false);
 
   const setSelection = (
     tag: TagSchema | undefined,
@@ -33,10 +38,10 @@ export default function Index() {
     setInverted(invert);
   };
 
-  const session = useSession();
-
   useEffect(() => {
     let retryCount = router.query[TAG_FETCH_RETRY_KEY] ?? "0";
+
+    setTimeout(() => setUserExists(!!session.data?.user.id), USER_LOADED_DELAY);
 
     if (session.data && router.query["error"] === undefined) {
       const uid = session.data.user.id;
@@ -50,12 +55,12 @@ export default function Index() {
           .catch((err) => console.error("[Setup error] " + err));
       }
 
-      if (!loaded) {
+      if (!tagsLoaded) {
         // Get tags
         getTags(uid)
           .then((tags) => {
             setTags(tags);
-            setLoaded(true);
+            setTagLoaded(true);
           })
           .catch((err) => {
             console.error(err);
@@ -75,7 +80,7 @@ export default function Index() {
           });
       }
     }
-  }, [loaded, router, session.data, setup]);
+  }, [tagsLoaded, router, session.data, setup]);
 
   if (router.query["error"] !== undefined) {
     return (
@@ -98,7 +103,7 @@ export default function Index() {
               inverted,
             }}
           >
-            {!session.data?.user || (setup && loaded) ? (
+            {!userExists || (setup && tagsLoaded) ? (
               <MainScene />
             ) : (
               <LoadingScene />

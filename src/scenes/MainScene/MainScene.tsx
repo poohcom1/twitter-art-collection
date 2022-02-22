@@ -14,40 +14,9 @@ import { RenderComponentProps } from "masonic";
 // Styles
 const HEADER_HEIGHT = 150;
 
-const Columns = styled.div`
-  display: flex;
-  justify-content: center;
+const MainDiv = styled.div`
+  background-color: ${(props) => props.theme.color.bg.primary};
 `;
-
-const DisplayDiv = styled.div``;
-
-const LoadingDiv = styled.div`
-  animation: 0.5s ${keyframes`${fadeIn}`};
-`;
-
-// Helper functions
-function createColumns(columns: number, tweetList: Array<string>) {
-  const columnDivs = [];
-
-  for (let i = 0; i < columns; i++) {
-    columnDivs.push(
-      <DisplayDiv key={i}>
-        {(() => {
-          const tweets = [];
-          for (let j = i; j < tweetList.length; j += columns) {
-            tweets.push(
-              <TweetComponent tweetId={`${tweetList[j]}`} order={j} key={j} />
-            );
-          }
-          return tweets;
-        })()}
-      </DisplayDiv>
-    );
-  }
-
-  return columnDivs;
-}
-
 function tweetFilter(tweet: APITweet, payload: MultipleTweetsLookupResponse) {
   if (!tweet.attachments) {
     return false;
@@ -127,7 +96,7 @@ export default function MainScene() {
       <ThemeProvider theme={lightTheme}>
         <Header height={HEADER_HEIGHT} />
         <div style={{ minHeight: `${HEADER_HEIGHT}px` }} />
-        <div style={{ padding: "32px" }}>
+        <MainDiv style={{ padding: "32px" }}>
           <ResizableMasonry
             items={filteredTags.map((tag) => ({
               id: tag,
@@ -136,7 +105,7 @@ export default function MainScene() {
             columnWidth={300}
             columnGutter={24}
           />
-        </div>
+        </MainDiv>
       </ThemeProvider>
     </div>
   );

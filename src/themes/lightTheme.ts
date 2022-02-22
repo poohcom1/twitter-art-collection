@@ -21,8 +21,8 @@ export const lightTheme: DefaultTheme = {
             textSelected: "rgb(30, 30, 30)",
         },
         bg: {
-            primary: "white",
-            secondary: "#f6f5f4"
+            primary: "#f6f5f4",
+            secondary: "white"
         },
         shadow: "#00000055"
     }

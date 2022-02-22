@@ -20,7 +20,7 @@ const SearchDiv = styled.input`
 `;
 
 const HeaderDiv = styled.div<{ height: number }>`
-  background-color: ${(props) => props.theme.color.bg.primary};
+  background-color: ${(props) => props.theme.color.bg.secondary};
   width: 100%;
   height: ${(props) => props.height}px;
 
