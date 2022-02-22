@@ -8,6 +8,7 @@ import { TagsProvider } from "src/context/TagsContext";
 import { MainScene, LoadingScene } from "../src/scenes";
 import Link from "next/link";
 import { SelectedTagProvider } from "src/context/SelectedTagContext";
+import { EditModeProvider } from "src/context/EditModeContext";
 
 const TAG_FETCH_RETRY_MAX = 5;
 const TAG_FETCH_RETRY_KEY = "fetchRetryCount";
@@ -97,11 +98,13 @@ export default function Index() {
         </Head>
         <TagsProvider tags={tags}>
           <SelectedTagProvider>
-            {!userExists || (setup && tagsLoaded) ? (
-              <MainScene />
-            ) : (
-              <LoadingScene />
-            )}
+            <EditModeProvider>
+              {!userExists || (setup && tagsLoaded) ? (
+                <MainScene />
+              ) : (
+                <LoadingScene />
+              )}
+            </EditModeProvider>
           </SelectedTagProvider>
         </TagsProvider>
       </>

@@ -21,6 +21,7 @@ declare module 'styled-components' {
         color: {
             primary: IButton
             field: IButton
+            button: IButton
 
             shadow: string
             bg: IPalette

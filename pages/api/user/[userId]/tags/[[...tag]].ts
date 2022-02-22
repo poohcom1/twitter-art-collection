@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import UserModel from "models/User";
 import { methodHandler } from "lib/restAPI";
 
-export default methodHandler({ GET: getTags, POST: postTag, PUT: putTag })
+export default methodHandler({ GET: getTags, POST: postTag, PUT: putTag, DELETE: deleteTag })
 
 async function getTags(req: NextApiRequest, res: NextApiResponse) {
     try {
@@ -53,6 +53,20 @@ async function putTag(req: NextApiRequest, res: NextApiResponse) {
         await UserModel.updateOne(
             { uid: req.query.userId },
             { $set: { [`tags.${body.name}`]: { name: body.name, images: body.images } } }
+        );
+
+        res.status(200).send("Ok")
+    } catch (e) {
+        console.error("[PUT tag] " + e)
+        res.status(500).send("Error: " + e)
+    }
+}
+
+async function deleteTag(req: NextApiRequest, res: NextApiResponse) {
+    try {
+        await UserModel.updateOne(
+            { uid: req.query.userId },
+            { $unset: { tags: req.query.tag } }
         );
 
         res.status(200).send("Ok")

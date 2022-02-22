@@ -9,7 +9,6 @@ import { useTags } from "src/context/TagsContext";
 import { useSelectedTag } from "src/context/SelectedTagContext";
 import { getLikes } from "src/adapters";
 import { lightTheme } from "src/themes";
-import { RenderComponentProps } from "masonic";
 
 // Styles
 const HEADER_HEIGHT = 150;

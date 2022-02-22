@@ -1,9 +1,8 @@
-import { useSession } from "next-auth/react";
 import styled from "styled-components";
-import { useContext } from "react";
 import TagsPanel from "./TagsPanel";
 import UserSection from "./UserPanel";
-import { useTags } from "src/context/TagsContext";
+import { useEditMode } from "src/context/EditModeContext";
+import { BiTrash as TrashIcon } from "react-icons/bi";
 
 const SearchDiv = styled.input`
   flex-grow: 1;
@@ -41,15 +40,30 @@ function SearchBar() {
 }
 
 export default function Header(props: { height: number }) {
+  const { editMode, setEditMode } = useEditMode();
+
   return (
-    <div>
-      <HeaderDiv height={props.height}>
-        <div style={{ display: "flex" }}>
-          <UserSection />
-          <SearchBar />
-        </div>
+    <HeaderDiv height={props.height}>
+      <div style={{ display: "flex" }}>
+        <UserSection />
+        <SearchBar />
+      </div>
+      <div style={{ display: "flex", alignItems: "center" }}>
         <TagsPanel />
-      </HeaderDiv>
-    </div>
+        <div
+          style={{
+            marginLeft: "auto",
+            display: "flex",
+            justifyContent: "center",
+          }}
+          onClick={() => setEditMode(editMode === "delete" ? "add" : "delete")}
+        >
+          <TrashIcon
+            size={30}
+            color={editMode === "delete" ? "red" : "black"}
+          />
+        </div>
+      </div>
+    </HeaderDiv>
   );
 }

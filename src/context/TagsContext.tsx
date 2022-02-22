@@ -38,7 +38,7 @@ function tagsReducer(state: TagCollection, action: TagActions): TagCollection {
     case "remove_image":
       tag = state.get(action.tag.name);
 
-      tag!.images = _.remove(tag!.images, action.image);
+      _.remove(tag!.images, action.image);
       return new Map(state.set(tag!.name, tag!));
     case "add_tag":
       return new Map(state.set(action.tag.name, action.tag));

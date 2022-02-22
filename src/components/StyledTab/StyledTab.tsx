@@ -1,15 +1,18 @@
-import { InputHTMLAttributes } from "react";
+import { HTMLAttributes } from "react";
 import styled from "styled-components";
 
-interface TabProps extends InputHTMLAttributes<HTMLDivElement> {
+interface TabProps extends HTMLAttributes<HTMLButtonElement> {
   selected?: boolean;
+  color?: string;
+  colorHover?: string;
 }
 
-const StyledTab = styled.div<TabProps>`
+const StyledTab = styled.button<TabProps>`
   cursor: pointer;
   background-color: var(--primary);
 
   width: fit-content;
+  margin: 4px;
 
   display: flex;
   justify-content: center;
@@ -18,10 +21,15 @@ const StyledTab = styled.div<TabProps>`
   color: ${(props) =>
     props.theme.color.primary[props.selected ? "textSelected" : "text"]};
   background-color: ${(props) =>
-    props.theme.color.primary[props.selected ? "selected" : "main"]};
+    props.color
+      ? props.color
+      : props.theme.color.primary[props.selected ? "selected" : "main"]};
   border-color: ${(props) =>
-    props.theme.color.primary[props.selected ? "selected" : "main"]};
+    props.color
+      ? props.color
+      : props.theme.color.primary[props.selected ? "selected" : "main"]};
 
+  font: 1.1em;
   font-weight: 700;
   border-width: 2px;
   border-style: solid;
@@ -31,7 +39,7 @@ const StyledTab = styled.div<TabProps>`
     border-color: ${(props) => props.theme.color.primary.hover};
   }
 
-  transition: all 0.1s;
+  transition: color 0.1s, background-color 0.1s, border-color 0.1s;
 `;
 
 export default StyledTab;

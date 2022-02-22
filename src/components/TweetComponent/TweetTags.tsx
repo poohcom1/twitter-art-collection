@@ -1,17 +1,13 @@
-import _, { truncate } from "lodash";
+import _ from "lodash";
 import { useSession } from "next-auth/react";
+import { HTMLAttributes, useEffect, useMemo, useRef, useState } from "react";
 import {
-  InputHTMLAttributes,
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
-import { AiOutlinePlusCircle as PlusCircle } from "react-icons/ai";
+  AiOutlinePlusCircle as PlusCircle,
+  AiOutlineCloseCircle as CloseCircle,
+} from "react-icons/ai";
 import { GiHamburgerMenu as MenuIcon } from "react-icons/gi";
-import { putTags } from "src/adapters";
+import { putTags, removeImage } from "src/adapters";
+import { useEditMode } from "src/context/EditModeContext";
 import { useSelectedTag } from "src/context/SelectedTagContext";
 import { useTags } from "src/context/TagsContext";
 import styled from "styled-components";
@@ -22,7 +18,7 @@ const DISPATCH_ON_TAGS_ADDED = false;
 
 const BUTTON_SIZE = 35;
 
-type TabContainerProps = InputHTMLAttributes<HTMLDivElement> & {
+type TabContainerProps = HTMLAttributes<HTMLDivElement> & {
   overflow?: boolean;
 };
 
@@ -65,25 +61,31 @@ const Tab = styled(StyledTab)`
 export default function TweetTags(props: { image: ImageSchema }) {
   const { selectedTag, setSelection } = useSelectedTag();
   const { tags, dispatchTags } = useTags();
+  const { editMode } = useEditMode();
 
   // As tags is a context used by the entire page, using the context will cause an uncessarily large re-render
   // As setting tags from an tweet component will only affect the control list in the current tweet,
   //  we can use a local state to just update re-render the local tags
-  const [, setLocalTags] = useState(tags);
+  const [localTags, setLocalTags] = useState(tags);
+
+  const getTags = useMemo(
+    () => (DISPATCH_ON_TAGS_ADDED ? tags : localTags),
+    [localTags, tags]
+  );
 
   const includedTags = useMemo(
     () =>
-      Array.from(tags.values()).filter(
+      Array.from(getTags.values()).filter(
         (tag) => _.find(tag.images, props.image) && tag !== selectedTag // Hiding currently selected tag
       ),
-    [props.image, selectedTag, tags]
+    [getTags, props.image, selectedTag]
   );
 
   const notIncludedTags = useMemo(() => {
-    return Array.from(tags.values()).filter(
+    return Array.from(getTags.values()).filter(
       (tag) => !_.find(includedTags, tag)
     );
-  }, [includedTags, tags]);
+  }, [getTags, includedTags]);
 
   const session = useSession();
 
@@ -153,13 +155,39 @@ export default function TweetTags(props: { image: ImageSchema }) {
           )
         }
       </StyledPopup>
-      <TabContainer ref={tagsContainerRef} overflow={overflow}>
+      <TabContainer ref={tagsContainerRef} overflow={!!overflow}>
         {includedTags.map((tag, key) => (
           <Tab
+            color={editMode !== "delete" ? undefined : "red"}
             key={key}
             selected={tag === selectedTag}
-            onClick={() => setSelection(tag)}
+            onClick={() => {
+              if (editMode !== "delete") {
+                setSelection(tag);
+              } else if (session.data) {
+                removeImage(session.data.user.id, tag, props.image).then();
+
+                dispatchTags({
+                  type: "remove_image",
+                  tag: tag,
+                  image: props.image,
+                });
+              }
+            }}
           >
+            {editMode === "delete" ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginRight: "5px",
+                }}
+              >
+                <CloseCircle size={20} />
+              </div>
+            ) : (
+              <></>
+            )}
             {tag.name}
           </Tab>
         ))}

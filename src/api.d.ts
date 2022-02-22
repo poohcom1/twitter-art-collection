@@ -23,3 +23,5 @@ interface UserSchema {
 interface PostTagBody extends TagSchema { }
 
 interface PutTagBody extends TagSchema { }
+
+interface DeleteTagBody extends TagSchema { }

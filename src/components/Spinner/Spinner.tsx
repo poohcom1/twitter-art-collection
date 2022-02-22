@@ -1,8 +1,8 @@
-import React, { ForwardedRef, forwardRef, InputHTMLAttributes } from "react";
+import React, { ForwardedRef, forwardRef, HTMLAttributes } from "react";
 import { ImSpinner8 as SpinnerIcon } from "react-icons/im";
 import styled, { keyframes } from "styled-components";
 
-interface SpinnerDivProps extends InputHTMLAttributes<HTMLDivElement> {
+interface SpinnerDivProps extends HTMLAttributes<HTMLDivElement> {
   size?: number;
 }
 

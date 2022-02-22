@@ -1,20 +1,19 @@
 import { useSession } from "next-auth/react";
-import React, {
-  InputHTMLAttributes,
-  useContext,
-  useRef,
-  useState,
-} from "react";
-import { StyledPopup, StyledTab } from "src/components";
+import React, { HTMLAttributes, useRef, useState } from "react";
+import {
+  ConfirmationDialogue,
+  StyledModel,
+  StyledPopup,
+  StyledTab,
+} from "src/components";
 import { useSelectedTag } from "src/context/SelectedTagContext";
 import { useTags } from "src/context/TagsContext";
+import { useEditMode } from "src/context/EditModeContext";
 import styled from "styled-components";
+import { AiOutlineCloseCircle as CloseCircle } from "react-icons/ai";
+import Popup from "reactjs-popup";
 
 const DEFAULT_TAG_WIDTH = "75px";
-
-interface TagProps extends InputHTMLAttributes<HTMLDivElement> {
-  selected?: boolean;
-}
 
 const Tag = styled(StyledTab)`
   padding: 3px 10px;
@@ -26,7 +25,9 @@ const Tag = styled(StyledTab)`
   cursor: pointer;
 
   border-color: ${(props) =>
-    props.theme.color.primary[props.selected ? "textSelected" : "main"]};
+    props.color
+      ? props.color
+      : props.theme.color.primary[props.selected ? "textSelected" : "main"]};
 
   & p {
     margin: auto;
@@ -121,6 +122,7 @@ function NewTag() {
 export default function TagsPanel() {
   const { tags } = useTags();
   const { selectedTag, setSelection, inverted } = useSelectedTag();
+  const { editMode } = useEditMode();
 
   return (
     <StyledTagsPanel>
@@ -139,15 +141,45 @@ export default function TagsPanel() {
         Uncategorized
       </Tag>
       <div style={{ width: "1px", margin: "5px", backgroundColor: "grey" }} />
-      {Array.from(tags.values()).map((tag, i) => (
-        <Tag
-          key={i}
-          onClick={() => setSelection(tag)}
-          selected={selectedTag === tag}
-        >
-          {tag.name}
-        </Tag>
-      ))}
+      {Array.from(tags.values()).map((tag, i) =>
+        editMode === "add" ? (
+          <Tag
+            key={i}
+            onClick={() => setSelection(tag)}
+            selected={selectedTag === tag}
+          >
+            {tag.name}
+          </Tag>
+        ) : (
+          <StyledModel
+            trigger={
+              <Tag
+                key={i}
+                onClick={() => {}}
+                selected={selectedTag === tag}
+                color={"red"}
+              >
+                <CloseCircle
+                  size={25}
+                  style={{ marginRight: "5px", marginLeft: "-5px" }}
+                />
+                {tag.name}
+              </Tag>
+            }
+            modal
+          >
+            {(close: Function) => (
+              <ConfirmationDialogue
+                title={`Deleting "${tag.name}"`}
+                text="Are you sure you want to delete this tag?"
+                acceptText="Accept"
+                cancelText="Cancel"
+                closeCallback={close}
+              />
+            )}
+          </StyledModel>
+        )
+      )}
     </StyledTagsPanel>
   );
 }

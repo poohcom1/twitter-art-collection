@@ -11,6 +11,15 @@ export const lightTheme: DefaultTheme = {
             textHover: "rgb(100, 100, 100)",
             textSelected: "black",
         },
+        button: {
+            main: "rgb(1, 1, 1)",
+            hover: "rgb(100, 100, 100)",
+            selected: "white",
+
+            text: "white",
+            textHover: "rgb(100, 100, 100)",
+            textSelected: "black",
+        },
         field: {
             main: "#e6e5e4",
             hover: "rgb(200, 200, 200)",
