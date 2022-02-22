@@ -1,5 +1,5 @@
 import { useSession } from "next-auth/react";
-import React, { HTMLAttributes, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   ConfirmationDialogue,
   StyledModel,
@@ -9,9 +9,8 @@ import {
 import { useSelectedTag } from "src/context/SelectedTagContext";
 import { useTags } from "src/context/TagsContext";
 import { useEditMode } from "src/context/EditModeContext";
-import styled from "styled-components";
+import styled, { DefaultTheme, withTheme } from "styled-components";
 import { AiOutlineCloseCircle as CloseCircle } from "react-icons/ai";
-import Popup from "reactjs-popup";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
@@ -119,7 +118,7 @@ function NewTag() {
   );
 }
 
-export default function TagsPanel() {
+export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
   const { tags } = useTags();
   const { selectedTag, setSelection, inverted } = useSelectedTag();
   const { editMode } = useEditMode();
@@ -142,6 +141,7 @@ export default function TagsPanel() {
       </Tag>
       <div style={{ width: "1px", margin: "5px", backgroundColor: "grey" }} />
       {Array.from(tags.values()).map((tag, i) =>
+        // Normal button
         editMode === "add" ? (
           <Tag
             key={i}
@@ -151,6 +151,7 @@ export default function TagsPanel() {
             {tag.name}
           </Tag>
         ) : (
+          // Delete button
           <StyledModel
             trigger={
               <Tag
@@ -172,8 +173,9 @@ export default function TagsPanel() {
               <ConfirmationDialogue
                 title={`Deleting "${tag.name}"`}
                 text="Are you sure you want to delete this tag?"
-                acceptText="Accept"
+                acceptText="Delete"
                 cancelText="Cancel"
+                acceptColor={props.theme.color.buttonDanger}
                 closeCallback={close}
               />
             )}
@@ -182,4 +184,4 @@ export default function TagsPanel() {
       )}
     </StyledTagsPanel>
   );
-}
+});

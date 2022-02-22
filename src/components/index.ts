@@ -1,4 +1,4 @@
-export { default as Button } from "./Button/Button"
+export { default as StyledButton } from "./StyledButton/StyledButton"
 export { default as Spinner } from "./Spinner/Spinner"
 export { default as StyledPopup, PopupItem } from "./StyledPopup/StyledPopup"
 export { default as StyledModel } from "./StyledModel/StyledModel"

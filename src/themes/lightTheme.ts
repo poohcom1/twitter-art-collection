@@ -20,6 +20,15 @@ export const lightTheme: DefaultTheme = {
             textHover: "rgb(100, 100, 100)",
             textActive: "black",
         },
+        buttonCancel: {
+            default: "rgb(150, 150, 150)",
+            hover: "rgb(80, 80, 80)",
+            active: "white",
+
+            text: "white",
+            textHover: "rgb(100, 100, 100)",
+            textActive: "black",
+        },
         buttonDanger: {
             default: "red",
             hover: "rgb(255, 100, 100)",
@@ -27,7 +36,7 @@ export const lightTheme: DefaultTheme = {
 
             text: "white",
             textHover: "rgb(100, 100, 100)",
-            textActive: "rgb(100, 100, 100)",
+            textActive: "white",
         },
         field: {
             default: "#e6e5e4",

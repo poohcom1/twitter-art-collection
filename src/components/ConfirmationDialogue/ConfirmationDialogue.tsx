@@ -1,7 +1,10 @@
 import { ForwardedRef, forwardRef } from "react";
-import type { IButton } from "src/styled";
-import styled from "styled-components";
-import { Button } from "..";
+import styled, {
+  DefaultTheme,
+  IButtonPalette,
+  withTheme,
+} from "styled-components";
+import { StyledButton } from "..";
 
 const DialogueDiv = styled.div`
   padding: 32px;
@@ -20,30 +23,38 @@ interface ConfirmationDialogueProps {
   acceptText?: string;
   cancelText?: string;
 
-  acceptColor?: IButton;
-  cancelColor?: IButton;
+  acceptColor?: IButtonPalette;
+  cancelColor?: IButtonPalette;
 
   onAccept?: Function;
 }
 
-export default forwardRef(function ConfirmationDialogue(
-  props: ConfirmationDialogueProps,
-  ref: ForwardedRef<HTMLDivElement>
-) {
-  return (
-    <DialogueDiv ref={ref}>
-      <h1>{props.title}</h1>
-      <br />
-      <p>{props.text}</p>
-      <br />
-      <ButtonDiv>
-        <Button onClick={() => (props.onAccept ? props.onAccept() : {})}>
-          {props.acceptText ?? "Accept"}
-        </Button>
-        <Button onClick={() => props.closeCallback()}>
-          {props.cancelText ?? "Cancel"}
-        </Button>
-      </ButtonDiv>
-    </DialogueDiv>
-  );
-});
+export default withTheme(
+  forwardRef(function ConfirmationDialogue(
+    props: ConfirmationDialogueProps & { theme: DefaultTheme },
+    ref: ForwardedRef<HTMLDivElement>
+  ) {
+    return (
+      <DialogueDiv ref={ref}>
+        <h1>{props.title}</h1>
+        <br />
+        <p>{props.text}</p>
+        <br />
+        <ButtonDiv>
+          <StyledButton
+            palette={props.acceptColor ?? props.theme.color.button}
+            onClick={() => (props.onAccept ? props.onAccept() : {})}
+          >
+            {props.acceptText ?? "Accept"}
+          </StyledButton>
+          <StyledButton
+            palette={props.cancelColor ?? props.theme.color.buttonCancel}
+            onClick={() => props.closeCallback()}
+          >
+            {props.cancelText ?? "Cancel"}
+          </StyledButton>
+        </ButtonDiv>
+      </DialogueDiv>
+    );
+  })
+);
