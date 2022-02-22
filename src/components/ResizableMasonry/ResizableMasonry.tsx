@@ -5,16 +5,9 @@ import {
   usePositioner,
   useContainerPosition,
   useScroller,
-  RenderComponentProps,
   useResizeObserver,
+  MasonryProps,
 } from "masonic";
-
-interface MasonryProps<T> {
-  columnWidth: number;
-  columnGutter: number;
-  items: Array<T>;
-  render: React.ComponentType<RenderComponentProps<T>>;
-}
 
 export default function ResizableMasonry<Item>(props: MasonryProps<Item>) {
   const containerRef = React.useRef(null);
@@ -28,12 +21,12 @@ export default function ResizableMasonry<Item>(props: MasonryProps<Item>) {
   const resizeObserver = useResizeObserver(positioner);
 
   return useMasonry({
+    ...props,
     positioner,
     resizeObserver,
     scrollTop,
     isScrolling,
     height,
     containerRef,
-    ...props,
   });
 }
