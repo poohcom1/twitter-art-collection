@@ -1,19 +1,16 @@
 import { Tweet } from "react-static-tweets";
 import Controls from "./TweetTags";
 
-export default function TweetComponent(props: {
-  tweetId: string;
-  order: number;
-}) {
+export default function TweetComponent(props: { id: string; index?: number }) {
   return (
     <div style={{ flex: 1 }}>
       <Controls
         image={{
-          id: props.tweetId,
+          id: props.id,
           platform: "twitter",
         }}
       />
-      <Tweet id={props.tweetId} />
+      <Tweet id={props.id} />
     </div>
   );
 }

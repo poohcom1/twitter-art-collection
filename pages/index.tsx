@@ -7,14 +7,14 @@ import { getTags } from "src/adapters";
 import { TagsProvider } from "src/context/TagsContext";
 import { MainScene, LoadingScene } from "../src/scenes";
 import Link from "next/link";
-import SelectedTagContext from "src/context/SelectedTagContext";
+import { SelectedTagProvider } from "src/context/SelectedTagContext";
 
 const TAG_FETCH_RETRY_MAX = 5;
 const TAG_FETCH_RETRY_KEY = "fetchRetryCount";
 
 const TAG_FETCH_ERROR = "tagsFetchFailed";
 
-const USER_LOADED_DELAY = 700;
+const USER_LOADED_DELAY = 500;
 
 export default function Index() {
   const router = useRouter();
@@ -80,7 +80,7 @@ export default function Index() {
           });
       }
     }
-  }, [tagsLoaded, router, session.data, setup]);
+  }, [router, session.data, setup, tagsLoaded]);
 
   if (router.query["error"] !== undefined) {
     return (
@@ -96,19 +96,13 @@ export default function Index() {
           <title>Twitter Art Collection</title>
         </Head>
         <TagsProvider tags={tags}>
-          <SelectedTagContext.Provider
-            value={{
-              selectedTag,
-              setSelection,
-              inverted,
-            }}
-          >
+          <SelectedTagProvider>
             {!userExists || (setup && tagsLoaded) ? (
               <MainScene />
             ) : (
               <LoadingScene />
             )}
-          </SelectedTagContext.Provider>
+          </SelectedTagProvider>
         </TagsProvider>
       </>
     );

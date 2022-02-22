@@ -6,7 +6,7 @@ import React, {
   useState,
 } from "react";
 import { StyledPopup, StyledTab } from "src/components";
-import SelectedTagContext from "src/context/SelectedTagContext";
+import { useSelectedTag } from "src/context/SelectedTagContext";
 import { useTags } from "src/context/TagsContext";
 import styled from "styled-components";
 
@@ -120,8 +120,7 @@ function NewTag() {
 
 export default function TagsPanel() {
   const { tags } = useTags();
-  const { selectedTag, setSelection, inverted } =
-    useContext(SelectedTagContext);
+  const { selectedTag, setSelection, inverted } = useSelectedTag();
 
   return (
     <StyledTagsPanel>

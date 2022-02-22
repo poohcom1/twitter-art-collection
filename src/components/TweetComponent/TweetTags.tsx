@@ -3,10 +3,13 @@ import { useSession } from "next-auth/react";
 import { useContext, useMemo, useState } from "react";
 import { AiOutlinePlusCircle as PlusCircle } from "react-icons/ai";
 import { putTags } from "src/adapters";
-import SelectedTagContext from "src/context/SelectedTagContext";
+import { useSelectedTag } from "src/context/SelectedTagContext";
 import { useTags } from "src/context/TagsContext";
 import styled from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
+
+// TODO Make this a user setting
+const DISPATCH_ON_TAGS_ADDED = false;
 
 const BUTTON_SIZE = 35;
 
@@ -32,7 +35,7 @@ const Tab = styled(StyledTab)`
 `;
 
 export default function Controls(props: { image: ImageSchema }) {
-  const { selectedTag, setSelection } = useContext(SelectedTagContext);
+  const { selectedTag, setSelection } = useSelectedTag();
   const { tags, dispatchTags } = useTags();
 
   // As tags is a context used by the entire page, using the context will cause an uncessarily large re-render
@@ -77,16 +80,18 @@ export default function Controls(props: { image: ImageSchema }) {
                     .then()
                     .catch(console.error);
 
-                  // // Update global tag context, but without setTags to prevent re-render
-                  // tags.set(tag.name, tag);
-                  // // Only re-render current tweet
-                  // setLocalTags(new Map(tags));
-
-                  dispatchTags({
-                    type: "add_image",
-                    tag: tag,
-                    image: props.image,
-                  });
+                  if (DISPATCH_ON_TAGS_ADDED) {
+                    dispatchTags({
+                      type: "add_image",
+                      tag: tag,
+                      image: props.image,
+                    });
+                  } else {
+                    // Update global tag context, but without setTags to prevent re-render
+                    tags.set(tag.name, tag);
+                    // Only re-render current tweet
+                    setLocalTags(new Map(tags));
+                  }
 
                   close();
                 }

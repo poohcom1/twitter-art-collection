@@ -6,7 +6,7 @@ import styled, { keyframes, ThemeProvider } from "styled-components";
 import { fadeIn } from "react-animations";
 import { TweetComponent, ResizableMasonry } from "../../components";
 import { useTags } from "src/context/TagsContext";
-import SelectedTagContext from "src/context/SelectedTagContext";
+import { useSelectedTag } from "src/context/SelectedTagContext";
 import { getLikes } from "src/adapters";
 import { lightTheme } from "src/themes";
 import { RenderComponentProps } from "masonic";
@@ -36,7 +36,7 @@ export default function MainScene() {
   const session = useSession();
 
   const { tags } = useTags();
-  const { selectedTag, inverted } = useContext(SelectedTagContext);
+  const { selectedTag, inverted } = useSelectedTag();
 
   const [tweetsLoaded, setTweetsLoaded] = useState(false);
   let tweetIds = useRef<Array<string>>([]);
@@ -101,7 +101,13 @@ export default function MainScene() {
             items={filteredTags.map((tag) => ({
               id: tag,
             }))}
-            render={MasonryCard}
+            render={function TweetWithMasonry(props: {
+              data: { id: string };
+              index: number;
+              width: number;
+            }) {
+              return <TweetComponent id={props.data.id} />;
+            }}
             columnWidth={300}
             columnGutter={24}
           />
@@ -110,7 +116,3 @@ export default function MainScene() {
     </div>
   );
 }
-
-const MasonryCard = (props: RenderComponentProps<{ id: string }>) => (
-  <TweetComponent tweetId={props.data.id} order={props.index} />
-);
