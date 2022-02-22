@@ -10,7 +10,7 @@ const SearchDiv = styled.input`
   border-radius: 50px;
   border-width: 0;
   color: ${(props) => props.theme.color.field.text};
-  background-color: ${(props) => props.theme.color.field.main};
+  background-color: ${(props) => props.theme.color.field.default};
 
   &:focus {
     outline: none;

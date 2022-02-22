@@ -2,7 +2,7 @@ import { HTMLAttributes } from "react";
 import styled from "styled-components";
 
 interface TabProps extends HTMLAttributes<HTMLButtonElement> {
-  selected?: boolean;
+  active?: boolean;
   color?: string;
   colorHover?: string;
 }
@@ -19,15 +19,15 @@ const StyledTab = styled.button<TabProps>`
   align-items: center;
 
   color: ${(props) =>
-    props.theme.color.primary[props.selected ? "textSelected" : "text"]};
+    props.theme.color.primary[props.active ? "textActive" : "text"]};
   background-color: ${(props) =>
     props.color
       ? props.color
-      : props.theme.color.primary[props.selected ? "selected" : "main"]};
+      : props.theme.color.primary[props.active ? "active" : "default"]};
   border-color: ${(props) =>
     props.color
       ? props.color
-      : props.theme.color.primary[props.selected ? "selected" : "main"]};
+      : props.theme.color.primary[props.active ? "active" : "default"]};
 
   font: 1.1em;
   font-weight: 700;

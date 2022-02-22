@@ -1,4 +1,5 @@
 import { ForwardedRef, forwardRef } from "react";
+import type { IButton } from "src/styled";
 import styled from "styled-components";
 import { Button } from "..";
 
@@ -18,6 +19,9 @@ interface ConfirmationDialogueProps {
   text?: string;
   acceptText?: string;
   cancelText?: string;
+
+  acceptColor?: IButton;
+  cancelColor?: IButton;
 
   onAccept?: Function;
 }

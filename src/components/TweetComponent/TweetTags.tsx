@@ -160,7 +160,7 @@ export default function TweetTags(props: { image: ImageSchema }) {
           <Tab
             color={editMode !== "delete" ? undefined : "red"}
             key={key}
-            selected={tag === selectedTag}
+            active={tag === selectedTag}
             onClick={() => {
               if (editMode !== "delete") {
                 setSelection(tag);

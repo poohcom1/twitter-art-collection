@@ -11,12 +11,12 @@ const Button = styled.button<ButtonProps>`
   color: ${(props) =>
     props.palette ? props.palette.text : props.theme.color.button.text};
   background-color: ${(props) =>
-    props.palette ? props.palette.main : props.theme.color.button.main};
+    props.palette ? props.palette.default : props.theme.color.button.default};
   padding: 5px 15px;
   cursor: pointer;
 
   border-color: ${(props) =>
-    props.palette ? props.palette.main : props.theme.color.button.main};
+    props.palette ? props.palette.default : props.theme.color.button.default};
   border-radius: 5em;
   margin: 8px;
   padding: 16px;
@@ -34,12 +34,10 @@ const Button = styled.button<ButtonProps>`
   &:active {
     color: ${(props) =>
       props.palette
-        ? props.palette.textSelected
-        : props.theme.color.button.textSelected};
+        ? props.palette.textActive
+        : props.theme.color.button.textActive};
     background-color: ${(props) =>
-      props.palette
-        ? props.palette.selected
-        : props.theme.color.button.selected};
+      props.palette ? props.palette.active : props.theme.color.button.active};
   }
 `;
 

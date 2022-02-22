@@ -27,7 +27,7 @@ const Tag = styled(StyledTab)`
   border-color: ${(props) =>
     props.color
       ? props.color
-      : props.theme.color.primary[props.selected ? "textSelected" : "main"]};
+      : props.theme.color.primary[props.active ? "textActive" : "default"]};
 
   & p {
     margin: auto;
@@ -130,13 +130,13 @@ export default function TagsPanel() {
       <Tag
         style={{ width: DEFAULT_TAG_WIDTH }}
         onClick={() => setSelection(undefined, false)}
-        selected={!selectedTag && !inverted}
+        active={!selectedTag && !inverted}
       >
         All
       </Tag>
       <Tag
         onClick={() => setSelection(undefined, true)}
-        selected={!selectedTag && inverted}
+        active={!selectedTag && inverted}
       >
         Uncategorized
       </Tag>
@@ -146,7 +146,7 @@ export default function TagsPanel() {
           <Tag
             key={i}
             onClick={() => setSelection(tag)}
-            selected={selectedTag === tag}
+            active={selectedTag === tag}
           >
             {tag.name}
           </Tag>
@@ -156,7 +156,7 @@ export default function TagsPanel() {
               <Tag
                 key={i}
                 onClick={() => {}}
-                selected={selectedTag === tag}
+                active={selectedTag === tag}
                 color={"red"}
               >
                 <CloseCircle

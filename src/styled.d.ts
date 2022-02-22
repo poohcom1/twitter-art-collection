@@ -7,13 +7,13 @@ interface IPalette {
 }
 
 interface IButton {
-    main: string
+    default: string
     hover: string
-    selected: string
+    active: string
 
     text: string
     textHover: string
-    textSelected: string
+    textActive: string
 }
 
 declare module 'styled-components' {
@@ -22,6 +22,7 @@ declare module 'styled-components' {
             primary: IButton
             field: IButton
             button: IButton
+            buttonDanger: IButton
 
             shadow: string
             bg: IPalette
