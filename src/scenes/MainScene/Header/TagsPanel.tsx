@@ -26,7 +26,7 @@ const Tag = styled(StyledTab)`
   cursor: pointer;
 
   border-color: ${(props) =>
-    props.theme.color.primary[props.selected ? "textSelected" : "text"]};
+    props.theme.color.primary[props.selected ? "textSelected" : "main"]};
 
   & p {
     margin: auto;

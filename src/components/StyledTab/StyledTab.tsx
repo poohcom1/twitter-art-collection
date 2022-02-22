@@ -29,9 +29,7 @@ const StyledTab = styled.div<TabProps>`
     border-color: ${(props) => props.theme.color.primary.hover};
   }
 
-  transition: color 0.2s;
-  transition: background-color 0.2s;
-  transition: border-color 0.2s;
+  transition: all 0.1s;
 `;
 
 export default StyledTab;
