@@ -19,7 +19,7 @@ const DISPATCH_ON_TAGS_ADDED = false;
 const BUTTON_SIZE = 35;
 
 type TabContainerProps = HTMLAttributes<HTMLDivElement> & {
-  overflow?: boolean;
+  overflowing?: boolean;
 };
 
 const MainContainer = styled.div`
@@ -37,7 +37,7 @@ const TabContainer = styled.div<TabContainerProps & { overflow?: boolean }>`
   width: 100%;
 
   ${(props) =>
-    props.overflow
+    props.overflowing
       ? "mask: linear-gradient(90deg, black 85%, transparent);"
       : ""}
 `;
@@ -155,7 +155,7 @@ export default function TweetTags(props: { image: ImageSchema }) {
           )
         }
       </StyledPopup>
-      <TabContainer ref={tagsContainerRef} overflow={!!overflow}>
+      <TabContainer ref={tagsContainerRef} overflowing={overflow}>
         {includedTags.map((tag, key) => (
           <Tab
             color={editMode !== "delete" ? undefined : "red"}

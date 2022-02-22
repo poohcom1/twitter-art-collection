@@ -37,8 +37,7 @@ export default function MainScene() {
   const { tags } = useTags();
   const { selectedTag, inverted } = useSelectedTag();
 
-  const [tweetsLoaded, setTweetsLoaded] = useState(false);
-  let tweetIds = useRef<Array<string>>([]);
+  const [tweetIds, setTweetIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (session.data) {
@@ -47,21 +46,17 @@ export default function MainScene() {
       // Get tweets
       getLikes(uid)
         .then((payload) => {
-          tweetIds.current = payload.data
-            .filter((t) => tweetFilter(t, payload))
-            .map((data) => data.id);
-
-          setTweetsLoaded(true);
+          setTweetIds(
+            payload.data
+              .filter((t) => tweetFilter(t, payload))
+              .map((data) => data.id)
+          );
         })
         .catch(console.error);
     }
   }, [session.data]);
 
   const filteredTags = useMemo(() => {
-    if (!tweetsLoaded) {
-      return [];
-    }
-
     // Regular filter
     if (selectedTag) {
       return selectedTag.images.map((im) => im.id);
@@ -78,17 +73,15 @@ export default function MainScene() {
           }
         }
 
-        const uncategorized = tweetIds.current.filter(
-          (id) => !categorized.has(id)
-        );
+        const uncategorized = tweetIds.filter((id) => !categorized.has(id));
 
         return uncategorized;
       } else {
         // All tags
-        return tweetIds.current;
+        return tweetIds;
       }
     }
-  }, [inverted, selectedTag, tags, tweetsLoaded]);
+  }, [inverted, selectedTag, tags, tweetIds]);
 
   return (
     <div className="App">

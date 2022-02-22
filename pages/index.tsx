@@ -21,28 +21,14 @@ export default function Index() {
   const router = useRouter();
 
   const session = useSession();
-  // State for delay timeout to prevent loading screen flash when session is being loaded.
-  const [userExists, setUserExists] = useState<boolean>(true);
 
   const [tags, setTags] = useState<TagCollection>(new Map());
-  const [selectedTag, setSelectedTag] = useState<TagSchema | undefined>();
-  const [inverted, setInverted] = useState(false);
 
   const [setup, setSetup] = useState(false);
   const [tagsLoaded, setTagLoaded] = useState(false);
 
-  const setSelection = (
-    tag: TagSchema | undefined,
-    invert: boolean = false
-  ) => {
-    setSelectedTag(tag);
-    setInverted(invert);
-  };
-
   useEffect(() => {
     let retryCount = router.query[TAG_FETCH_RETRY_KEY] ?? "0";
-
-    setTimeout(() => setUserExists(!!session.data?.user.id), USER_LOADED_DELAY);
 
     if (session.data && router.query["error"] === undefined) {
       const uid = session.data.user.id;
@@ -96,17 +82,17 @@ export default function Index() {
         <Head>
           <title>Twitter Art Collection</title>
         </Head>
-        <TagsProvider tags={tags}>
-          <SelectedTagProvider>
-            <EditModeProvider>
-              {!userExists || (setup && tagsLoaded) ? (
+        {session.status === "unauthenticated" || (setup && tagsLoaded) ? (
+          <TagsProvider tags={tags}>
+            <SelectedTagProvider>
+              <EditModeProvider>
                 <MainScene />
-              ) : (
-                <LoadingScene />
-              )}
-            </EditModeProvider>
-          </SelectedTagProvider>
-        </TagsProvider>
+              </EditModeProvider>
+            </SelectedTagProvider>
+          </TagsProvider>
+        ) : (
+          <LoadingScene />
+        )}
       </>
     );
   }
