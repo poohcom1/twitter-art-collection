@@ -9,6 +9,8 @@ const StyledTab = styled.div<TabProps>`
   cursor: pointer;
   background-color: var(--primary);
 
+  width: fit-content;
+
   display: flex;
   justify-content: center;
   align-items: center;

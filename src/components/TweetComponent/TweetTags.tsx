@@ -1,7 +1,16 @@
-import _ from "lodash";
+import _, { truncate } from "lodash";
 import { useSession } from "next-auth/react";
-import { useContext, useMemo, useState } from "react";
+import {
+  InputHTMLAttributes,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { AiOutlinePlusCircle as PlusCircle } from "react-icons/ai";
+import { GiHamburgerMenu as MenuIcon } from "react-icons/gi";
 import { putTags } from "src/adapters";
 import { useSelectedTag } from "src/context/SelectedTagContext";
 import { useTags } from "src/context/TagsContext";
@@ -13,9 +22,28 @@ const DISPATCH_ON_TAGS_ADDED = false;
 
 const BUTTON_SIZE = 35;
 
-const ControlStyles = styled.div`
+type TabContainerProps = InputHTMLAttributes<HTMLDivElement> & {
+  overflow?: boolean;
+};
+
+const MainContainer = styled.div`
   display: flex;
   flex-direction: row;
+  justify-content: start;
+  overflow: hidden;
+`;
+
+const TabContainer = styled.div<TabContainerProps & { overflow?: boolean }>`
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  overflow: hidden;
+  width: 100%;
+
+  ${(props) =>
+    props.overflow
+      ? "mask: linear-gradient(90deg, black 85%, transparent);"
+      : ""}
 `;
 
 const StyledButton = styled.div`
@@ -34,7 +62,7 @@ const Tab = styled(StyledTab)`
   border-top-right-radius: 10px;
 `;
 
-export default function Controls(props: { image: ImageSchema }) {
+export default function TweetTags(props: { image: ImageSchema }) {
   const { selectedTag, setSelection } = useSelectedTag();
   const { tags, dispatchTags } = useTags();
 
@@ -43,21 +71,60 @@ export default function Controls(props: { image: ImageSchema }) {
   //  we can use a local state to just update re-render the local tags
   const [, setLocalTags] = useState(tags);
 
-  const tagsValues = Array.from(tags.values());
-
   const includedTags = useMemo(
-    () => tagsValues.filter((tag) => _.find(tag.images, props.image)),
-    [props.image, tagsValues]
+    () =>
+      Array.from(tags.values()).filter(
+        (tag) => _.find(tag.images, props.image) && tag !== selectedTag // Hiding currently selected tag
+      ),
+    [props.image, selectedTag, tags]
   );
 
   const notIncludedTags = useMemo(() => {
-    return tagsValues.filter((tag) => !_.find(includedTags, tag));
-  }, [includedTags, tagsValues]);
+    return Array.from(tags.values()).filter(
+      (tag) => !_.find(includedTags, tag)
+    );
+  }, [includedTags, tags]);
 
   const session = useSession();
 
+  const onTagClick = (tag: TagSchema) => {
+    if (session.data) {
+      tag.images.push(props.image);
+      putTags(session.data.user.id, tag).then().catch(console.error);
+
+      if (DISPATCH_ON_TAGS_ADDED) {
+        dispatchTags({
+          type: "add_image",
+          tag: tag,
+          image: props.image,
+        });
+      } else {
+        // Update global tag context, but without setTags to prevent re-render
+        tags.set(tag.name, tag);
+        // Only re-render current tweet
+        setLocalTags(new Map(tags));
+      }
+      return true;
+    }
+
+    return false;
+  };
+
+  // Overflow detection
+  const tagsContainerRef = useRef<HTMLDivElement>(null);
+  const [overflow, setOverflow] = useState(false);
+
+  useEffect(() => {
+    if (tagsContainerRef.current) {
+      setOverflow(
+        tagsContainerRef.current.offsetWidth <
+          tagsContainerRef.current.scrollWidth
+      );
+    }
+  }, []);
+
   return (
-    <ControlStyles>
+    <MainContainer>
       <StyledPopup
         trigger={
           <Tab>
@@ -69,46 +136,44 @@ export default function Controls(props: { image: ImageSchema }) {
         closeOnDocumentClick
       >
         {(close: Function) =>
-          notIncludedTags.map((tag, key) => (
-            <PopupItem
-              text={tag.name}
-              key={key}
-              onClick={() => {
-                if (session.data) {
-                  tag.images.push(props.image);
-                  putTags(session.data.user.id, tag)
-                    .then()
-                    .catch(console.error);
-
-                  if (DISPATCH_ON_TAGS_ADDED) {
-                    dispatchTags({
-                      type: "add_image",
-                      tag: tag,
-                      image: props.image,
-                    });
-                  } else {
-                    // Update global tag context, but without setTags to prevent re-render
-                    tags.set(tag.name, tag);
-                    // Only re-render current tweet
-                    setLocalTags(new Map(tags));
+          notIncludedTags.length > 0 ? (
+            notIncludedTags.map((tag, key) => (
+              <PopupItem
+                text={tag.name}
+                key={key}
+                onClick={() => {
+                  if (onTagClick(tag)) {
+                    close();
                   }
-
-                  close();
-                }
-              }}
-            />
-          ))
+                }}
+              />
+            ))
+          ) : (
+            <p>No more tags!</p>
+          )
         }
       </StyledPopup>
-      {includedTags.map((tag, key) => (
-        <Tab
-          key={key}
-          selected={tag === selectedTag}
-          onClick={() => setSelection(tag)}
-        >
-          {tag.name}
-        </Tab>
-      ))}
-    </ControlStyles>
+      <TabContainer ref={tagsContainerRef} overflow={overflow}>
+        {includedTags.map((tag, key) => (
+          <Tab
+            key={key}
+            selected={tag === selectedTag}
+            onClick={() => setSelection(tag)}
+          >
+            {tag.name}
+          </Tab>
+        ))}
+      </TabContainer>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          marginLeft: "auto",
+        }}
+        draggable={true}
+      >
+        <MenuIcon size={30} />
+      </div>
+    </MainContainer>
   );
 }
