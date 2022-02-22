@@ -1,12 +1,13 @@
-import styled from "styled-components";
+import styled, { DefaultTheme, withTheme } from "styled-components";
 import TagsPanel from "./TagsPanel";
 import UserSection from "./UserPanel";
 import { useEditMode } from "src/context/EditModeContext";
 import { BiTrash as TrashIcon } from "react-icons/bi";
+import { useTags } from "src/context/TagsContext";
 
 const SearchDiv = styled.input`
   flex-grow: 1;
-  padding: 15px;
+  padding: 8px;
   border-radius: 50px;
   border-width: 0;
   color: ${(props) => props.theme.color.field.text};
@@ -23,7 +24,7 @@ const HeaderDiv = styled.div<{ height: number }>`
   width: 100%;
   height: ${(props) => props.height}px;
 
-  padding: 30px 30px 0 30px;
+  display: flex;
 
   position: fixed;
   z-index: 10;
@@ -31,7 +32,7 @@ const HeaderDiv = styled.div<{ height: number }>`
   box-shadow: 0 0 10px ${(props) => props.theme.color.shadow};
 
   & * {
-    margin-left: 5px;
+    margin: 5px;
   }
 `;
 
@@ -39,16 +40,19 @@ function SearchBar() {
   return <SearchDiv type="search" placeholder="Search" />;
 }
 
-export default function Header(props: { height: number }) {
+export default withTheme(function Header(props: {
+  height: number;
+  theme: DefaultTheme;
+}) {
+  const { tags } = useTags();
   const { editMode, setEditMode } = useEditMode();
 
+  const { height, theme } = props;
+
   return (
-    <HeaderDiv height={props.height}>
-      <div style={{ display: "flex" }}>
+    <HeaderDiv height={height}>
+      <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
         <UserSection />
-        <SearchBar />
-      </div>
-      <div style={{ display: "flex", alignItems: "center" }}>
         <TagsPanel />
         <div
           style={{
@@ -58,12 +62,35 @@ export default function Header(props: { height: number }) {
           }}
           onClick={() => setEditMode(editMode === "delete" ? "add" : "delete")}
         >
-          <TrashIcon
-            size={30}
-            color={editMode === "delete" ? "red" : "black"}
-          />
+          {Array.from(tags.values()).length > 0 ? (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                borderColor:
+                  editMode === "delete"
+                    ? theme.color.buttonDanger.default
+                    : "transparent",
+                borderStyle: "solid",
+                padding: "8px",
+                marginLeft: "auto",
+              }}
+            >
+              <TrashIcon
+                size={30}
+                color={
+                  editMode === "delete"
+                    ? theme.color.buttonDanger.default
+                    : "black"
+                }
+                style={{ margin: "0" }}
+              />
+            </div>
+          ) : (
+            <></>
+          )}
         </div>
       </div>
     </HeaderDiv>
   );
-}
+});

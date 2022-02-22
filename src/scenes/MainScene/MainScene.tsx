@@ -11,7 +11,7 @@ import { getLikes } from "src/adapters";
 import { lightTheme } from "src/themes";
 
 // Styles
-const HEADER_HEIGHT = 150;
+const HEADER_HEIGHT = 100;
 
 const MainDiv = styled.div`
   background-color: ${(props) => props.theme.color.bg.primary};

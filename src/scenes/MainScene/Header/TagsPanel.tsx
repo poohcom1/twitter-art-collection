@@ -17,7 +17,7 @@ const DEFAULT_TAG_WIDTH = "75px";
 
 const Tag = styled(StyledTab)`
   padding: 3px 10px;
-  margin: 10px;
+  margin: auto;
   height: 3em;
 
   border-radius: 1.5em;
@@ -143,7 +143,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
       </Tag>
       <div style={{ width: "1px", margin: "5px", backgroundColor: "grey" }} />
       {Array.from(tags.values()).map((tag, i) =>
-        // Normal button
+        // Normal mode
         editMode === "add" ? (
           <Tag
             key={i}
@@ -153,7 +153,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
             {tag.name}
           </Tag>
         ) : (
-          // Delete button
+          // Delete mode
           <StyledModel
             trigger={
               <Tag
@@ -171,6 +171,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
             }
             modal
           >
+            {/* Delete toggle */}
             {(close: Function) => (
               <ConfirmationDialogue
                 title={`Deleting "${tag.name}"`}

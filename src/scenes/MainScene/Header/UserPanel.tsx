@@ -20,10 +20,6 @@ const UserSectionDiv = styled.div`
   & p {
     vertical-align: middle;
   }
-
-  & * {
-    margin-left: 5px;
-  }
 `;
 
 function UserAvatar(props: {
@@ -92,10 +88,12 @@ export default function UserSection() {
       );
     case "authenticated":
       return (
-        <UserAvatar
-          name={session.data.user.name}
-          image={session.data.user.image}
-        />
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <UserAvatar
+            name={session.data.user.name}
+            image={session.data.user.image}
+          />
+        </div>
       );
   }
 }
