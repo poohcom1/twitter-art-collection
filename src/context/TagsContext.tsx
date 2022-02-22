@@ -14,6 +14,7 @@ interface Action<Type> {
 interface ImageAction extends Action<"add_image" | "remove_image"> {
   image: ImageSchema;
   tag: TagSchema;
+  shallow?: boolean;
 }
 
 interface TagAction extends Action<"add_tag" | "remove_tag"> {
@@ -34,11 +35,18 @@ function tagsReducer(state: TagCollection, action: TagActions): TagCollection {
     case "add_image":
       tag = state.get(action.tag.name);
       tag?.images.push(action.image);
+
+      if (action.shallow) {
+        return state;
+      }
       return new Map(state.set(tag!.name, tag!));
     case "remove_image":
       tag = state.get(action.tag.name);
-
       _.remove(tag!.images, action.image);
+
+      if (action.shallow) {
+        return state;
+      }
       return new Map(state.set(tag!.name, tag!));
     case "add_tag":
       return new Map(state.set(action.tag.name, action.tag));

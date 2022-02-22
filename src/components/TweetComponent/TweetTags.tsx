@@ -14,7 +14,7 @@ import styled from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
 
 // TODO Make this a user setting
-const DISPATCH_ON_TAGS_ADDED = false;
+const SHALLOW_UPDATE = true;
 
 const BUTTON_SIZE = 35;
 
@@ -69,17 +69,16 @@ export default function TweetTags(props: { image: ImageSchema }) {
   const [localTags, setLocalTags] = useState(tags);
 
   const getTags = useMemo(
-    () => (DISPATCH_ON_TAGS_ADDED ? tags : localTags),
+    () => (SHALLOW_UPDATE ? localTags : tags),
     [localTags, tags]
   );
 
-  const includedTags = useMemo(
-    () =>
-      Array.from(getTags.values()).filter(
-        (tag) => _.find(tag.images, props.image) && tag !== selectedTag // Hiding currently selected tag
-      ),
-    [getTags, props.image, selectedTag]
-  );
+  const includedTags = useMemo(() => {
+    const filtered = Array.from(getTags.values()).filter(
+      (tag) => _.find(tag.images, props.image) && tag !== selectedTag // Skip currently selected tag
+    );
+    return selectedTag ? [selectedTag, ...filtered] : filtered; // Add selected tag in front
+  }, [getTags, props.image, selectedTag]);
 
   const notIncludedTags = useMemo(() => {
     return Array.from(getTags.values()).filter(
@@ -91,21 +90,20 @@ export default function TweetTags(props: { image: ImageSchema }) {
 
   const onTagClick = (tag: TagSchema) => {
     if (session.data) {
-      tag.images.push(props.image);
       putTags(session.data.user.id, tag).then().catch(console.error);
 
-      if (DISPATCH_ON_TAGS_ADDED) {
-        dispatchTags({
-          type: "add_image",
-          tag: tag,
-          image: props.image,
-        });
-      } else {
-        // Update global tag context, but without setTags to prevent re-render
-        tags.set(tag.name, tag);
-        // Only re-render current tweet
-        setLocalTags(new Map(tags));
+      // TODO Count doesn't update
+      dispatchTags({
+        type: "add_image",
+        tag: tag,
+        image: props.image,
+        shallow: SHALLOW_UPDATE,
+      });
+
+      if (SHALLOW_UPDATE) {
+        setLocalTags(new Map(localTags));
       }
+
       return true;
     }
 
@@ -171,7 +169,12 @@ export default function TweetTags(props: { image: ImageSchema }) {
                   type: "remove_image",
                   tag: tag,
                   image: props.image,
+                  shallow: SHALLOW_UPDATE && selectedTag !== tag,
                 });
+
+                if (SHALLOW_UPDATE) {
+                  setLocalTags(new Map(localTags));
+                }
               }
             }}
           >

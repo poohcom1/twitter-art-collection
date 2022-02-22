@@ -45,11 +45,11 @@ const StyledTagsPanel = styled.div`
 function NewTag() {
   const session = useSession();
 
-  const { tags, dispatchTags } = useTags();
+  const { dispatchTags } = useTags();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [tagName, setTagName] = useState("");
-  const [error, setError] = useState(false);
+  const [, setError] = useState(false);
 
   const createTagHandler = (): boolean => {
     if (!session.data) return true;
@@ -150,7 +150,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
             onClick={() => setSelection(tag)}
             active={selectedTag === tag}
           >
-            {tag.name}
+            {tag.name} - {tag.images.length}
           </Tag>
         ) : (
           // Delete mode

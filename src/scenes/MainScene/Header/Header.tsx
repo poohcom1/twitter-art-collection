@@ -63,7 +63,7 @@ export default withTheme(function Header(props: {
           onClick={() => setEditMode(editMode === "delete" ? "add" : "delete")}
         >
           {Array.from(tags.values()).length > 0 ? (
-            <div
+            <button
               style={{
                 display: "flex",
                 justifyContent: "center",
@@ -74,6 +74,7 @@ export default withTheme(function Header(props: {
                 borderStyle: "solid",
                 padding: "8px",
                 marginLeft: "auto",
+                backgroundColor: "white",
               }}
             >
               <TrashIcon
@@ -85,7 +86,7 @@ export default withTheme(function Header(props: {
                 }
                 style={{ margin: "0" }}
               />
-            </div>
+            </button>
           ) : (
             <></>
           )}
