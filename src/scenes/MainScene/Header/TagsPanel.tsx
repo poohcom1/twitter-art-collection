@@ -158,7 +158,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
             trigger={
               <Tag
                 key={i}
-                onClick={() => {}}
+                onClick={() => { }}
                 active={selectedTag === tag}
                 color={"red"}
               >

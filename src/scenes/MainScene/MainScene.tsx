@@ -1,14 +1,13 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useMemo } from "react";
 import type { APITweet, MultipleTweetsLookupResponse } from "twitter-types";
-import { useSession } from "next-auth/react";
 import Header from "./Header/Header";
-import styled, { keyframes, ThemeProvider } from "styled-components";
-import { fadeIn } from "react-animations";
-import { TweetComponent, ResizableMasonry } from "../../components";
+import styled, { ThemeProvider } from "styled-components";
+import { TweetComponent } from "../../components";
 import { useTags } from "src/context/TagsContext";
 import { useSelectedTag } from "src/context/SelectedTagContext";
-import { getLikes } from "src/adapters";
 import { lightTheme } from "src/themes";
+import Masonry from "react-masonry-css";
+import { useTweets } from "src/context/TweetsContext";
 
 // Styles
 const HEADER_HEIGHT = 100;
@@ -16,72 +15,42 @@ const HEADER_HEIGHT = 100;
 const MainDiv = styled.div`
   background-color: ${(props) => props.theme.color.bg.primary};
 `;
-function tweetFilter(tweet: APITweet, payload: MultipleTweetsLookupResponse) {
-  if (!tweet.attachments) {
-    return false;
-  }
-
-  const keys = tweet.attachments?.media_keys;
-
-  for (const key of keys!) {
-    const media = payload.includes?.media?.find((obj) => obj.media_key === key);
-
-    if (media?.type === "photo") return true;
-  }
-  return false;
-}
 
 export default function MainScene() {
-  const session = useSession();
+  const { tweets } = useTweets();
+  console.log(tweets);
 
   const { tags } = useTags();
   const { selectedTag, inverted } = useSelectedTag();
 
-  const [tweetIds, setTweetIds] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (session.data) {
-      const uid = session.data.user.id;
-
-      // Get tweets
-      getLikes(uid)
-        .then((payload) => {
-          setTweetIds(
-            payload.data
-              .filter((t) => tweetFilter(t, payload))
-              .map((data) => data.id)
-          );
-        })
-        .catch(console.error);
-    }
-  }, [session.data]);
-
   const filteredTags = useMemo(() => {
     // Regular filter
     if (selectedTag) {
-      return selectedTag.images.map((im) => im.id);
+      const images = selectedTag.images.map((im) => im.id);
+      return tweets.filter((data) => images.includes(data.id));
     } else {
       // Untagged
       if (inverted) {
         const tagList = Array.from(tags.values());
         const categorized = new Set<string>();
 
-        console.time("untaggedTime");
         for (const tag of tagList) {
           for (const image of tag.images) {
             categorized.add(image.id);
           }
         }
 
-        const uncategorized = tweetIds.filter((id) => !categorized.has(id));
+        const uncategorized = tweets.filter(
+          (data) => !categorized.has(data.id)
+        );
 
         return uncategorized;
       } else {
         // All tags
-        return tweetIds;
+        return tweets;
       }
     }
-  }, [inverted, selectedTag, tags, tweetIds]);
+  }, [inverted, selectedTag, tags, tweets]);
 
   return (
     <div className="App">
@@ -89,20 +58,15 @@ export default function MainScene() {
         <Header height={HEADER_HEIGHT} />
         <div style={{ minHeight: `${HEADER_HEIGHT}px` }} />
         <MainDiv style={{ padding: "32px" }}>
-          <ResizableMasonry
-            items={filteredTags.map((tag) => ({
-              id: tag,
-            }))}
-            render={function TweetWithMasonry(props: {
-              data: { id: string };
-              index: number;
-              width: number;
-            }) {
-              return <TweetComponent id={props.data.id} />;
-            }}
-            columnWidth={300}
-            columnGutter={24}
-          />
+          <Masonry
+            breakpointCols={4}
+            className="my-masonry-grid"
+            columnClassName="my-masonry-grid_column"
+          >
+            {filteredTags.map((data, key) => (
+              <TweetComponent id={data.id} ast={data.ast} key={key} />
+            ))}
+          </Masonry>
         </MainDiv>
       </ThemeProvider>
     </div>
