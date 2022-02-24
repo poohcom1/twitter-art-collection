@@ -18,7 +18,6 @@ const MainDiv = styled.div`
 
 export default function MainScene() {
   const { tweets } = useTweets();
-  console.log(tweets);
 
   const { tags } = useTags();
   const { selectedTag, inverted } = useSelectedTag();

@@ -8,7 +8,7 @@ import Link from "next/link";
 import { SelectedTagProvider } from "src/context/SelectedTagContext";
 import { EditModeProvider } from "src/context/EditModeContext";
 // Next SSR
-import { fetchTweetAst } from "../react-static-tweets/packages/static-tweets/src/fetchTweetAst";
+import { fetchTweetAst } from "static-tweets";
 import type { GetServerSideProps } from "next";
 import { getTwitterApi } from "lib/twitter";
 import getMongoConnection from "lib/mongodb";
@@ -85,8 +85,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
           id: likedTweetsIds[i],
           ast: tweetDataAsts[i],
         });
-      } else {
-        console.log(likedTweetsIds[i]);
       }
     }
   }
