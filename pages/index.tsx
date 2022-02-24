@@ -2,17 +2,16 @@ import Head from "next/head";
 import { getSession } from "next-auth/react";
 import "react-static-tweets/styles.css";
 import { TagsProvider } from "src/context/TagsContext";
-import { LoadingScene, MainScene } from "../src/scenes";
 import { SelectedTagProvider } from "src/context/SelectedTagContext";
 import { EditModeProvider } from "src/context/EditModeContext";
-import { TweetProvider } from "src/context/TweetsContext";
+import { ThemeProvider } from "styled-components";
+import { MainScene } from "src/scenes";
+import { lightTheme } from "src/themes";
 // Next SSR
 import type { GetServerSideProps } from "next";
 import getMongoConnection from "lib/mongodb";
 import UserModel from "models/User";
 import cache from "memory-cache";
-import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/router";
 
 interface IndexPageProps {
   tags: Record<string, TagSchema>;
@@ -23,20 +22,11 @@ const DO_CACHE = false;
 const PROPS_CACHE_KEY = "indexProps";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession(context);
-
-  if (!session) {
-    return {
-      redirect: {
-        destination: "/about",
-        permanent: false,
-      },
-    };
-  }
-
   if (DO_CACHE && cache.get(PROPS_CACHE_KEY)) {
     return { props: cache.get(PROPS_CACHE_KEY) };
   }
+
+  const session = await getSession(context);
 
   // Get tweets
   const props: IndexPageProps = {
@@ -83,37 +73,20 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 export default function Collection(props: IndexPageProps) {
-  const [loaded, setPageLoaded] = useState(false);
-
-  const tweetDataRef: any = useRef();
-
-  useEffect(() => {
-    fetch("/api/tweets")
-      .then((res) => res.json())
-      .then((res) => {
-        tweetDataRef.current = res.tweetData;
-        setPageLoaded(true);
-      });
-  });
-
   return (
     <>
       <Head>
         <title>Twitter Art Collection</title>
       </Head>
-      {loaded ? (
-        <TweetProvider value={tweetDataRef.current}>
-          <TagsProvider tags={new Map(Object.entries(props.tags))}>
-            <SelectedTagProvider>
-              <EditModeProvider>
-                <MainScene />
-              </EditModeProvider>
-            </SelectedTagProvider>
-          </TagsProvider>
-        </TweetProvider>
-      ) : (
-        <LoadingScene />
-      )}
+      <ThemeProvider theme={lightTheme}>
+        <TagsProvider tags={new Map(Object.entries(props.tags))}>
+          <SelectedTagProvider>
+            <EditModeProvider>
+              <MainScene />
+            </EditModeProvider>
+          </SelectedTagProvider>
+        </TagsProvider>
+      </ThemeProvider>
     </>
   );
 }
