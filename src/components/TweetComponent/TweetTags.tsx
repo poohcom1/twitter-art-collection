@@ -118,7 +118,7 @@ export default function TweetTags(props: { image: ImageSchema }) {
     if (tagsContainerRef.current) {
       setOverflow(
         tagsContainerRef.current.offsetWidth <
-        tagsContainerRef.current.scrollWidth
+          tagsContainerRef.current.scrollWidth
       );
     }
   }, []);
@@ -129,7 +129,7 @@ export default function TweetTags(props: { image: ImageSchema }) {
         trigger={
           <Tab>
             <StyledButton>
-              <PlusCircle size={BUTTON_SIZE} onClick={() => { }} />
+              <PlusCircle size={BUTTON_SIZE} onClick={() => {}} />
             </StyledButton>
           </Tab>
         }

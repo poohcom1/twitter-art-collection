@@ -1,10 +1,5 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, useContext, useMemo, useState } from "react";
+import { useTags } from "./TagsContext";
 
 interface ISelectedTagContext {
   selectedTag?: TagSchema;
@@ -16,9 +11,14 @@ const SelectedTagContext = createContext<ISelectedTagContext | undefined>(
   undefined
 );
 
-export function SelectedTagProvider(props: { children: React.ReactNode }) {
+export function SelectedTagProvider(props: {
+  value?: string;
+  children: React.ReactNode;
+}) {
+  const { tags } = useTags();
+
   const [selectedTag, setSelectedTag] = useState<TagSchema | undefined>(
-    undefined
+    props.value ? tags.get(props.value) : undefined
   );
 
   const [inverted, setInverted] = useState(false);
