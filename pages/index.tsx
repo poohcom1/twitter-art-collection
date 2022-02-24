@@ -1,56 +1,119 @@
 import Head from "next/head";
-import { useRouter } from "next/router";
-import { getSession, SessionProvider, useSession } from "next-auth/react";
+import { getSession } from "next-auth/react";
 import "react-static-tweets/styles.css";
 import { TagsProvider } from "src/context/TagsContext";
-import { MainScene } from "../src/scenes";
-import Link from "next/link";
+import { LoadingScene, MainScene } from "../src/scenes";
 import { SelectedTagProvider } from "src/context/SelectedTagContext";
 import { EditModeProvider } from "src/context/EditModeContext";
 import { TweetProvider } from "src/context/TweetsContext";
 // Next SSR
-import { fetchTweetAst } from "static-tweets";
 import type { GetServerSideProps } from "next";
-import { getTwitterApi } from "lib/twitter";
 import getMongoConnection from "lib/mongodb";
 import UserModel from "models/User";
 import cache from "memory-cache";
-import { TweetV2, Tweetv2ListResult } from "twitter-api-v2";
-import { TwitterLogin } from "src/components";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/router";
+
+interface IndexPageProps {
+  tags: Record<string, TagSchema>;
+  session: any;
+}
+
+const DO_CACHE = false;
+const PROPS_CACHE_KEY = "indexProps";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession();
-  if (session?.user) {
+  const session = await getSession(context);
+
+  if (!session) {
     return {
       redirect: {
+        destination: "/about",
         permanent: false,
-        destination: "/collection",
       },
     };
   }
 
-  return { props: {} };
+  if (DO_CACHE && cache.get(PROPS_CACHE_KEY)) {
+    return { props: cache.get(PROPS_CACHE_KEY) };
+  }
+
+  // Get tweets
+  const props: IndexPageProps = {
+    tags: {},
+    session,
+  };
+
+  if (session?.user) {
+    console.time("MongoConnect");
+
+    await getMongoConnection();
+
+    console.timeEnd("MongoConnect");
+
+    console.time("UserFetch");
+
+    const user = await UserModel.findOneAndUpdate(
+      { uid: session.user.id },
+      {
+        $setOnInsert: {
+          uid: session.user.id,
+          tags: {},
+        },
+      },
+      {
+        upsert: true,
+      }
+    );
+
+    if (!user?.tags) {
+      throw new Error("Tags not found!");
+    }
+
+    props.tags = Object.fromEntries(user.tags);
+
+    console.timeEnd("UserFetch");
+
+    cache.put(PROPS_CACHE_KEY, props, 1000 * 60 * 60 * 24);
+  }
+
+  return {
+    props,
+  };
 };
 
-export default function Index() {
-  const router = useRouter();
+export default function Collection(props: IndexPageProps) {
+  const [loaded, setPageLoaded] = useState(false);
 
-  if (router.query["error"] !== undefined) {
-    return (
-      <div className="main">
-        <h1>Oh noes something went wrong</h1>
-        <Link href="/">Return to home</Link>
-      </div>
-    );
-  } else {
-    return (
-      <>
-        <Head>
-          <title>Twitter Art Collection</title>
-        </Head>
-        <p>Welcome!</p>
-        <TwitterLogin />
-      </>
-    );
-  }
+  const tweetDataRef: any = useRef();
+
+  useEffect(() => {
+    fetch("/api/tweets")
+      .then((res) => res.json())
+      .then((res) => {
+        tweetDataRef.current = res.tweetData;
+        setPageLoaded(true);
+      });
+  });
+
+  return (
+    <>
+      <Head>
+        <title>Twitter Art Collection</title>
+      </Head>
+      {loaded ? (
+        <TweetProvider value={tweetDataRef.current}>
+          <TagsProvider tags={new Map(Object.entries(props.tags))}>
+            <SelectedTagProvider>
+              <EditModeProvider>
+                <MainScene />
+              </EditModeProvider>
+            </SelectedTagProvider>
+          </TagsProvider>
+        </TweetProvider>
+      ) : (
+        <LoadingScene />
+      )}
+    </>
+  );
 }

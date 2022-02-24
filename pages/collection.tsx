@@ -1,21 +1,16 @@
 import Head from "next/head";
-import { useRouter } from "next/router";
-import { getSession, SessionProvider } from "next-auth/react";
+import { getSession } from "next-auth/react";
 import "react-static-tweets/styles.css";
 import { TagsProvider } from "src/context/TagsContext";
 import { LoadingScene, MainScene } from "../src/scenes";
-import Link from "next/link";
 import { SelectedTagProvider } from "src/context/SelectedTagContext";
 import { EditModeProvider } from "src/context/EditModeContext";
 import { TweetProvider } from "src/context/TweetsContext";
 // Next SSR
-import { fetchTweetAst } from "static-tweets";
 import type { GetServerSideProps } from "next";
-import { getTwitterApi } from "lib/twitter";
 import getMongoConnection from "lib/mongodb";
 import UserModel from "models/User";
 import cache from "memory-cache";
-import { TweetV2, Tweetv2ListResult } from "twitter-api-v2";
 import { useEffect, useRef, useState } from "react";
 
 interface IndexPageProps {
@@ -75,23 +70,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   return {
     props,
   };
-};
-
-const filterTweets = (payloadData: Tweetv2ListResult) => (tweet: TweetV2) => {
-  if (!tweet.attachments) {
-    return false;
-  }
-
-  const keys = tweet.attachments?.media_keys;
-
-  for (const key of keys!) {
-    const media = payloadData.includes?.media?.find(
-      (obj) => obj.media_key === key
-    );
-
-    if (media?.type === "photo") return true;
-  }
-  return false;
 };
 
 export default function Collection(props: IndexPageProps) {

@@ -48,6 +48,9 @@ export default NextAuth({
             }
             return token;
         },
+        redirect: async ({ url, baseUrl }) => {
+            return baseUrl
+        }
     },
     session: {
         strategy: 'jwt',

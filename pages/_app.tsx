@@ -1,6 +1,7 @@
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
-import { useRouter } from "next/router";
+import Router from "next/router";
+import { useEffect } from "react";
 import "../styles/globals.css";
 
 // Suppress specific warnings in dev
