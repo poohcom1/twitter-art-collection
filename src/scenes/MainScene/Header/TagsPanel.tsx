@@ -42,6 +42,9 @@ const StyledTagsPanel = styled.div`
   justify-content: start;
 `;
 
+/**
+ * Create new tag component
+ */
 function NewTag() {
   const session = useSession();
 
@@ -119,11 +122,16 @@ function NewTag() {
   );
 }
 
+/**
+ * Main Component
+ */
 export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
   const { tags, dispatchTags } = useTags();
   const { selectedTag, setSelection, inverted } = useSelectedTag();
   const { editMode } = useEditMode();
   const session = useSession();
+
+  const [localSelectedTag, setLocalSelectedTag] = useState();
 
   return (
     <StyledTagsPanel>
@@ -158,7 +166,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
             trigger={
               <Tag
                 key={i}
-                onClick={() => { }}
+                onClick={() => {}}
                 active={selectedTag === tag}
                 color={"red"}
               >

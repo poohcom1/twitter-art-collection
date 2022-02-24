@@ -1,7 +1,9 @@
 import _ from "lodash";
+import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useRef } from "react";
 import { createContext, useContext, useReducer } from "react";
+import { getTags } from "src/adapters";
 
 const TagsContext = createContext<
   { state: TagCollection; dispatch: Dispatch } | undefined
@@ -59,18 +61,19 @@ function tagsReducer(state: TagCollection, action: TagActions): TagCollection {
 }
 
 function TagsProvider(props: {
-  tags: TagCollection;
+  tags?: TagCollection;
   children: React.ReactNode;
 }) {
-  const tags = useRef(props.tags);
-  const [state, dispatch] = useReducer(tagsReducer, props.tags);
+  const session = useSession();
+
+  const [state, dispatch] = useReducer(tagsReducer, new Map());
 
   useEffect(() => {
-    if (tags.current !== props.tags) {
-      tags.current = props.tags;
-      dispatch({ type: "replace_tags", tags: props.tags });
-    }
-  });
+    if (session.data)
+      getTags(session.data?.user.id).then((newTags) =>
+        dispatch({ type: "replace_tags", tags: newTags })
+      );
+  }, [session.data]);
 
   const value = { state, dispatch };
 
