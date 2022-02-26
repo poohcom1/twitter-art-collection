@@ -25,14 +25,22 @@ export const useStore = create<IStore>((set, get) => ({
         tags.delete(tag.name)
         return { ...state, tags }
     }),
-    addImage: (tag, image) => set(() => {
+    addImage: (tag, image) => set(state => {
+        const tags = state.tags
         tag.images.push(image)
+        tags.set(tag.name, tag)
 
         putTags(get().uid, tag).then()
+
+        return { ...state, tags: tags }
     }),
-    removeImage: (tag, image) => set(() => {
-        tag.images.splice(tag.images.indexOf(image), 1)
+    removeImage: (tag, image) => set(state => {
+        const tags = state.tags
+        tag.images = tag.images.filter(im => im !== image)
+        tags.set(tag.name, tag)
 
         putTags(get().uid, tag).then()
+
+        return { ...state, tags: tags }
     })
 }))

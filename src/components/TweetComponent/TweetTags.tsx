@@ -1,6 +1,13 @@
 import _ from "lodash";
 import { useSession } from "next-auth/react";
-import { HTMLAttributes, useEffect, useMemo, useRef, useState } from "react";
+import {
+  HTMLAttributes,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   AiOutlinePlusCircle as PlusCircle,
   AiOutlineCloseCircle as CloseCircle,
@@ -55,11 +62,39 @@ const Tab = styled(StyledTab)`
   border-top-right-radius: 10px;
 `;
 
+/**
+ * Add image component
+ */
+function AddImagesPopupListItem(props: {
+  tag: TagSchema;
+  image: ImageSchema;
+  close: Function;
+  key: number;
+}) {
+  const session = useSession();
+  const addImage = useStore((state) => state.addImage);
+
+  const onClick = useCallback(() => {
+    if (session.data) {
+      addImage(props.tag, props.image);
+
+      props.close();
+    }
+  }, [addImage, props, session.data]);
+
+  return <PopupItem text={props.tag.name} key={props.key} onClick={onClick} />;
+}
+
+/**
+ * Main Component
+ * @param props
+ * @returns
+ */
 export default function TweetTags(props: { image: ImageSchema }) {
   const { selectedTag, setSelection } = useSelectedTag();
   const { editMode } = useEditMode();
 
-  const { includedTags, notIncludedTags, addImage, removeImage } = useStore(
+  const { includedTags, notIncludedTags, removeImage } = useStore(
     (state) => {
       const tags = Array.from(state.tags.values());
 
@@ -73,25 +108,25 @@ export default function TweetTags(props: { image: ImageSchema }) {
       return {
         includedTags,
         notIncludedTags,
-        addImage: state.addImage,
         removeImage: state.removeImage,
       };
+    },
+    (prevState, nextState) => {
+      // Ignore inner image changes
+      return (
+        _.isEqual(
+          prevState.includedTags.map((tag) => tag.name),
+          nextState.includedTags.map((tag) => tag.name)
+        ) &&
+        _.isEqual(
+          prevState.notIncludedTags.map((tag) => tag.name),
+          nextState.notIncludedTags.map((tag) => tag.name)
+        )
+      );
     }
   );
 
   const session = useSession();
-
-  const onTagClick = (tag: TagSchema) => {
-    if (session.data) {
-      addImage(tag, props.image);
-
-      putTags(session.data.user.id, tag).then().catch(console.error);
-
-      return true;
-    }
-
-    return false;
-  };
 
   // Overflow detection
   const tagsContainerRef = useRef<HTMLDivElement>(null);
@@ -109,31 +144,27 @@ export default function TweetTags(props: { image: ImageSchema }) {
   return (
     <MainContainer>
       <StyledPopup
-        trigger={
-          <Tab>
-            <StyledButton>
-              <PlusCircle size={BUTTON_SIZE} onClick={() => {}} />
-            </StyledButton>
-          </Tab>
-        }
+        trigger={useMemo(
+          () => (
+            <Tab>
+              <StyledButton>
+                <PlusCircle size={BUTTON_SIZE} onClick={() => {}} />
+              </StyledButton>
+            </Tab>
+          ),
+          []
+        )}
         closeOnDocumentClick
       >
         {(close: Function) =>
-          notIncludedTags.length > 0 ? (
-            notIncludedTags.map((tag, key) => (
-              <PopupItem
-                text={tag.name}
-                key={key}
-                onClick={() => {
-                  if (onTagClick(tag)) {
-                    close();
-                  }
-                }}
-              />
-            ))
-          ) : (
-            <p>No more tags!</p>
-          )
+          notIncludedTags.map((tag, key) => (
+            <AddImagesPopupListItem
+              key={key}
+              tag={tag}
+              image={props.image}
+              close={close}
+            />
+          ))
         }
       </StyledPopup>
       <TabContainer ref={tagsContainerRef} overflowing={overflow}>
