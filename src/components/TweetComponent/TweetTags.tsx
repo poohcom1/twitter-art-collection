@@ -6,15 +6,12 @@ import {
   AiOutlineCloseCircle as CloseCircle,
 } from "react-icons/ai";
 import { GiHamburgerMenu as MenuIcon } from "react-icons/gi";
-import { putTags, removeImage } from "src/adapters";
+import { putTags } from "src/adapters";
 import { useEditMode } from "src/context/EditModeContext";
 import { useSelectedTag } from "src/context/SelectedTagContext";
-import { useTags } from "src/context/TagsContext";
+import { useStore } from "src/stores/rootStore";
 import styled from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
-
-// TODO Make this a user setting
-const SHALLOW_UPDATE = true;
 
 const BUTTON_SIZE = 35;
 
@@ -60,47 +57,33 @@ const Tab = styled(StyledTab)`
 
 export default function TweetTags(props: { image: ImageSchema }) {
   const { selectedTag, setSelection } = useSelectedTag();
-  const { tags, dispatchTags } = useTags();
   const { editMode } = useEditMode();
 
-  // As tags is a context used by the entire page, using the context will cause an uncessarily large re-render
-  // As setting tags from an tweet component will only affect the control list in the current tweet,
-  //  we can use a local state to just update re-render the local tags
-  const [localTags, setLocalTags] = useState(tags);
+  const { includedTags, notIncludedTags, addImage, removeImage } = useStore(
+    (state) => {
+      const tags = Array.from(state.tags.values());
 
-  const getTags = useMemo(
-    () => (SHALLOW_UPDATE ? localTags : tags),
-    [localTags, tags]
+      const includedTags = tags.filter((tag) =>
+        tag.images.find((im) => im.id === props.image.id)
+      );
+      const notIncludedTags = tags.filter(
+        (tag) => !tag.images.find((im) => im.id === props.image.id)
+      );
+
+      return {
+        includedTags,
+        notIncludedTags,
+        addImage: state.addImage,
+        removeImage: state.removeImage,
+      };
+    }
   );
-
-  const includedTags = useMemo(() => {
-    const filtered = Array.from(getTags.values()).filter(
-      (tag) => _.find(tag.images, props.image) && tag !== selectedTag // Skip currently selected tag
-    );
-    return selectedTag ? [selectedTag, ...filtered] : filtered; // Add selected tag in front
-  }, [getTags, props.image, selectedTag]);
-
-  const notIncludedTags = useMemo(() => {
-    return Array.from(getTags.values()).filter(
-      (tag) => !_.find(includedTags, tag)
-    );
-  }, [getTags, includedTags]);
 
   const session = useSession();
 
   const onTagClick = (tag: TagSchema) => {
     if (session.data) {
-      // TODO Count doesn't update
-      dispatchTags({
-        type: "add_image",
-        tag: tag,
-        image: props.image,
-        shallow: SHALLOW_UPDATE,
-      });
-
-      if (SHALLOW_UPDATE) {
-        setLocalTags(new Map(localTags));
-      }
+      addImage(tag, props.image);
 
       putTags(session.data.user.id, tag).then().catch(console.error);
 
@@ -163,18 +146,7 @@ export default function TweetTags(props: { image: ImageSchema }) {
               if (editMode !== "delete") {
                 setSelection(tag);
               } else if (session.data) {
-                removeImage(session.data.user.id, tag, props.image).then();
-
-                dispatchTags({
-                  type: "remove_image",
-                  tag: tag,
-                  image: props.image,
-                  shallow: SHALLOW_UPDATE && selectedTag !== tag,
-                });
-
-                if (SHALLOW_UPDATE) {
-                  setLocalTags(new Map(localTags));
-                }
+                removeImage(tag, props.image);
               }
             }}
           >

@@ -1,11 +1,11 @@
 import type { APITweet, MultipleTweetsLookupResponse } from "twitter-types";
 import styled from "styled-components";
 import { TweetComponent } from "../../../components";
-import { useTags } from "src/context/TagsContext";
 import { useSelectedTag } from "src/context/SelectedTagContext";
 import Masonry from "react-masonry-css";
 import { useMemo } from "react";
 import { useTweets } from "src/context/TweetsContext";
+import { useStore } from "src/stores/rootStore";
 
 const MainDiv = styled.div`
   background-color: ${(props) => props.theme.color.bg.primary};
@@ -15,7 +15,7 @@ export default function TweetsGallery() {
   // Filtering and rendering
   const { tweets } = useTweets();
 
-  const { tags } = useTags();
+  const tags = useStore((state) => state.tags);
   const { selectedTag, inverted } = useSelectedTag();
 
   const filteredTags = useMemo(() => {

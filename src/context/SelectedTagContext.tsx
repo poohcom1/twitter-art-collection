@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, useState } from "react";
-import { useTags } from "./TagsContext";
+import { useStore } from "src/stores/rootStore";
 
 interface ISelectedTagContext {
   selectedTag?: TagSchema;
@@ -15,7 +15,7 @@ export function SelectedTagProvider(props: {
   value?: string;
   children: React.ReactNode;
 }) {
-  const { tags } = useTags();
+  const tags = useStore((state) => state.tags);
 
   const [selectedTag, setSelectedTag] = useState<TagSchema | undefined>(
     props.value ? tags.get(props.value) : undefined

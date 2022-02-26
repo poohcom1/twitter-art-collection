@@ -7,11 +7,12 @@ import {
   StyledTab,
 } from "src/components";
 import { useSelectedTag } from "src/context/SelectedTagContext";
-import { useTags } from "src/context/TagsContext";
+import { useStore } from "src/stores/rootStore";
 import { useEditMode } from "src/context/EditModeContext";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { AiOutlineCloseCircle as CloseCircle } from "react-icons/ai";
 import { deleteTag } from "src/adapters";
+import { takeRightWhile } from "lodash";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
@@ -48,7 +49,7 @@ const StyledTagsPanel = styled.div`
 function NewTag() {
   const session = useSession();
 
-  const { dispatchTags } = useTags();
+  const addTag = useStore((state) => state.addTag);
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [tagName, setTagName] = useState("");
@@ -68,7 +69,7 @@ function NewTag() {
       images: [],
     };
 
-    dispatchTags({ type: "add_tag", tag: body });
+    addTag(body);
 
     fetch(`/api/user/${session.data.user.id}/tags/`, {
       method: "POST",
@@ -126,7 +127,7 @@ function NewTag() {
  * Main Component
  */
 export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
-  const { tags, dispatchTags } = useTags();
+  const [tags, removeTag] = useStore((state) => [state.tags, state.removeTag]);
   const { selectedTag, setSelection, inverted } = useSelectedTag();
   const { editMode } = useEditMode();
   const session = useSession();
@@ -190,7 +191,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
                 closeCallback={close}
                 onAccept={() => {
                   if (session.data) {
-                    dispatchTags({ type: "remove_tag", tag: tag });
+                    removeTag(tag);
                     if (selectedTag === tag) {
                       setSelection(undefined);
                     }

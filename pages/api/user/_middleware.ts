@@ -23,7 +23,5 @@ export default async function middleware(req: NextRequest) {
         })
     }
 
-    console.info("Auth successful")
-
     return NextResponse.next()
 }

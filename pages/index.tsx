@@ -1,7 +1,6 @@
 import Head from "next/head";
 import { getSession, useSession } from "next-auth/react";
 import "react-static-tweets/styles.css";
-import { TagsProvider } from "src/context/TagsContext";
 import { SelectedTagProvider } from "src/context/SelectedTagContext";
 import { EditModeProvider } from "src/context/EditModeContext";
 import { ThemeProvider } from "styled-components";
@@ -15,6 +14,7 @@ import cache from "memory-cache";
 import { useEffect, useState } from "react";
 import { getTags } from "src/adapters";
 import { Session } from "next-auth";
+import { useStore } from "src/stores/rootStore";
 
 interface IndexPageProps {
   props: any;
@@ -40,20 +40,28 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default function Collection(props: IndexPageProps) {
+export default function Index(props: IndexPageProps) {
+  const session = useSession();
+  const initTags = useStore((state) => state.initTags);
+
+  useEffect(() => {
+    if (session.data)
+      getTags(session.data.user.id).then((tags) =>
+        initTags(tags, session.data.user.id)
+      );
+  }, [session.data, initTags]);
+
   return (
     <>
       <Head>
         <title>Twitter Art Collection</title>
       </Head>
       <ThemeProvider theme={lightTheme}>
-        <TagsProvider>
-          <SelectedTagProvider>
-            <EditModeProvider>
-              <MainScene />
-            </EditModeProvider>
-          </SelectedTagProvider>
-        </TagsProvider>
+        <SelectedTagProvider>
+          <EditModeProvider>
+            <MainScene />
+          </EditModeProvider>
+        </SelectedTagProvider>
       </ThemeProvider>
     </>
   );

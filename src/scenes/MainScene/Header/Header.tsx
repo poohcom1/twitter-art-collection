@@ -3,7 +3,7 @@ import TagsPanel from "./TagsPanel";
 import UserSection from "./UserPanel";
 import { useEditMode } from "src/context/EditModeContext";
 import { BiTrash as TrashIcon } from "react-icons/bi";
-import { useTags } from "src/context/TagsContext";
+import { useStore } from "src/stores/rootStore";
 
 const SearchDiv = styled.input`
   flex-grow: 1;
@@ -44,7 +44,7 @@ export default withTheme(function Header(props: {
   height: number;
   theme: DefaultTheme;
 }) {
-  const { tags } = useTags();
+  const { tags } = useStore();
   const { editMode, setEditMode } = useEditMode();
 
   const { height, theme } = props;

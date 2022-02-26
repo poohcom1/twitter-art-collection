@@ -1,5 +1,8 @@
+import React from "react";
 import { Tweet } from "react-static-tweets";
 import TweetTags from "./TweetTags";
+
+const MemoTweet = React.memo(Tweet);
 
 export default function TweetComponent(props: {
   id: string;
