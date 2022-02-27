@@ -67,7 +67,7 @@ const Tab = styled(StyledTab)`
 function AddImagesPopupListItem(
   props: {
     tag: TagSchema;
-    image: ImageSchema;
+    image: TweetSchema;
     close: Function;
   } & React.HTMLProps<HTMLDivElement>
 ) {
@@ -90,7 +90,7 @@ function AddImagesPopupListItem(
  * @param props
  * @returns
  */
-export default function TweetTags(props: { image: ImageSchema }) {
+export default function TweetTags(props: { image: TweetSchema }) {
   const { editMode } = useEditMode();
 
   const [includedTags, notIncludedTags, removeImage, setFilterTag] = useStore(

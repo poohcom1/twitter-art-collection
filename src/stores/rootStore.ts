@@ -1,13 +1,12 @@
 import create from "zustand";
-import produce from "immer";
 import { combine } from "zustand/middleware";
 
 import { putTags } from "src/adapters";
 
-type ImagePredicate = <S extends ImageSchema>(
-  image: ImageSchema,
+type ImagePredicate = <S extends ImageSchema<any>>(
+  image: ImageSchema<any>,
   index?: number,
-  array?: ImageSchema[]
+  array?: ImageSchema<any>[]
 ) => image is S;
 
 export const useStore = create(
@@ -36,7 +35,7 @@ export const useStore = create(
           return { ...state, tags };
         }),
       // Images
-      addImage: (tag: TagSchema, image: ImageSchema): void =>
+      addImage: (tag: TagSchema, image: ImageSchema<any>): void =>
         set((state) => {
           const tags = state.tags;
           tag.images.push(image);
@@ -46,7 +45,7 @@ export const useStore = create(
 
           return { ...state, tags: tags };
         }),
-      removeImage: (tag: TagSchema, image: ImageSchema): void =>
+      removeImage: (tag: TagSchema, image: ImageSchema<any>): void =>
         set((state) => {
           const tags = state.tags;
           tag.images = tag.images.filter((im) => im !== image);
@@ -63,7 +62,7 @@ export const useStore = create(
             return !!tag.images.find((im) => im.id === image.id);
           });
 
-          return { imageFilter: state.imageFilter, galleryRendering: true };
+          return { imageFilter: state.imageFilter };
         }),
       setFilterType: (filter: "all" | "uncategorized") =>
         set((state) => {
@@ -82,8 +81,12 @@ export const useStore = create(
             }
           });
 
-          return { imageFilter: state.imageFilter, galleryRendering: true };
+          return { imageFilter: state.imageFilter };
         }),
+
+      // Loading
+      startLodaing: () => set({ galleryRendering: true }),
+      stopLoading: () => set({ galleryRendering: false }),
     })
   )
 );

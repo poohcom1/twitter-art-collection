@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React from "react";
+import React, { useEffect } from "react";
 import { useCallback, useMemo } from "react";
 import { useTweets } from "src/context/TweetsContext";
 import { useStore } from "src/stores/rootStore";
@@ -10,18 +10,55 @@ const MainDiv = styled.div`
   background-color: ${(props) => props.theme.color.bg.primary};
 `;
 
-interface TagSchema extends ImageSchema {
-  ast: any;
+class LoadingMasonryA extends React.Component {
+  children: React.ReactNode;
+
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.children = props.children;
+  }
+
+  componentDidUpdate() {
+    console.log("Finished rendering");
+  }
+
+  render(): React.ReactNode {
+    return (
+      <Masonry
+        breakpointCols={4}
+        className="my-masonry-grid"
+        columnClassName="my-masonry-grid_column"
+      >
+        {this.props.children}
+      </Masonry>
+    );
+  }
 }
 
-let tweetComponents: React.ReactNode[] = [];
+function LoadingMasonry(props: { children: React.ReactNode }) {
+  useEffect(() => {
+    // stopLoading();
+  }, [props.children]);
+
+  return (
+    <Masonry
+      breakpointCols={4}
+      className="my-masonry-grid"
+      columnClassName="my-masonry-grid_column"
+    >
+      {props.children}
+    </Masonry>
+  );
+}
 
 export default function TweetsGallery() {
   // Filtering and rendering
   const { tweets } = useTweets();
 
-  const images: TagSchema[] = useMemo(() => {
-    return tweets.map((tweet) => ({ ...tweet, platform: "twitter" }));
+  const images: TweetSchema[] = useMemo(() => {
+    if (tweets)
+      return tweets.map((tweet) => ({ ...tweet, platform: "twitter" }));
+    else return [];
   }, [tweets]);
 
   const filteredTags = useStore(
@@ -30,15 +67,11 @@ export default function TweetsGallery() {
 
   return (
     <MainDiv style={{ padding: "32px" }}>
-      <Masonry
-        breakpointCols={4}
-        className="my-masonry-grid"
-        columnClassName="my-masonry-grid_column"
-      >
+      <LoadingMasonry>
         {filteredTags.map((data) => (
           <TweetComponent id={data.id} ast={data.ast} key={data.id} />
         ))}
-      </Masonry>
+      </LoadingMasonry>
     </MainDiv>
   );
 }

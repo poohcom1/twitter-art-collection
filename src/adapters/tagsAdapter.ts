@@ -33,7 +33,7 @@ export async function putTags(uid: string, tag: TagSchema): Promise<Response> {
 export async function removeImage(
   uid: string,
   tag: TagSchema,
-  image: ImageSchema
+  image: ImageSchema<any>
 ) {
   tag.images = tag.images.filter((im) => im !== image);
 

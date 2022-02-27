@@ -1,27 +1,31 @@
 // DB Schema
-type Platform = "twitter"
+type Platform = "twitter";
 
-interface ImageSchema {
-    id: string
-    platform: Platform
+interface ImageSchema<P extends Platform> {
+  id: string;
+  platform: P;
+}
+
+interface TweetSchema extends ImageSchema<"twitter"> {
+  ast: any;
 }
 
 interface TagSchema {
-    name: string
-    images: Array<ImageSchema>
+  name: string;
+  images: ImageSchema[];
 }
 
-type TagCollection = Map<string, TagSchema>
+type TagCollection = Map<string, TagSchema>;
 
 interface UserSchema {
-    uid: string
-    tags: TagCollection
+  uid: string;
+  tags: TagCollection;
 }
 
 // API Objects
 
-interface PostTagBody extends TagSchema { }
+interface PostTagBody extends TagSchema {}
 
-interface PutTagBody extends TagSchema { }
+interface PutTagBody extends TagSchema {}
 
-interface DeleteTagBody extends TagSchema { }
+interface DeleteTagBody extends TagSchema {}

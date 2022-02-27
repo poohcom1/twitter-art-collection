@@ -31,7 +31,7 @@ export default function MainScene() {
           <TweetsGallery />
         </TweetProvider>
       ) : (
-        <LoadingScene />
+        <LoadingScene display={true} />
       )}
     </div>
   );
