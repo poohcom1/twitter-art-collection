@@ -17,7 +17,7 @@ export default function TweetComponent(props: {
           platform: "twitter",
         }}
       />
-      <Tweet id={props.ast[0].data.id} ast={props.ast} />
+      <MemoTweet id={props.ast[0].data.id} ast={props.ast} />
     </div>
   );
 }

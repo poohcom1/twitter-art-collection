@@ -1,7 +1,6 @@
 import Head from "next/head";
 import { getSession, useSession } from "next-auth/react";
 import "react-static-tweets/styles.css";
-import { SelectedTagProvider } from "src/context/SelectedTagContext";
 import { EditModeProvider } from "src/context/EditModeContext";
 import { ThemeProvider } from "styled-components";
 import { MainScene } from "src/scenes";
@@ -57,11 +56,9 @@ export default function Index(props: IndexPageProps) {
         <title>Twitter Art Collection</title>
       </Head>
       <ThemeProvider theme={lightTheme}>
-        <SelectedTagProvider>
-          <EditModeProvider>
-            <MainScene />
-          </EditModeProvider>
-        </SelectedTagProvider>
+        <EditModeProvider>
+          <MainScene />
+        </EditModeProvider>
       </ThemeProvider>
     </>
   );

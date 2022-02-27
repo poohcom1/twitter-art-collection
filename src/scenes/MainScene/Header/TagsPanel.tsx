@@ -1,18 +1,16 @@
 import { useSession } from "next-auth/react";
-import React, { useRef, useState } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   ConfirmationDialogue,
   StyledModel,
   StyledPopup,
   StyledTab,
 } from "src/components";
-import { useSelectedTag } from "src/context/SelectedTagContext";
 import { useStore } from "src/stores/rootStore";
 import { useEditMode } from "src/context/EditModeContext";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { AiOutlineCloseCircle as CloseCircle } from "react-icons/ai";
 import { deleteTag } from "src/adapters";
-import { takeRightWhile } from "lodash";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
@@ -123,30 +121,59 @@ function NewTag() {
   );
 }
 
+enum FilteredTagTypes {
+  All = "_all",
+  Uncategorized = "_untagged",
+}
+
 /**
  * Main Component
  */
 export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
-  const [tags, removeTag] = useStore((state) => [state.tags, state.removeTag]);
-  const { selectedTag, setSelection, inverted } = useSelectedTag();
+  const [tags, removeTag, _setFilterType, _setFilterTag] = useStore((state) => [
+    state.tags,
+    state.removeTag,
+    state.setFilterType,
+    state.setFilterTag,
+  ]);
   const { editMode } = useEditMode();
   const session = useSession();
 
-  const [localSelectedTag, setLocalSelectedTag] = useState();
+  const [selectedTag, setSelectedTag] = useState<string>(FilteredTagTypes.All);
+
+  const setFilterType = useCallback(
+    (type: FilteredTagTypes) => () => {
+      if (type === "_all") {
+        setSelectedTag(FilteredTagTypes.All);
+        _setFilterType("all");
+      } else {
+        setSelectedTag(FilteredTagTypes.Uncategorized);
+        _setFilterType("uncategorized");
+      }
+    },
+    []
+  );
+  const setFilter = useCallback(
+    (tag: TagSchema) => () => {
+      setSelectedTag(tag.name);
+      _setFilterTag(tag);
+    },
+    []
+  );
 
   return (
     <StyledTagsPanel>
       <NewTag />
       <Tag
         style={{ width: DEFAULT_TAG_WIDTH }}
-        onClick={() => setSelection(undefined, false)}
-        active={!selectedTag && !inverted}
+        onClick={setFilterType(FilteredTagTypes.All)}
+        active={selectedTag === FilteredTagTypes.All}
       >
         All
       </Tag>
       <Tag
-        onClick={() => setSelection(undefined, true)}
-        active={!selectedTag && inverted}
+        onClick={setFilterType(FilteredTagTypes.Uncategorized)}
+        active={selectedTag === FilteredTagTypes.Uncategorized}
       >
         Uncategorized
       </Tag>
@@ -156,8 +183,8 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
         editMode === "add" ? (
           <Tag
             key={i}
-            onClick={() => setSelection(tag)}
-            active={selectedTag === tag}
+            onClick={setFilter(tag)}
+            active={selectedTag === tag.name}
           >
             {tag.name} - {tag.images.length}
           </Tag>
@@ -168,7 +195,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
               <Tag
                 key={i}
                 onClick={() => {}}
-                active={selectedTag === tag}
+                active={selectedTag === tag.name}
                 color={"red"}
               >
                 <CloseCircle
@@ -192,8 +219,8 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
                 onAccept={() => {
                   if (session.data) {
                     removeTag(tag);
-                    if (selectedTag === tag) {
-                      setSelection(undefined);
+                    if (selectedTag === tag.name) {
+                      setFilterType(FilteredTagTypes.All);
                     }
                     deleteTag(session.data.user.id, tag).then();
                     close();

@@ -1,46 +1,89 @@
-import { putTags } from 'src/adapters'
-import create from 'zustand'
+import create from "zustand";
+import produce from "immer";
+import { combine } from "zustand/middleware";
 
-interface IStore {
-    uid: string
-    tags: TagCollection
-    initTags: (tags: TagCollection, uid: string) => void
-    addTag: (tag: TagSchema) => void
-    removeTag: (tag: TagSchema) => void
-    addImage: (tag: TagSchema, image: ImageSchema) => void
-    removeImage: (tag: TagSchema, image: ImageSchema) => void
-}
+import { putTags } from "src/adapters";
 
-export const useStore = create<IStore>((set, get) => ({
-    uid: "",
-    tags: new Map(),
-    initTags: (tags, uid) => set({ tags, uid }),
-    addTag: (tag) => set((state) => {
-        const tags = state.tags
-        tags.set(tag.name, tag)
-        return { ...state, tags }
-    }),
-    removeTag: (tag) => set(state => {
-        const tags = state.tags
-        tags.delete(tag.name)
-        return { ...state, tags }
-    }),
-    addImage: (tag, image) => set(state => {
-        const tags = state.tags
-        tag.images.push(image)
-        tags.set(tag.name, tag)
+type ImagePredicate = <S extends ImageSchema>(
+  image: ImageSchema,
+  index?: number,
+  array?: ImageSchema[]
+) => image is S;
 
-        putTags(get().uid, tag).then()
+export const useStore = create(
+  combine(
+    {
+      uid: "",
+      tags: <TagCollection>new Map(),
+      imageFilter: <ImagePredicate>((_image, _index, _array) => {
+        return true;
+      }),
+      // Loads
+      galleryRendering: false,
+    },
+    (set, get) => ({
+      initTags: (tags: TagCollection, uid: string) => set({ tags, uid }),
+      addTag: (tag: TagSchema): void =>
+        set((state) => {
+          const tags = state.tags;
+          tags.set(tag.name, tag);
+          return { ...state, tags };
+        }),
+      removeTag: (tag: TagSchema): void =>
+        set((state) => {
+          const tags = state.tags;
+          tags.delete(tag.name);
+          return { ...state, tags };
+        }),
+      // Images
+      addImage: (tag: TagSchema, image: ImageSchema): void =>
+        set((state) => {
+          const tags = state.tags;
+          tag.images.push(image);
+          tags.set(tag.name, tag);
 
-        return { ...state, tags: tags }
-    }),
-    removeImage: (tag, image) => set(state => {
-        const tags = state.tags
-        tag.images = tag.images.filter(im => im !== image)
-        tags.set(tag.name, tag)
+          putTags(get().uid, tag).then();
 
-        putTags(get().uid, tag).then()
+          return { ...state, tags: tags };
+        }),
+      removeImage: (tag: TagSchema, image: ImageSchema): void =>
+        set((state) => {
+          const tags = state.tags;
+          tag.images = tag.images.filter((im) => im !== image);
+          tags.set(tag.name, tag);
 
-        return { ...state, tags: tags }
+          putTags(get().uid, tag).then();
+
+          return { ...state, tags: tags };
+        }),
+      // Filter
+      setFilterTag: (tag: TagSchema) =>
+        set((state) => {
+          state.imageFilter = <ImagePredicate>((image) => {
+            return !!tag.images.find((im) => im.id === image.id);
+          });
+
+          return { imageFilter: state.imageFilter, galleryRendering: true };
+        }),
+      setFilterType: (filter: "all" | "uncategorized") =>
+        set((state) => {
+          state.imageFilter = <ImagePredicate>((image) => {
+            switch (filter) {
+              case "all":
+                return true;
+              case "uncategorized":
+                const tags = Array.from(get().tags.values());
+                for (let i = 0; i < tags.length; i++) {
+                  const tag = tags[i];
+
+                  if (tag.images.find((im) => im.id === image.id)) return false;
+                }
+                return true;
+            }
+          });
+
+          return { imageFilter: state.imageFilter, galleryRendering: true };
+        }),
     })
-}))
+  )
+);

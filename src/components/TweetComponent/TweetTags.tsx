@@ -15,7 +15,6 @@ import {
 import { GiHamburgerMenu as MenuIcon } from "react-icons/gi";
 import { putTags } from "src/adapters";
 import { useEditMode } from "src/context/EditModeContext";
-import { useSelectedTag } from "src/context/SelectedTagContext";
 import { useStore } from "src/stores/rootStore";
 import styled from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
@@ -65,12 +64,13 @@ const Tab = styled(StyledTab)`
 /**
  * Add image component
  */
-function AddImagesPopupListItem(props: {
-  tag: TagSchema;
-  image: ImageSchema;
-  close: Function;
-  key: number;
-}) {
+function AddImagesPopupListItem(
+  props: {
+    tag: TagSchema;
+    image: ImageSchema;
+    close: Function;
+  } & React.HTMLProps<HTMLDivElement>
+) {
   const session = useSession();
   const addImage = useStore((state) => state.addImage);
 
@@ -91,36 +91,39 @@ function AddImagesPopupListItem(props: {
  * @returns
  */
 export default function TweetTags(props: { image: ImageSchema }) {
-  const { selectedTag, setSelection } = useSelectedTag();
   const { editMode } = useEditMode();
 
-  const { includedTags, notIncludedTags, removeImage } = useStore(
-    (state) => {
-      const tags = Array.from(state.tags.values());
+  const [includedTags, notIncludedTags, removeImage, setFilterTag] = useStore(
+    useCallback(
+      (state) => {
+        const tags = Array.from(state.tags.values());
 
-      const includedTags = tags.filter((tag) =>
-        tag.images.find((im) => im.id === props.image.id)
-      );
-      const notIncludedTags = tags.filter(
-        (tag) => !tag.images.find((im) => im.id === props.image.id)
-      );
+        const includedTags = tags.filter((tag) =>
+          tag.images.find((im) => im.id === props.image.id)
+        );
+        const notIncludedTags = tags.filter(
+          (tag) => !tag.images.find((im) => im.id === props.image.id)
+        );
 
-      return {
-        includedTags,
-        notIncludedTags,
-        removeImage: state.removeImage,
-      };
-    },
+        return [
+          includedTags,
+          notIncludedTags,
+          state.removeImage,
+          state.setFilterTag,
+        ];
+      },
+      [props.image]
+    ),
     (prevState, nextState) => {
       // Ignore inner image changes
       return (
         _.isEqual(
-          prevState.includedTags.map((tag) => tag.name),
-          nextState.includedTags.map((tag) => tag.name)
+          prevState[0].map((tag) => tag.name),
+          nextState[0].map((tag) => tag.name)
         ) &&
         _.isEqual(
-          prevState.notIncludedTags.map((tag) => tag.name),
-          nextState.notIncludedTags.map((tag) => tag.name)
+          prevState[1].map((tag) => tag.name),
+          nextState[1].map((tag) => tag.name)
         )
       );
     }
@@ -157,9 +160,9 @@ export default function TweetTags(props: { image: ImageSchema }) {
         closeOnDocumentClick
       >
         {(close: Function) =>
-          notIncludedTags.map((tag, key) => (
+          notIncludedTags.map((tag) => (
             <AddImagesPopupListItem
-              key={key}
+              key={tag.name}
               tag={tag}
               image={props.image}
               close={close}
@@ -168,14 +171,14 @@ export default function TweetTags(props: { image: ImageSchema }) {
         }
       </StyledPopup>
       <TabContainer ref={tagsContainerRef} overflowing={overflow}>
-        {includedTags.map((tag, key) => (
+        {includedTags.map((tag) => (
           <Tab
             color={editMode !== "delete" ? undefined : "red"}
-            key={key}
-            active={tag === selectedTag}
+            key={tag.name}
+            active={true}
             onClick={() => {
               if (editMode !== "delete") {
-                setSelection(tag);
+                setFilterTag(tag);
               } else if (session.data) {
                 removeImage(tag, props.image);
               }

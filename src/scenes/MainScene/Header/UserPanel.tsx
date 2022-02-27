@@ -31,7 +31,7 @@ function UserAvatar(props: {
       trigger={
         <Avatar>
           <Image
-            src={props.image}
+            src={props.image ?? ""}
             alt={props.name ?? "usernames"}
             height={48}
             width={48}
