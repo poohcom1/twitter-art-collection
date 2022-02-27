@@ -5,7 +5,6 @@ import { useTweets } from "src/context/TweetsContext";
 import { useStore } from "src/stores/rootStore";
 import { TweetComponent } from "../../../components";
 import Masonry from "react-masonry-css";
-import LoadingScene from "src/scenes/LoadingScene/LoadingScene";
 
 const MainDiv = styled.div`
   background-color: ${(props) => props.theme.color.bg.primary};

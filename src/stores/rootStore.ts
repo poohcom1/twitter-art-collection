@@ -1,7 +1,8 @@
 import create from "zustand";
 import { combine } from "zustand/middleware";
-import { putTags } from "src/adapters";
+import { deleteTag, postTag, putTags } from "src/adapters";
 
+// Filters
 type ImagePredicate = <S extends ImageSchema<any>>(
   image: ImageSchema<any>,
   index?: number,
@@ -28,22 +29,28 @@ export const useStore = create(
       }),
       filterTagName: "",
       filterType: <FilterTypes>"all",
+      editMode: <"add" | "delete">"add",
     },
     (set, get) => ({
       initTags: (tags: TagCollection, uid: string) => set({ tags, uid }),
+      /* ---------------------------------- Tags ---------------------------------- */
       addTag: (tag: TagSchema): void =>
         set((state) => {
           const tags = state.tags;
           tags.set(tag.name, tag);
+
+          postTag(get().uid, tag).then();
           return { ...state, tags };
         }),
       removeTag: (tag: TagSchema): void =>
         set((state) => {
+          deleteTag(get().uid, tag);
+
           const tags = state.tags;
           tags.delete(tag.name);
           return { ...state, tags };
         }),
-      // Images
+      /* --------------------------------- Images --------------------------------- */
       addImage: (tag: TagSchema, image: ImageSchema<any>): void =>
         set((state) => {
           const tags = state.tags;
@@ -64,7 +71,12 @@ export const useStore = create(
 
           return { ...state, tags: tags };
         }),
-      // Filter
+      /* --------------------------------- Filters -------------------------------- */
+      /**
+       * Dispatcher for filter
+       * @param action.type Action
+       * @param action.tag Payload if action type is "tag"
+       */
       setFilter: (
         action:
           | FilterAction<"all">
@@ -100,37 +112,9 @@ export const useStore = create(
             filterType: action.type,
           };
         }),
-      setFilterTag: (tag: TagSchema) =>
-        set((state) => {
-          state.imageFilter = <ImagePredicate>((image) => {
-            return !!tag.images.find((im) => im.id === image.id);
-          });
-
-          return {
-            imageFilter: state.imageFilter,
-            filterTagName: tag?.name,
-            filterType: "tag",
-          };
-        }),
-      setFilterType: (filter: "all" | "uncategorized") =>
-        set((state) => {
-          state.imageFilter = <ImagePredicate>((image) => {
-            switch (filter) {
-              case "all":
-                return true;
-              case "uncategorized":
-                const tags = Array.from(get().tags.values());
-                for (let i = 0; i < tags.length; i++) {
-                  const tag = tags[i];
-
-                  if (tag.images.find((im) => im.id === image.id)) return false;
-                }
-                return true;
-            }
-          });
-
-          return { imageFilter: state.imageFilter, filterType: filter };
-        }),
+      /* -------------------------------- EditMode -------------------------------- */
+      toggleEditMode: () =>
+        set({ editMode: get().editMode === "add" ? "delete" : "add" }),
     })
   )
 );

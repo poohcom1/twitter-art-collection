@@ -14,7 +14,7 @@ import {
   AiOutlineCloseCircle as CloseCircle,
 } from "react-icons/ai";
 import { GiHamburgerMenu as MenuIcon } from "react-icons/gi";
-import { useEditMode } from "src/context/EditModeContext";
+import { putTags } from "src/adapters";
 import { useStore } from "src/stores/rootStore";
 import styled from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
@@ -69,6 +69,7 @@ function AddImagesPopupListItem(
     tag: TagSchema;
     image: TweetSchema;
     close: Function;
+    keyNum: string | number;
   } & React.HTMLProps<HTMLDivElement>
 ) {
   const session = useSession();
@@ -82,7 +83,9 @@ function AddImagesPopupListItem(
     }
   }, [addImage, props, session.data]);
 
-  return <PopupItem text={props.tag.name} key={props.key} onClick={onClick} />;
+  return (
+    <PopupItem text={props.tag.name} key={props.keyNum} onClick={onClick} />
+  );
 }
 
 const MemoTab = React.memo(Tab);
@@ -94,15 +97,16 @@ const MemoTab = React.memo(Tab);
  */
 export default function TweetTags(props: { image: TweetSchema }) {
   const session = useSession();
-  const { editMode } = useEditMode();
+  //
+  const editMode = useStore((state) => state.editMode);
 
   // Get filter
   const filterTag = useStore((state) => state.filterTagName);
 
   // Get filter actions
-  const [removeImage, setFilterTag] = useStore((state) => [
+  const [removeImage, setFilter] = useStore((state) => [
     state.removeImage,
-    state.setFilterTag,
+    state.setFilter,
   ]);
 
   // Get tags for image
@@ -170,6 +174,7 @@ export default function TweetTags(props: { image: TweetSchema }) {
           notIncludedTags.map((tag) => (
             <AddImagesPopupListItem
               key={tag.name}
+              keyNum={tag.name}
               tag={tag}
               image={props.image}
               close={close}
@@ -186,7 +191,7 @@ export default function TweetTags(props: { image: TweetSchema }) {
             active={filterTag === tag.name}
             onClick={() => {
               if (editMode !== "delete") {
-                setFilterTag(tag);
+                setFilter({ type: "tag", tag: tag });
               } else if (session.data) {
                 removeImage(tag, props.image);
               }

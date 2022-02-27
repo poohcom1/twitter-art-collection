@@ -7,10 +7,8 @@ import {
   StyledTab,
 } from "src/components";
 import { useStore, FilterTypes } from "src/stores/rootStore";
-import { useEditMode } from "src/context/EditModeContext";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { AiOutlineCloseCircle as CloseCircle } from "react-icons/ai";
-import { deleteTag } from "src/adapters";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
@@ -69,16 +67,6 @@ function NewTag() {
 
     addTag(body);
 
-    fetch(`/api/user/${session.data.user.id}/tags/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    })
-      .then()
-      .catch(alert);
-
     setTagName("");
     return true;
   };
@@ -125,7 +113,7 @@ function NewTag() {
  * Main Component
  */
 export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
-  const tags = useStore((state) => state.tags);
+  const [tags, editMode] = useStore((state) => [state.tags, state.editMode]);
 
   const [filterType, filterTag] = useStore((state) => [
     state.filterType,
@@ -137,7 +125,6 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
     state.setFilter,
   ]);
 
-  const { editMode } = useEditMode();
   const session = useSession();
 
   const setFilter = useCallback(
@@ -223,7 +210,6 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
                     if (filterType === "tag" && filterTag === tag.name) {
                       setFilter("all");
                     }
-                    deleteTag(session.data.user.id, tag).then();
                     close();
                   }
                 }}

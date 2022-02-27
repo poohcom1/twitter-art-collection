@@ -1,7 +1,7 @@
 // DB Schema
 type Platform = "twitter";
 
-interface ImageSchema<P extends Platform> {
+interface ImageSchema<Platform> {
   id: string;
   platform: P;
 }

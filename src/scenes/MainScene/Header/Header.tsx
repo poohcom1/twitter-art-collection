@@ -1,7 +1,6 @@
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import TagsPanel from "./TagsPanel";
 import UserSection from "./UserPanel";
-import { useEditMode } from "src/context/EditModeContext";
 import { BiTrash as TrashIcon } from "react-icons/bi";
 import { useStore } from "src/stores/rootStore";
 
@@ -44,8 +43,7 @@ export default withTheme(function Header(props: {
   height: number;
   theme: DefaultTheme;
 }) {
-  const { tags } = useStore();
-  const { editMode, setEditMode } = useEditMode();
+  const { tags, editMode, toggleEditMode } = useStore();
 
   const { height, theme } = props;
 
@@ -60,7 +58,7 @@ export default withTheme(function Header(props: {
             display: "flex",
             justifyContent: "center",
           }}
-          onClick={() => setEditMode(editMode === "delete" ? "add" : "delete")}
+          onClick={() => toggleEditMode()}
         >
           {Array.from(tags.values()).length > 0 ? (
             <button

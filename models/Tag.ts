@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 
-const imageSchema = new Schema<ImageSchema<any>>({
+const imageSchema = new Schema<ImageSchema<"twitter">>({
   id: { type: String },
   platform: { type: String },
 });

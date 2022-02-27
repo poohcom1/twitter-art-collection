@@ -1,16 +1,12 @@
 import Head from "next/head";
 import { getSession, useSession } from "next-auth/react";
 import "react-static-tweets/styles.css";
-import { EditModeProvider } from "src/context/EditModeContext";
 import { ThemeProvider } from "styled-components";
 import { MainScene } from "src/scenes";
 import { lightTheme } from "src/themes";
 // Next SSR
 import type { GetServerSideProps } from "next";
-import getMongoConnection from "lib/mongodb";
-import UserModel from "models/User";
-import cache from "memory-cache";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { getTags } from "src/adapters";
 import { Session } from "next-auth";
 import { useStore } from "src/stores/rootStore";
@@ -20,8 +16,7 @@ interface IndexPageProps {
   session: Session;
 }
 
-const PROPS_CACHE_KEY = "indexProps";
-
+// Redirect to about if not signed in
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const session = await getSession(context);
 
@@ -39,7 +34,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   };
 };
 
-export default function Index(props: IndexPageProps) {
+export default function Index() {
   const session = useSession();
   const initTags = useStore((state) => state.initTags);
 
@@ -56,9 +51,7 @@ export default function Index(props: IndexPageProps) {
         <title>Twitter Art Collection</title>
       </Head>
       <ThemeProvider theme={lightTheme}>
-        <EditModeProvider>
-          <MainScene />
-        </EditModeProvider>
+        <MainScene />
       </ThemeProvider>
     </>
   );
