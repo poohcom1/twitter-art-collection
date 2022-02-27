@@ -5,15 +5,20 @@ import VisibilitySensor from "react-visibility-sensor";
 
 const MemoTweet = React.memo(Tweet);
 
+const MIN_RENDER_COUNT = 8;
+
 function TweetComponent(props: {
   id: string;
   ast?: any;
   index?: number;
   order: number;
 }) {
-  const [rendered, setRendered] = useState(false);
+  const [rendered, setRendered] = useState(props.order < MIN_RENDER_COUNT);
 
-  useEffect(() => setRendered(false), [props.id, props.ast]);
+  useEffect(
+    () => setRendered(props.order < MIN_RENDER_COUNT),
+    [props.id, props.ast, props.order]
+  );
 
   return (
     <VisibilitySensor
