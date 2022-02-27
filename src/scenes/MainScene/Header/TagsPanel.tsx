@@ -6,7 +6,7 @@ import {
   StyledPopup,
   StyledTab,
 } from "src/components";
-import { useStore } from "src/stores/rootStore";
+import { useStore, FilterTypes } from "src/stores/rootStore";
 import { useEditMode } from "src/context/EditModeContext";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { AiOutlineCloseCircle as CloseCircle } from "react-icons/ai";
@@ -121,80 +121,72 @@ function NewTag() {
   );
 }
 
-enum FilteredTagTypes {
-  All = "_all",
-  Uncategorized = "_untagged",
-}
-
 /**
  * Main Component
  */
 export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
-  const [tags, removeTag, _setFilterType, _setFilterTag] = useStore((state) => [
-    state.tags,
-    state.removeTag,
-    state.setFilterType,
-    state.setFilterTag,
+  const tags = useStore((state) => state.tags);
+
+  const [filterType, filterTag] = useStore((state) => [
+    state.filterType,
+    state.filterTagName,
   ]);
+
+  const [removeTag, setStateFilter] = useStore((state) => [
+    state.removeTag,
+    state.setFilter,
+  ]);
+
   const { editMode } = useEditMode();
   const session = useSession();
 
-  const [selectedTag, setSelectedTag] = useState<string>(FilteredTagTypes.All);
-
-  const setFilterType = useCallback(
-    (type: FilteredTagTypes) => () => {
-      if (window) {
-        document.body.classList.add("wait");
-        window.scrollTo(0, 0);
-      }
-
-      if (type === "_all") {
-        setSelectedTag(FilteredTagTypes.All);
-        _setFilterType("all");
-      } else {
-        setSelectedTag(FilteredTagTypes.Uncategorized);
-        _setFilterType("uncategorized");
-      }
-    },
-    [_setFilterType]
-  );
   const setFilter = useCallback(
-    (tag: TagSchema) => () => {
+    (type: FilterTypes, tag?: TagSchema) => () => {
       if (window) {
         document.body.classList.add("wait");
         window.scrollTo(0, 0);
       }
 
-      setSelectedTag(tag.name);
-      _setFilterTag(tag);
+      if (type === "all") {
+        setStateFilter({ type: "all" });
+      } else if (type === "uncategorized") {
+        setStateFilter({ type: "uncategorized" });
+      } else {
+        setStateFilter({ type: "tag", tag: tag! });
+      }
     },
-    [_setFilterTag]
+    [setStateFilter]
   );
 
   return (
     <StyledTagsPanel>
       <NewTag />
+
+      {/* Special filters Section */}
       <Tag
         style={{ width: DEFAULT_TAG_WIDTH }}
-        onClick={setFilterType(FilteredTagTypes.All)}
-        active={selectedTag === FilteredTagTypes.All}
+        onClick={setFilter("all")}
+        active={filterType === "all"}
       >
         All
       </Tag>
       <Tag
-        onClick={setFilterType(FilteredTagTypes.Uncategorized)}
-        active={selectedTag === FilteredTagTypes.Uncategorized}
+        onClick={setFilter("uncategorized")}
+        active={filterType === "uncategorized"}
       >
         Uncategorized
       </Tag>
+
       <div style={{ width: "1px", margin: "5px", backgroundColor: "grey" }} />
+
+      {/* Tags section */}
       {Array.from(tags.values()).map((tag, i) =>
         // Normal mode
         editMode === "add" ? (
           <Tag
             key={i}
-            onClick={setFilter(tag)}
-            active={selectedTag === tag.name}
+            onClick={setFilter("tag", tag)}
+            active={filterType === "tag" && filterTag === tag.name}
           >
             {tag.name} - {tag.images.length}
           </Tag>
@@ -202,7 +194,11 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
           // Delete mode
           <StyledModel
             trigger={
-              <Tag key={i} active={selectedTag === tag.name} color={"red"}>
+              <Tag
+                key={i}
+                active={filterType === "tag" && filterTag === tag.name}
+                color={"red"}
+              >
                 <CloseCircle
                   size={25}
                   style={{ marginRight: "5px", marginLeft: "-5px" }}
@@ -224,8 +220,8 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
                 onAccept={() => {
                   if (session.data) {
                     removeTag(tag);
-                    if (selectedTag === tag.name) {
-                      setFilterType(FilteredTagTypes.All);
+                    if (filterType === "tag" && filterTag === tag.name) {
+                      setFilter("all");
                     }
                     deleteTag(session.data.user.id, tag).then();
                     close();

@@ -8,6 +8,16 @@ type ImagePredicate = <S extends ImageSchema<any>>(
   array?: ImageSchema<any>[]
 ) => image is S;
 
+export type FilterTypes = "all" | "uncategorized" | "tag";
+
+interface FilterAction<A extends FilterTypes> {
+  type: A;
+}
+
+interface FilterTagAction extends FilterAction<"tag"> {
+  tag: TagSchema;
+}
+
 export const useStore = create(
   combine(
     {
@@ -17,6 +27,7 @@ export const useStore = create(
         return true;
       }),
       filterTagName: "",
+      filterType: <FilterTypes>"all",
     },
     (set, get) => ({
       initTags: (tags: TagCollection, uid: string) => set({ tags, uid }),
@@ -54,13 +65,52 @@ export const useStore = create(
           return { ...state, tags: tags };
         }),
       // Filter
+      setFilter: (
+        action:
+          | FilterAction<"all">
+          | FilterAction<"uncategorized">
+          | FilterTagAction
+      ) =>
+        set((state) => {
+          switch (action.type) {
+            case "all":
+              state.imageFilter = <ImagePredicate>((_image) => true);
+              break;
+            case "uncategorized":
+              state.imageFilter = <ImagePredicate>((image) => {
+                const tags = Array.from(get().tags.values());
+                for (let i = 0; i < tags.length; i++) {
+                  const tag = tags[i];
+
+                  if (tag.images.find((im) => im.id === image.id)) return false;
+                }
+                return true;
+              });
+              break;
+            case "tag":
+              state.imageFilter = <ImagePredicate>((image) => {
+                return !!action.tag.images.find((im) => im.id === image.id);
+              });
+              break;
+          }
+
+          return {
+            imageFilter: state.imageFilter,
+            filterTagName: (action as FilterTagAction).tag?.name ?? "",
+            filterType: action.type,
+          };
+        }),
       setFilterTag: (tag: TagSchema) =>
         set((state) => {
           state.imageFilter = <ImagePredicate>((image) => {
             return !!tag.images.find((im) => im.id === image.id);
           });
 
-          return { imageFilter: state.imageFilter, filterTagName: tag.name };
+          return {
+            imageFilter: state.imageFilter,
+            filterTagName: tag?.name,
+            filterType: "tag",
+          };
         }),
       setFilterType: (filter: "all" | "uncategorized") =>
         set((state) => {
@@ -79,7 +129,7 @@ export const useStore = create(
             }
           });
 
-          return { imageFilter: state.imageFilter };
+          return { imageFilter: state.imageFilter, filterType: filter };
         }),
     })
   )

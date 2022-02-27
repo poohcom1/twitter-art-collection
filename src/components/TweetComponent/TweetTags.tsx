@@ -93,9 +93,20 @@ const MemoTab = React.memo(Tab);
  * @returns
  */
 export default function TweetTags(props: { image: TweetSchema }) {
+  const session = useSession();
   const { editMode } = useEditMode();
 
-  const [includedTags, notIncludedTags, removeImage, setFilterTag] = useStore(
+  // Get filter
+  const filterTag = useStore((state) => state.filterTagName);
+
+  // Get filter actions
+  const [removeImage, setFilterTag] = useStore((state) => [
+    state.removeImage,
+    state.setFilterTag,
+  ]);
+
+  // Get tags for image
+  const [includedTags, notIncludedTags] = useStore(
     useCallback(
       (state) => {
         const tags = Array.from(state.tags.values());
@@ -107,12 +118,7 @@ export default function TweetTags(props: { image: TweetSchema }) {
           (tag) => !tag.images.find((im) => im.id === props.image.id)
         );
 
-        return [
-          includedTags,
-          notIncludedTags,
-          state.removeImage,
-          state.setFilterTag,
-        ];
+        return [includedTags, notIncludedTags];
       },
       [props.image]
     ),
@@ -131,8 +137,6 @@ export default function TweetTags(props: { image: TweetSchema }) {
     }
   );
 
-  const session = useSession();
-
   // Overflow detection
   const tagsContainerRef = useRef<HTMLDivElement>(null);
   const [overflow, setOverflow] = useState(false);
@@ -148,6 +152,7 @@ export default function TweetTags(props: { image: TweetSchema }) {
 
   return (
     <MainContainer>
+      {/* Add image to tag section */}
       <StyledPopup
         trigger={useMemo(
           () => (
@@ -172,12 +177,13 @@ export default function TweetTags(props: { image: TweetSchema }) {
           ))
         }
       </StyledPopup>
+      {/* Included tags section */}
       <TabContainer ref={tagsContainerRef} overflowing={overflow}>
         {includedTags.map((tag) => (
           <Tab
             color={editMode !== "delete" ? undefined : "red"}
             key={tag.name}
-            active={false}
+            active={filterTag === tag.name}
             onClick={() => {
               if (editMode !== "delete") {
                 setFilterTag(tag);
@@ -203,6 +209,7 @@ export default function TweetTags(props: { image: TweetSchema }) {
           </Tab>
         ))}
       </TabContainer>
+      {/* TODO Hamburger menu */}
       <div
         style={{
           display: "flex",
