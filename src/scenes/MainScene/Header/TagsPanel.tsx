@@ -143,6 +143,11 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
 
   const setFilterType = useCallback(
     (type: FilteredTagTypes) => () => {
+      if (window) {
+        document.body.classList.add("wait");
+        window.scrollTo(0, 0);
+      }
+
       if (type === "_all") {
         setSelectedTag(FilteredTagTypes.All);
         _setFilterType("all");
@@ -151,14 +156,19 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
         _setFilterType("uncategorized");
       }
     },
-    []
+    [_setFilterType]
   );
   const setFilter = useCallback(
     (tag: TagSchema) => () => {
+      if (window) {
+        document.body.classList.add("wait");
+        window.scrollTo(0, 0);
+      }
+
       setSelectedTag(tag.name);
       _setFilterTag(tag);
     },
-    []
+    [_setFilterTag]
   );
 
   return (
@@ -192,12 +202,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
           // Delete mode
           <StyledModel
             trigger={
-              <Tag
-                key={i}
-                onClick={() => {}}
-                active={selectedTag === tag.name}
-                color={"red"}
-              >
+              <Tag key={i} active={selectedTag === tag.name} color={"red"}>
                 <CloseCircle
                   size={25}
                   style={{ marginRight: "5px", marginLeft: "-5px" }}

@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { useSession } from "next-auth/react";
+import React from "react";
 import {
   HTMLAttributes,
   useCallback,
@@ -13,7 +14,6 @@ import {
   AiOutlineCloseCircle as CloseCircle,
 } from "react-icons/ai";
 import { GiHamburgerMenu as MenuIcon } from "react-icons/gi";
-import { putTags } from "src/adapters";
 import { useEditMode } from "src/context/EditModeContext";
 import { useStore } from "src/stores/rootStore";
 import styled from "styled-components";
@@ -85,6 +85,8 @@ function AddImagesPopupListItem(
   return <PopupItem text={props.tag.name} key={props.key} onClick={onClick} />;
 }
 
+const MemoTab = React.memo(Tab);
+
 /**
  * Main Component
  * @param props
@@ -118,12 +120,12 @@ export default function TweetTags(props: { image: TweetSchema }) {
       // Ignore inner image changes
       return (
         _.isEqual(
-          prevState[0].map((tag) => tag.name),
-          nextState[0].map((tag) => tag.name)
-        ) &&
-        _.isEqual(
           prevState[1].map((tag) => tag.name),
           nextState[1].map((tag) => tag.name)
+        ) &&
+        _.isEqual(
+          prevState[0].map((tag) => tag.name),
+          nextState[0].map((tag) => tag.name)
         )
       );
     }
@@ -151,7 +153,7 @@ export default function TweetTags(props: { image: TweetSchema }) {
           () => (
             <Tab>
               <StyledButton>
-                <PlusCircle size={BUTTON_SIZE} onClick={() => {}} />
+                <PlusCircle size={BUTTON_SIZE} />
               </StyledButton>
             </Tab>
           ),
@@ -175,7 +177,7 @@ export default function TweetTags(props: { image: TweetSchema }) {
           <Tab
             color={editMode !== "delete" ? undefined : "red"}
             key={tag.name}
-            active={true}
+            active={false}
             onClick={() => {
               if (editMode !== "delete") {
                 setFilterTag(tag);

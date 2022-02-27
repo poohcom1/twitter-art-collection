@@ -2,6 +2,7 @@ import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { StyledPopup, PopupItem, TwitterLogin } from "src/components";
 import styled from "styled-components";
+import { useCallback, useMemo } from "react";
 
 const Avatar = styled.div`
   border-radius: 50%;
@@ -28,19 +29,22 @@ function UserAvatar(props: {
 }) {
   return (
     <StyledPopup
-      trigger={
-        <Avatar>
-          <Image
-            src={props.image ?? ""}
-            alt={props.name ?? "usernames"}
-            height={48}
-            width={48}
-          />
-        </Avatar>
-      }
+      trigger={useMemo(
+        () => (
+          <Avatar>
+            <Image
+              src={props.image ?? ""}
+              alt={props.name ?? "usernames"}
+              height={48}
+              width={48}
+            />
+          </Avatar>
+        ),
+        [props.image, props.name]
+      )}
       closeOnDocumentClick
     >
-      <PopupItem text="Logout" onClick={() => signOut()} />
+      <PopupItem text="Logout" onClick={useCallback(() => signOut(), [])} />
     </StyledPopup>
   );
 }

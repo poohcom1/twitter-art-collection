@@ -1,6 +1,5 @@
 import create from "zustand";
 import { combine } from "zustand/middleware";
-
 import { putTags } from "src/adapters";
 
 type ImagePredicate = <S extends ImageSchema<any>>(
@@ -17,8 +16,7 @@ export const useStore = create(
       imageFilter: <ImagePredicate>((_image, _index, _array) => {
         return true;
       }),
-      // Loads
-      galleryRendering: false,
+      filterTagName: "",
     },
     (set, get) => ({
       initTags: (tags: TagCollection, uid: string) => set({ tags, uid }),
@@ -62,7 +60,7 @@ export const useStore = create(
             return !!tag.images.find((im) => im.id === image.id);
           });
 
-          return { imageFilter: state.imageFilter };
+          return { imageFilter: state.imageFilter, filterTagName: tag.name };
         }),
       setFilterType: (filter: "all" | "uncategorized") =>
         set((state) => {
@@ -83,10 +81,6 @@ export const useStore = create(
 
           return { imageFilter: state.imageFilter };
         }),
-
-      // Loading
-      startLodaing: () => set({ galleryRendering: true }),
-      stopLoading: () => set({ galleryRendering: false }),
     })
   )
 );
