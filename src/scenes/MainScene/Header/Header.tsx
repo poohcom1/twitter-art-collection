@@ -3,6 +3,7 @@ import TagsPanel from "./HeaderTagsPanel";
 import UserSection from "./UserPanel";
 import { BiTrash as TrashIcon } from "react-icons/bi";
 import { useStore } from "src/stores/rootStore";
+import { Spinner } from "src/components";
 
 const SearchDiv = styled.input`
   flex-grow: 1;
@@ -24,6 +25,7 @@ const HeaderDiv = styled.div<{ height: number }>`
   height: ${(props) => props.height}px;
 
   display: flex;
+  align-items: center;
 
   position: fixed;
   z-index: 10;
@@ -43,52 +45,61 @@ export default withTheme(function Header(props: {
   height: number;
   theme: DefaultTheme;
 }) {
-  const { tags, editMode, toggleEditMode } = useStore();
+  const tags = useStore((state) => state.tags);
+  const tagsLoaded = useStore((state) => state.tagsLoaded);
+  const editMode = useStore((state) => state.editMode);
+  const toggleEditMode = useStore((state) => state.toggleEditMode);
 
   const { height, theme } = props;
 
   return (
     <HeaderDiv height={height}>
-      <div style={{ display: "flex", alignItems: "center", width: "100%" }}>
-        <UserSection />
+      <UserSection />
+      {tagsLoaded ? (
         <TagsPanel />
-        <div
-          style={{
-            marginLeft: "auto",
-            display: "flex",
-            justifyContent: "center",
-          }}
-          onClick={() => toggleEditMode()}
-        >
-          {Array.from(tags.values()).length > 0 ? (
-            <button
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                borderColor:
-                  editMode === "delete"
-                    ? theme.color.buttonDanger.default
-                    : "transparent",
-                borderStyle: "solid",
-                padding: "8px",
-                marginLeft: "auto",
-                backgroundColor: "white",
-              }}
-            >
-              <TrashIcon
-                size={30}
-                color={
-                  editMode === "delete"
-                    ? theme.color.buttonDanger.default
-                    : "black"
-                }
-                style={{ margin: "0" }}
-              />
-            </button>
-          ) : (
-            <></>
-          )}
+      ) : (
+        <div className="flex-row">
+          <Spinner size={30} />
+          <h2>Loading tags...</h2>
         </div>
+      )}
+      {/* Trash Icon */}
+      <div
+        className="center"
+        style={{
+          marginLeft: "auto",
+          justifySelf: "flex-end",
+        }}
+        onClick={() => toggleEditMode()}
+      >
+        {Array.from(tags.values()).length > 0 ? (
+          <button
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              borderColor:
+                editMode === "delete"
+                  ? theme.color.buttonDanger.default
+                  : "transparent",
+              borderStyle: "solid",
+              padding: "8px",
+              marginLeft: "auto",
+              backgroundColor: "white",
+            }}
+          >
+            <TrashIcon
+              size={30}
+              color={
+                editMode === "delete"
+                  ? theme.color.buttonDanger.default
+                  : "black"
+              }
+              style={{ margin: "0" }}
+            />
+          </button>
+        ) : (
+          <></>
+        )}
       </div>
     </HeaderDiv>
   );

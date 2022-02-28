@@ -92,7 +92,7 @@ export default function UserSection() {
       );
     case "authenticated":
       return (
-        <div style={{ display: "flex", alignItems: "center" }}>
+        <div className="center">
           <UserAvatar
             name={session.data.user.name}
             image={session.data.user.image}

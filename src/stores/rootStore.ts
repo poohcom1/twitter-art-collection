@@ -37,7 +37,7 @@ export const useStore = create(
     },
     (set, get) => ({
       initTags: async () => {
-        await getTags().then((tags) => set({ tags }));
+        await getTags().then((tags) => set({ tags, tagsLoaded: true }));
       },
       /* ---------------------------------- Tags ---------------------------------- */
       addTag: (tag: TagSchema): void =>
