@@ -17,7 +17,7 @@ const ButtonDiv = styled.div`
 `;
 
 interface ConfirmationDialogueProps {
-  closeCallback: Function;
+  closeCallback: () => void;
   title?: string;
   text?: string;
   acceptText?: string;
@@ -26,7 +26,7 @@ interface ConfirmationDialogueProps {
   acceptColor?: IButtonPalette;
   cancelColor?: IButtonPalette;
 
-  onAccept?: Function;
+  onAccept?: () => void;
 }
 
 export default withTheme(

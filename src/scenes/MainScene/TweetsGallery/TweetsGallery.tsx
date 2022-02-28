@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import React, { useEffect, useRef, useState } from "react";
 import { useCallback, useMemo } from "react";
-import { useTweets } from "src/context/TweetsContext";
 import { useStore } from "src/stores/rootStore";
 import { TweetComponent } from "../../../components";
 import Masonry from "react-masonry-css";
@@ -28,7 +27,7 @@ function LoadingMasonry(props: { children: React.ReactNode[] }) {
 
 export default function TweetsGallery() {
   // Filtering and rendering
-  const { tweets } = useTweets();
+  const tweets = useStore((state) => state.tweets);
 
   const images: TweetSchema[] = useMemo(() => {
     if (tweets)

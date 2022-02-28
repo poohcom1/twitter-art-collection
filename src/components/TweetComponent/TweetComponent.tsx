@@ -40,7 +40,7 @@ const MIN_RENDER_COUNT = 0;
 
 function TweetComponent(props: {
   id: string;
-  ast?: any;
+  ast?: object;
   index?: number;
   order: number;
 }) {

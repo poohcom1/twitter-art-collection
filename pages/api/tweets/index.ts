@@ -21,10 +21,6 @@ const filterTweets = (payloadData: Tweetv2ListResult) => (tweet: TweetV2) => {
   return false;
 };
 
-interface ASTResponse {
-  tweetData: { id: string; ast: any }[];
-}
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -48,13 +44,14 @@ export default async function handler(
         likedTweetsIds.map((id) => fetchTweetAst(id))
       );
 
-      const responseObject: ASTResponse = { tweetData: [] };
+      const responseObject: TweetSchema[] = [];
 
       for (let i = 0; i < likedTweetsIds.length; i++) {
         if (tweetDataAsts[i]) {
-          responseObject.tweetData.push({
+          responseObject.push({
             id: likedTweetsIds[i],
             ast: tweetDataAsts[i],
+            platform: "twitter",
           });
         }
       }

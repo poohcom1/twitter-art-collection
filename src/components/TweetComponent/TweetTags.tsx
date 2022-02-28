@@ -13,7 +13,6 @@ import {
   AiOutlineCloseCircle as CloseCircle,
 } from "react-icons/ai";
 import { GiHamburgerMenu as MenuIcon } from "react-icons/gi";
-import { putTags } from "src/adapters";
 import { useStore } from "src/stores/rootStore";
 import { arrayEqual, imageEqual } from "src/utils/objectUtils";
 import styled from "styled-components";
@@ -68,7 +67,7 @@ function AddImagesPopupListItem(
   props: {
     tag: TagSchema;
     image: TweetSchema;
-    close: Function;
+    close: () => void;
     keyNum: string | number;
   } & React.HTMLProps<HTMLDivElement>
 ) {
@@ -87,8 +86,6 @@ function AddImagesPopupListItem(
     <PopupItem text={props.tag.name} key={props.keyNum} onClick={onClick} />
   );
 }
-
-const MemoTab = React.memo(Tab);
 
 /**
  * Main Component
@@ -170,7 +167,7 @@ export default function TweetTags(props: { image: TweetSchema }) {
         )}
         closeOnDocumentClick
       >
-        {(close: Function) =>
+        {(close: () => void) =>
           notIncludedTags.map((tag) => (
             <AddImagesPopupListItem
               key={tag.name}

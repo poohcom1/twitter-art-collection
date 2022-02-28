@@ -1,14 +1,12 @@
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
-import Router from "next/router";
-import { useEffect } from "react";
 import "../styles/globals.css";
 
 // Suppress specific warnings in dev
 if (process.env.NODE_ENV === "development") {
   const warn = console.warn;
 
-  console.warn = (message?: any, ...optionalParams: any[]) => {
+  console.warn = (message?: string, ...optionalParams: string[]) => {
     if (typeof message === "string") {
       // Put warnings phrases here
       const conditions = [

@@ -1,6 +1,12 @@
 import create from "zustand";
 import { combine } from "zustand/middleware";
-import { deleteTag, getTags, postTag, putTags } from "src/adapters";
+import {
+  deleteTag,
+  getLikedTweets,
+  getTags,
+  postTag,
+  putTags,
+} from "src/adapters";
 import { imageEqual } from "src/utils/objectUtils";
 
 // Filters
@@ -34,10 +40,18 @@ export const useStore = create(
       filterTagName: "",
       filterType: <FilterTypes>"all",
       editMode: <"add" | "delete">"add",
+      // Twitter
+      tweets: <TweetSchema[]>[],
+      tweetsLoaded: false,
     },
     (set, get) => ({
       initTags: async () => {
         await getTags().then((tags) => set({ tags, tagsLoaded: true }));
+      },
+      initTweets: async () => {
+        await getLikedTweets().then((tweets) =>
+          set({ tweets, tweetsLoaded: true })
+        );
       },
       /* ---------------------------------- Tags ---------------------------------- */
       addTag: (tag: TagSchema): void =>

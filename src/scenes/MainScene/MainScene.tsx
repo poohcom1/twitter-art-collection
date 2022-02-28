@@ -1,35 +1,37 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect } from "react";
 import Header from "./Header/Header";
-import { TweetProvider } from "src/context/TweetsContext";
 import { LoadingScene } from "..";
 import TweetsGallery from "./TweetsGallery/TweetsGallery";
+import { useSession } from "next-auth/react";
+import { useStore } from "src/stores/rootStore";
 
 // Styles
 const HEADER_HEIGHT = 100;
 
 export default function MainScene() {
+  const session = useSession();
   // Loading
-  const [loaded, setPageLoaded] = useState(false);
+  const tweetsLoaded = useStore((state) => state.tweetsLoaded);
 
-  const tweetDataRef: any = useRef();
+  const initTags = useStore((state) => state.initTags);
+  const initTweet = useStore((state) => state.initTweets);
 
   useEffect(() => {
-    fetch("/api/tweets")
-      .then((res) => res.json())
-      .then((res) => {
-        tweetDataRef.current = res.tweetData;
-        setPageLoaded(true);
-      });
-  });
+    // TODO Use modal for alert
+    if (session.status === "authenticated") {
+      initTags().then().catch(alert);
+      initTweet().then().catch(alert);
+    }
+  }, [initTags, initTweet, session.status]);
 
   return (
     <div className="App">
       <Header height={HEADER_HEIGHT} />
-      {loaded ? (
-        <TweetProvider value={tweetDataRef.current}>
+      {tweetsLoaded ? (
+        <div>
           <div style={{ minHeight: `${HEADER_HEIGHT}px` }} />
           <TweetsGallery />
-        </TweetProvider>
+        </div>
       ) : (
         <LoadingScene display={true} />
       )}

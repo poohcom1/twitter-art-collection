@@ -35,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         })
 
         let tweets = await likedTweets.fetchNext()
-        let i = 1
+        const i = 1
 
         while (i >= page && !likedTweets.done) {
             tweets = await likedTweets.fetchNext()

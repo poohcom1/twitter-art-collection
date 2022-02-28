@@ -1,14 +1,11 @@
 import Head from "next/head";
-import { getSession, useSession } from "next-auth/react";
+import { getSession } from "next-auth/react";
 import "react-static-tweets/styles.css";
 import { ThemeProvider } from "styled-components";
 import { MainScene } from "src/scenes";
 import { lightTheme } from "src/themes";
 // Next SSR
 import type { GetServerSideProps } from "next";
-import { useEffect } from "react";
-import { Session } from "next-auth";
-import { useStore } from "src/stores/rootStore";
 
 // Redirect to about if not signed in
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -29,14 +26,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 };
 
 export default function Index() {
-  const session = useSession();
-  const initTags = useStore((state) => state.initTags);
-
-  useEffect(() => {
-    // TODO Use modal for alert
-    if (session.status === "authenticated") initTags().then().catch(alert);
-  }, [initTags, session.status]);
-
   return (
     <>
       <Head>
