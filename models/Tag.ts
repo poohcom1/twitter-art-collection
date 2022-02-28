@@ -1,6 +1,6 @@
 import { Schema } from "mongoose";
 
-const imageSchema = new Schema<ImageSchema<"twitter">>({
+const imageSchema = new Schema<Pick<ImageSchema, "id" | "platform">>({
   id: { type: String },
   platform: { type: String },
 });
@@ -13,8 +13,6 @@ const tagSchema = new Schema<TagSchema>({
     unique: true,
     index: true,
   },
-  // FIXME
-  // @ts-ignore
   images: {
     type: [imageSchema],
   },

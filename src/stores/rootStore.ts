@@ -1,12 +1,13 @@
 import create from "zustand";
 import { combine } from "zustand/middleware";
-import { deleteTag, postTag, putTags } from "src/adapters";
+import { deleteTag, getTags, postTag, putTags } from "src/adapters";
+import { imageEqual } from "src/utils/objectUtils";
 
 // Filters
-type ImagePredicate = <S extends ImageSchema<any>>(
-  image: ImageSchema<any>,
+type ImagePredicate = <S extends ImageSchema>(
+  image: ImageSchema,
   index?: number,
-  array?: ImageSchema<any>[]
+  array?: ImageSchema[]
 ) => image is S;
 
 export type FilterTypes = "all" | "uncategorized" | "tag";
@@ -19,11 +20,14 @@ interface FilterTagAction extends FilterAction<"tag"> {
   tag: TagSchema;
 }
 
+// Equality functions
+
+// Store
 export const useStore = create(
   combine(
     {
-      uid: "",
       tags: <TagCollection>new Map(),
+      tagsLoaded: false,
       imageFilter: <ImagePredicate>((_image, _index, _array) => {
         return true;
       }),
@@ -32,45 +36,49 @@ export const useStore = create(
       editMode: <"add" | "delete">"add",
     },
     (set, get) => ({
-      initTags: (tags: TagCollection, uid: string) => set({ tags, uid }),
+      initTags: async () => {
+        await getTags().then((tags) => set({ tags }));
+      },
       /* ---------------------------------- Tags ---------------------------------- */
       addTag: (tag: TagSchema): void =>
         set((state) => {
+          postTag(tag).then();
+
           const tags = state.tags;
           tags.set(tag.name, tag);
 
-          postTag(get().uid, tag).then();
           return { ...state, tags };
         }),
       removeTag: (tag: TagSchema): void =>
         set((state) => {
-          deleteTag(get().uid, tag);
+          deleteTag(tag).then();
 
           const tags = state.tags;
           tags.delete(tag.name);
           return { ...state, tags };
         }),
       /* --------------------------------- Images --------------------------------- */
-      addImage: (tag: TagSchema, image: ImageSchema<any>): void =>
+      addImage: (tag: TagSchema, image: ImageSchema): void =>
         set((state) => {
           const tags = state.tags;
           tag.images.push(image);
           tags.set(tag.name, tag);
 
-          putTags(get().uid, tag).then();
+          putTags(tag).then();
 
           return { ...state, tags: tags };
         }),
-      removeImage: (tag: TagSchema, image: ImageSchema<any>): void =>
+      removeImage: (tag: TagSchema, image: ImageSchema): void =>
         set((state) => {
           const tags = state.tags;
-          tag.images = tag.images.filter((im) => im !== image);
+          tag.images = tag.images.filter((im) => imageEqual(im, image));
           tags.set(tag.name, tag);
 
-          putTags(get().uid, tag).then();
+          putTags(tag).then();
 
           return { ...state, tags: tags };
         }),
+
       /* --------------------------------- Filters -------------------------------- */
       /**
        * Dispatcher for filter
@@ -94,14 +102,15 @@ export const useStore = create(
                 for (let i = 0; i < tags.length; i++) {
                   const tag = tags[i];
 
-                  if (tag.images.find((im) => im.id === image.id)) return false;
+                  if (tag.images.find((im) => imageEqual(im, image)))
+                    return false;
                 }
                 return true;
               });
               break;
             case "tag":
               state.imageFilter = <ImagePredicate>((image) => {
-                return !!action.tag.images.find((im) => im.id === image.id);
+                return !!action.tag.images.find((im) => imageEqual(im, image));
               });
               break;
           }

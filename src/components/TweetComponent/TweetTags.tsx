@@ -16,6 +16,7 @@ import {
 import { GiHamburgerMenu as MenuIcon } from "react-icons/gi";
 import { putTags } from "src/adapters";
 import { useStore } from "src/stores/rootStore";
+import { imageEqual } from "src/utils/objectUtils";
 import styled from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
 
@@ -116,10 +117,10 @@ export default function TweetTags(props: { image: TweetSchema }) {
         const tags = Array.from(state.tags.values());
 
         const includedTags = tags.filter((tag) =>
-          tag.images.find((im) => im.id === props.image.id)
+          tag.images.find((im) => imageEqual(im, props.image))
         );
         const notIncludedTags = tags.filter(
-          (tag) => !tag.images.find((im) => im.id === props.image.id)
+          (tag) => !tag.images.find((im) => imageEqual(im, props.image))
         );
 
         return [includedTags, notIncludedTags];

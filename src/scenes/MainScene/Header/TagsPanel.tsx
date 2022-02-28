@@ -14,7 +14,6 @@ const DEFAULT_TAG_WIDTH = "75px";
 
 const Tag = styled(StyledTab)`
   padding: 3px 10px;
-  margin: auto;
   height: 3em;
 
   border-radius: 1.5em;
@@ -35,6 +34,7 @@ const Tag = styled(StyledTab)`
 `;
 
 const StyledTagsPanel = styled.div`
+  margin-left: 16px;
   display: flex;
   justify-content: start;
 `;

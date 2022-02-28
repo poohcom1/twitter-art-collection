@@ -1,12 +1,14 @@
 // DB Schema
 type Platform = "twitter";
 
-interface ImageSchema<Platform> {
+interface BaseSchema<P> {
   id: string;
   platform: P;
 }
 
-interface TweetSchema extends ImageSchema<"twitter"> {
+type ImageSchema = BaseSchema<Platform>;
+
+interface TweetSchema extends BaseSchema<"twitter"> {
   ast: any;
 }
 

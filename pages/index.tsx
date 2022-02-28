@@ -39,11 +39,9 @@ export default function Index() {
   const initTags = useStore((state) => state.initTags);
 
   useEffect(() => {
-    if (session.data)
-      getTags(session.data.user.id).then((tags) =>
-        initTags(tags, session.data.user.id)
-      );
-  }, [session.data, initTags]);
+    // TODO Use modal for alert
+    if (session.status === "authenticated") initTags().then().catch(alert);
+  }, [initTags, session.status]);
 
   return (
     <>

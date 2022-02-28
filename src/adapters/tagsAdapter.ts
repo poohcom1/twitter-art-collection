@@ -9,8 +9,8 @@ function sanitizeTag(tag: TagSchema): TagSchema {
   return tag;
 }
 
-export async function getTags(uid: string): Promise<TagCollection> {
-  const res = await fetchRetry(`/api/user/${uid}/tags`, {
+export async function getTags(): Promise<TagCollection> {
+  const res = await fetchRetry(`/api/tags/`, {
     method: "GET",
   });
 
@@ -19,8 +19,8 @@ export async function getTags(uid: string): Promise<TagCollection> {
   return new Map(Object.entries(object));
 }
 
-export async function postTag(uid: string, tag: TagSchema): Promise<Response> {
-  return fetch(`/api/user/${uid}/tags/`, {
+export async function postTag(tag: TagSchema): Promise<Response> {
+  return fetch(`/api/tags/${tag.name}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -29,9 +29,9 @@ export async function postTag(uid: string, tag: TagSchema): Promise<Response> {
   });
 }
 
-export async function putTags(uid: string, tag: TagSchema): Promise<Response> {
+export async function putTags(tag: TagSchema): Promise<Response> {
   console.log(JSON.stringify(sanitizeTag(tag)));
-  return fetch(`/api/user/${uid}/tags/`, {
+  return fetch(`/api/tags/${tag.name}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -40,24 +40,8 @@ export async function putTags(uid: string, tag: TagSchema): Promise<Response> {
   });
 }
 
-export async function removeImage(
-  uid: string,
-  tag: TagSchema,
-  image: ImageSchema<any>
-) {
-  tag.images = tag.images.filter((im) => im !== image);
-
-  return fetch(`/api/user/${uid}/tags/`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(sanitizeTag(tag)),
-  });
-}
-
-export async function deleteTag(uid: string, tag: TagSchema) {
-  return fetch(`/api/user/${uid}/tags/${tag.name}`, {
+export async function deleteTag(tag: TagSchema) {
+  return fetch(`/api/tags/${tag.name}`, {
     method: "DELETE",
   });
 }
