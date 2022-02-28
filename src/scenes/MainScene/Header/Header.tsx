@@ -1,5 +1,5 @@
 import styled, { DefaultTheme, withTheme } from "styled-components";
-import TagsPanel from "./TagsPanel";
+import TagsPanel from "./HeaderTagsPanel";
 import UserSection from "./UserPanel";
 import { BiTrash as TrashIcon } from "react-icons/bi";
 import { useStore } from "src/stores/rootStore";

@@ -7,14 +7,8 @@ import { lightTheme } from "src/themes";
 // Next SSR
 import type { GetServerSideProps } from "next";
 import { useEffect } from "react";
-import { getTags } from "src/adapters";
 import { Session } from "next-auth";
 import { useStore } from "src/stores/rootStore";
-
-interface IndexPageProps {
-  props: any;
-  session: Session;
-}
 
 // Redirect to about if not signed in
 export const getServerSideProps: GetServerSideProps = async (context) => {
