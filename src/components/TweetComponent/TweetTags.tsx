@@ -1,4 +1,3 @@
-import _ from "lodash";
 import { useSession } from "next-auth/react";
 import React from "react";
 import {
@@ -16,7 +15,7 @@ import {
 import { GiHamburgerMenu as MenuIcon } from "react-icons/gi";
 import { putTags } from "src/adapters";
 import { useStore } from "src/stores/rootStore";
-import { imageEqual } from "src/utils/objectUtils";
+import { arrayEqual, imageEqual } from "src/utils/objectUtils";
 import styled from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
 
@@ -130,11 +129,11 @@ export default function TweetTags(props: { image: TweetSchema }) {
     (prevState, nextState) => {
       // Ignore inner image changes
       return (
-        _.isEqual(
+        arrayEqual(
           prevState[1].map((tag) => tag.name),
           nextState[1].map((tag) => tag.name)
         ) &&
-        _.isEqual(
+        arrayEqual(
           prevState[0].map((tag) => tag.name),
           nextState[0].map((tag) => tag.name)
         )

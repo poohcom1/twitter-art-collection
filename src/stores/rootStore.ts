@@ -71,7 +71,7 @@ export const useStore = create(
       removeImage: (tag: TagSchema, image: ImageSchema): void =>
         set((state) => {
           const tags = state.tags;
-          tag.images = tag.images.filter((im) => imageEqual(im, image));
+          tag.images = tag.images.filter((im) => !imageEqual(im, image));
           tags.set(tag.name, tag);
 
           putTags(tag).then();
