@@ -8,8 +8,12 @@ interface BaseSchema<P> {
 
 type ImageSchema = BaseSchema<Platform>;
 
+// Tweet
+
+type TweetAst = Array<{ data: { id: string } }>;
+
 interface TweetSchema extends BaseSchema<"twitter"> {
-  ast: any;
+  ast: TweetAst;
 }
 
 interface TagSchema {
@@ -26,8 +30,8 @@ interface UserSchema {
 
 // API Objects
 
-interface PostTagBody extends TagSchema {}
+type PostTagBody = TagSchema;
 
-interface PutTagBody extends TagSchema {}
+type PutTagBody = TagSchema;
 
-interface DeleteTagBody extends TagSchema {}
+type DeleteTagBody = TagSchema;

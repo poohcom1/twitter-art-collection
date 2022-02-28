@@ -92,7 +92,7 @@ function NewTag() {
       position="bottom left"
       nested
     >
-      {(close: Function) => (
+      {(close: () => void) => (
         <input
           ref={inputRef}
           type="text"
@@ -196,7 +196,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
             modal
           >
             {/* Delete toggle */}
-            {(close: Function) => (
+            {(close: () => void) => (
               <ConfirmationDialogue
                 title={`Deleting "${tag.name}"`}
                 text="Are you sure you want to delete this tag?"

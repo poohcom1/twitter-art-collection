@@ -1,8 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Tweet } from "react-static-tweets";
+import dynamic from "next/dynamic";
 import TweetTags from "./TweetTags";
 import VisibilitySensor from "react-visibility-sensor";
 import styled, { DefaultTheme, keyframes } from "styled-components";
+const Tweet = dynamic<{ id: string; ast: object[] }>(() =>
+  import("react-static-tweets").then((module) => module.Tweet)
+);
 
 const blink = (props: { theme: DefaultTheme }) => keyframes`  
   from {
@@ -40,7 +43,7 @@ const MIN_RENDER_COUNT = 0;
 
 function TweetComponent(props: {
   id: string;
-  ast?: object;
+  ast: TweetAst;
   index?: number;
   order: number;
 }) {
