@@ -32,8 +32,8 @@ Environment variables are required for authorizing various services used by the 
 | Name                  | Description                                                                           |
 | --------------------- | ------------------------------------------------------------------------------------- |
 | TWITTER_BEARER_TOKEN  | For Twitter api usage                                                                 |
-| TWITTER_CLIENT_ID     | For user authentication                                                               |
-| TWITTER_CLIENT_SECRET | For user authentication                                                               |
+| TWITTER_API_KEY       | Twitter consumer key (for user authentication)                                        |
+| TWITTER_API_SECRET    | Twitter consumer secret (for user authentication)                                     |
 | NEXTAUTH_URL          | Base URL of website for redirecting (i.e. http://localhost:3000). See [next-auth.js.org/configuration/options](https://next-auth.js.org/configuration/options#nextauth_url) |
 | NEXTAUTH_SECRET       | Encryption key for authentication. Set it to a random string. See [next-auth.js.org/configuration/options](https://next-auth.js.org/configuration/options#nextauth_secret) |
 | MONGODB_URI           | URI for mongodb                                                                       |
