@@ -1,3 +1,4 @@
+import React, { useCallback, useMemo } from "react";
 import { ForwardedRef, forwardRef } from "react";
 import styled, {
   DefaultTheme,
@@ -29,7 +30,7 @@ interface ConfirmationDialogueProps {
   onAccept?: () => void;
 }
 
-export default withTheme(
+const ConfirmationDialogue = withTheme(
   forwardRef(function ConfirmationDialogue(
     props: ConfirmationDialogueProps & { theme: DefaultTheme },
     ref: ForwardedRef<HTMLDivElement>
@@ -43,18 +44,23 @@ export default withTheme(
         <ButtonDiv>
           <StyledButton
             palette={props.acceptColor ?? props.theme.color.button}
-            onClick={() => (props.onAccept ? props.onAccept() : {})}
+            onClick={useCallback(
+              () => (props.onAccept ? props.onAccept() : {}),
+              [props]
+            )}
           >
-            {props.acceptText ?? "Accept"}
+            {useMemo(() => props.acceptText ?? "Accept", [props.acceptText])}
           </StyledButton>
           <StyledButton
             palette={props.cancelColor ?? props.theme.color.buttonCancel}
-            onClick={() => props.closeCallback()}
+            onClick={useCallback(() => props.closeCallback(), [props])}
           >
-            {props.cancelText ?? "Cancel"}
+            {useMemo(() => props.cancelText ?? "Cancel", [props.cancelText])}
           </StyledButton>
         </ButtonDiv>
       </DialogueDiv>
     );
   })
 );
+
+export default ConfirmationDialogue;

@@ -1,4 +1,4 @@
-import { MouseEventHandler } from "react";
+import { MouseEventHandler, useCallback, useMemo } from "react";
 import Popup from "reactjs-popup";
 import styled from "styled-components";
 
@@ -42,7 +42,11 @@ const Item = styled.div`
 `;
 
 export function PopupItem(props: { text: string; onClick: MouseEventHandler }) {
-  return <Item onClick={props.onClick}>{props.text}</Item>;
+  return (
+    <Item onClick={useCallback((e) => props.onClick(e), [props])}>
+      {useMemo(() => props.text, [props.text])}
+    </Item>
+  );
 }
 
 export default StyledPopup;

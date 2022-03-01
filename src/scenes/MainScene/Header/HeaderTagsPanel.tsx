@@ -1,5 +1,5 @@
 import { useSession } from "next-auth/react";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   ConfirmationDialogue,
   StyledModel,
@@ -53,27 +53,6 @@ function NewTag() {
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [tagName, setTagName] = useState("");
-  const [, setError] = useState(false);
-
-  const createTagHandler = (): boolean => {
-    if (!session.data) return true;
-
-    if (tagName.length <= 1 || !tagName.match(/^[a-z0-9-]+$/)) {
-      setError(true);
-
-      return false;
-    }
-
-    const body: PostTagBody = {
-      name: tagName,
-      images: [],
-    };
-
-    addTag(body);
-
-    setTagName("");
-    return true;
-  };
 
   const tagInputHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newString = e.target.value
@@ -86,29 +65,54 @@ function NewTag() {
       return;
     }
 
-    setError(false);
     setTagName(newString);
   };
 
+  const inputDiv = useCallback(
+    (close: () => void) => (
+      <input
+        ref={inputRef}
+        type="text"
+        value={tagName}
+        onChange={tagInputHandler}
+        onKeyUp={(e) => {
+          if (e.key === "Enter") {
+            if (!session.data) return true;
+
+            if (tagName.length <= 1 || !tagName.match(/^[a-z0-9-]+$/)) {
+              // TODO Error
+
+              return;
+            }
+
+            const body: PostTagBody = {
+              name: tagName,
+              images: [],
+            };
+
+            addTag(body);
+
+            setTagName("");
+            close();
+          }
+        }}
+      />
+    ),
+    [addTag, session.data, tagName]
+  );
+
   return (
     <StyledPopup
-      trigger={<Tag style={{ width: DEFAULT_TAG_WIDTH }}>+ New</Tag>}
+      trigger={useMemo(
+        () => (
+          <Tag style={{ width: DEFAULT_TAG_WIDTH }}>+ New</Tag>
+        ),
+        []
+      )}
       position="bottom left"
       nested
     >
-      {(close: () => void) => (
-        <input
-          ref={inputRef}
-          type="text"
-          value={tagName}
-          onChange={tagInputHandler}
-          onKeyUp={(e) => {
-            if (e.key === "Enter") {
-              if (createTagHandler()) close();
-            }
-          }}
-        />
-      )}
+      {inputDiv}
     </StyledPopup>
   );
 }
@@ -117,20 +121,22 @@ function NewTag() {
  * Main Component
  */
 export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
-  const [tags, editMode] = useStore((state) => [state.tags, state.editMode]);
+  const tags = useStore((state) => state.tags);
+  const editMode = useStore((state) => state.editMode);
+  const toggleEditMode = useStore((state) => state.toggleEditMode);
 
   const [filterType, filterTag] = useStore((state) => [
     state.filterType,
     state.filterTagName,
   ]);
 
-  const [removeTag, setStateFilter] = useStore((state) => [
-    state.removeTag,
-    state.setFilter,
-  ]);
+  const removeTag = useStore((state) => state.removeTag);
+
+  const setStateFilter = useStore((state) => state.setFilter);
 
   const session = useSession();
 
+  // create filter reducers
   const setFilter = useCallback(
     (type: FilterTypes, tag?: TagSchema) => () => {
       if (window) {
@@ -190,11 +196,11 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
                 active={filterType === "tag" && filterTag === tag.name}
                 palette={props.theme.color.buttonDanger as ISwitchPalette}
               >
+                {tag.name}
                 <CloseCircle
                   size={25}
-                  style={{ marginRight: "5px", marginLeft: "-5px" }}
+                  style={{ marginLeft: "5px", marginRight: "-5px" }}
                 />
-                {tag.name}
               </Tag>
             }
             modal
@@ -214,6 +220,9 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
                     if (filterType === "tag" && filterTag === tag.name) {
                       setFilter("all");
                     }
+                    // Turn off edit mode when deleting tag
+                    // TODO Make this an option?
+                    toggleEditMode();
                     close();
                   }
                 }}
