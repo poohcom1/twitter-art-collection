@@ -1,42 +1,37 @@
-import { HTMLAttributes } from "react";
+import { pickPalette, ThemedAttributes } from "src/utils/themeUtils";
 import styled, { IButtonPalette } from "styled-components";
 
-interface ButtonProps extends HTMLAttributes<HTMLButtonElement> {
+interface ButtonProps
+  extends ThemedAttributes<HTMLButtonElement, IButtonPalette> {
   palette?: IButtonPalette;
 }
 
+const buttonPalette = "button";
+
 const StyledButton = styled.button<ButtonProps>`
-  color: ${(props) =>
-    props.palette ? props.palette.color : props.theme.color.button.color};
-  background-color: ${(props) =>
-    props.palette ? props.palette.bgColor : props.theme.color.button.bgColor};
   padding: 5px 15px;
   cursor: pointer;
 
-  border-color: ${(props) =>
-    props.palette ? props.palette.bgColor : props.theme.color.button.bgColor};
   border-style: solid;
   border-radius: 5em;
   margin: 8px;
   padding: 16px;
   font-size: 1.1em;
 
+  color: ${pickPalette(buttonPalette, (c) => c.color)};
+  background-color: ${pickPalette(buttonPalette, (c) => c.bgColor)};
+  border-color: ${pickPalette(buttonPalette, (c) => c.bgColor)};
+
   &:hover {
-    color: ${(props) =>
-      props.palette ? props.palette.color : props.theme.color.button.color};
-    background-color: ${(props) =>
-      props.palette ? props.palette.bgHover : props.theme.color.button.bgHover};
-    border-color: ${(props) =>
-      props.palette ? props.palette.bgHover : props.theme.color.button.bgHover};
+    color: ${pickPalette(buttonPalette, (c) => c.hover)};
+    background-color: ${pickPalette(buttonPalette, (c) => c.bgHover)};
+    border-color: ${pickPalette(buttonPalette, (c) => c.bgHover)};
   }
 
   &:active {
-    color: ${(props) =>
-      props.palette ? props.palette.active : props.theme.color.button.active};
-    background-color: ${(props) =>
-      props.palette
-        ? props.palette.bgActive
-        : props.theme.color.button.bgActive};
+    color: ${pickPalette(buttonPalette, (c) => c.active)};
+    background-color: ${pickPalette(buttonPalette, (c) => c.bgActive)};
+    border-color: ${pickPalette(buttonPalette, (c) => c.bgActive)};
   }
 `;
 

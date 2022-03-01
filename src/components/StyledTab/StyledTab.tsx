@@ -12,6 +12,12 @@ const active = css`
   background-color: ${pickPalette(TabPalette, (c) => c.bgActive)};
   border-color: ${pickPalette(TabPalette, (c) => c.active)};
 
+  &:focus {
+    color: ${pickPalette(TabPalette, (c) => c.active)};
+    background-color: ${pickPalette(TabPalette, (c) => c.bgActive)};
+    border-color: ${pickPalette(TabPalette, (c) => c.active)};
+  }
+
   &:hover {
     color: ${pickPalette(TabPalette, (c) => c.activeHover)};
     background-color: ${pickPalette(TabPalette, (c) => c.bgActiveHover)};

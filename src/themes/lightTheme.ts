@@ -25,12 +25,12 @@ export const lightTheme: DefaultTheme = {
     },
     buttonCancel: {
       bgColor: "rgb(150, 150, 150)",
-      bgHover: "rgb(80, 80, 80)",
-      bgActive: "white",
+      bgHover: "rgb(120, 120, 120)",
+      bgActive: "rgb(80, 80, 80)",
 
       color: "white",
-      hover: "rgb(100, 100, 100)",
-      active: "black",
+      hover: "white",
+      active: "white",
     },
     buttonDanger: {
       bgColor: "red",

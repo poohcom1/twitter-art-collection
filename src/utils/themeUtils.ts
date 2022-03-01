@@ -34,12 +34,3 @@ export const pickPalette =
       props.palette ? props.palette : props.theme.color[defaultColor]
     );
   };
-
-export const withPalette =
-  <K extends keyof ThemeColor, P extends { theme: DefaultTheme; palette: K }>(
-    palette: K,
-    callback: (color: ThemeColor[K]) => string
-  ) =>
-  (props: P): string => {
-    return callback(props.theme.color[props.palette]);
-  };
