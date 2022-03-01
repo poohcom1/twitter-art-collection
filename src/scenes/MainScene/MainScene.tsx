@@ -6,7 +6,6 @@ import { useSession } from "next-auth/react";
 import { useStore } from "src/stores/rootStore";
 
 // Styles
-const HEADER_HEIGHT = 100;
 
 export default function MainScene() {
   const session = useSession();
@@ -25,11 +24,13 @@ export default function MainScene() {
   }, [initTags, initTweet, session.status]);
 
   return (
-    <div className="App">
-      <Header height={HEADER_HEIGHT} />
+    <div
+      className="App"
+      style={{ display: "flex", flexDirection: "column", height: "100vh" }}
+    >
+      <Header />
       {tweetsLoaded ? (
-        <div>
-          <div style={{ minHeight: `${HEADER_HEIGHT}px` }} />
+        <div style={{ overflowY: "scroll" }}>
           <TweetsGallery />
         </div>
       ) : (

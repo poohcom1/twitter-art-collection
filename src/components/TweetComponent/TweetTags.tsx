@@ -15,7 +15,11 @@ import {
 import { GiHamburgerMenu as MenuIcon } from "react-icons/gi";
 import { useStore } from "src/stores/rootStore";
 import { arrayEqual, imageEqual } from "src/utils/objectUtils";
-import styled from "styled-components";
+import styled, {
+  DefaultTheme,
+  ISwitchPalette,
+  withTheme,
+} from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
 
 const BUTTON_SIZE = 35;
@@ -44,8 +48,8 @@ const TabContainer = styled.div<TabContainerProps & { overflow?: boolean }>`
       : ""}
 `;
 
-const StyledButton = styled.div`
-  color: var(--secondary);
+const StyledAddButton = styled.div`
+  color: ${(props) => props.theme.color.tab.color};
   padding: 0;
   margin: 0;
   height: ${BUTTON_SIZE}px;
@@ -92,7 +96,10 @@ function AddImagesPopupListItem(
  * @param props
  * @returns
  */
-export default function TweetTags(props: { image: TweetSchema }) {
+export default withTheme(function TweetTags(props: {
+  image: TweetSchema;
+  theme: DefaultTheme;
+}) {
   const session = useSession();
   //
   const editMode = useStore((state) => state.editMode);
@@ -158,9 +165,9 @@ export default function TweetTags(props: { image: TweetSchema }) {
         trigger={useMemo(
           () => (
             <Tab>
-              <StyledButton>
+              <StyledAddButton>
                 <PlusCircle size={BUTTON_SIZE} />
-              </StyledButton>
+              </StyledAddButton>
             </Tab>
           ),
           []
@@ -183,7 +190,11 @@ export default function TweetTags(props: { image: TweetSchema }) {
       <TabContainer ref={tagsContainerRef} overflowing={overflow}>
         {includedTags.map((tag) => (
           <Tab
-            color={editMode !== "delete" ? undefined : "red"}
+            palette={
+              editMode !== "delete"
+                ? undefined
+                : (props.theme.color.buttonDanger as ISwitchPalette)
+            }
             key={tag.name}
             active={filterTag === tag.name}
             onClick={() => {
@@ -195,15 +206,11 @@ export default function TweetTags(props: { image: TweetSchema }) {
             }}
           >
             {editMode === "delete" ? (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  marginRight: "5px",
-                }}
-              >
-                <CloseCircle size={20} />
-              </div>
+              <CloseCircle
+                style={{ marginRight: "5px" }}
+                className="center"
+                size={20}
+              />
             ) : (
               <></>
             )}
@@ -224,4 +231,4 @@ export default function TweetTags(props: { image: TweetSchema }) {
       </div>
     </MainContainer>
   );
-}
+});

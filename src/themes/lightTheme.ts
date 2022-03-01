@@ -1,56 +1,51 @@
 import { DefaultTheme } from "styled-components";
 
 export const lightTheme: DefaultTheme = {
-    color: {
-        primary: {
-            default: "rgb(1, 1, 1)",
-            hover: "rgb(100, 100, 100)",
-            active: "white",
+  color: {
+    tab: {
+      bgColor: "rgb(1, 1, 1)",
+      bgHover: "rgb(100, 100, 100)",
+      bgActive: "white",
+      bgActiveHover: "rgb(200, 200, 200)",
 
-            text: "white",
-            textHover: "rgb(100, 100, 100)",
-            textActive: "black",
-        },
-        button: {
-            default: "rgb(1, 1, 1)",
-            hover: "rgb(100, 100, 100)",
-            active: "white",
+      color: "white",
+      hover: "white",
+      active: "black",
+      activeHover: "black",
+    },
 
-            text: "white",
-            textHover: "rgb(100, 100, 100)",
-            textActive: "black",
-        },
-        buttonCancel: {
-            default: "rgb(150, 150, 150)",
-            hover: "rgb(80, 80, 80)",
-            active: "white",
+    button: {
+      bgColor: "rgb(1, 1, 1)",
+      bgHover: "rgb(100, 100, 100)",
+      bgActive: "white",
 
-            text: "white",
-            textHover: "rgb(100, 100, 100)",
-            textActive: "black",
-        },
-        buttonDanger: {
-            default: "red",
-            hover: "rgb(255, 100, 100)",
-            active: "rgb(255, 200, 200)",
+      color: "white",
+      hover: "rgb(100, 100, 100)",
+      active: "black",
+    },
+    buttonCancel: {
+      bgColor: "rgb(150, 150, 150)",
+      bgHover: "rgb(80, 80, 80)",
+      bgActive: "white",
 
-            text: "white",
-            textHover: "rgb(100, 100, 100)",
-            textActive: "white",
-        },
-        field: {
-            default: "#e6e5e4",
-            hover: "rgb(200, 200, 200)",
-            active: "rgb(100, 100, 100)",
+      color: "white",
+      hover: "rgb(100, 100, 100)",
+      active: "black",
+    },
+    buttonDanger: {
+      bgColor: "red",
+      bgHover: "rgb(255, 100, 100)",
+      bgActive: "rgb(255, 200, 200)",
 
-            text: "rgb(30, 30, 30)",
-            textHover: "rgb(30, 30, 30)",
-            textActive: "rgb(30, 30, 30)",
-        },
-        bg: {
-            primary: "#f6f5f4",
-            secondary: "white"
-        },
-        shadow: "#00000055"
-    }
-}
+      color: "white",
+      hover: "white",
+      active: "red",
+    },
+
+    bg: {
+      primary: "#f6f5f4",
+      secondary: "white",
+    },
+    shadow: "#00000055",
+  },
+};

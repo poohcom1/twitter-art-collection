@@ -5,29 +5,29 @@ import { BiTrash as TrashIcon } from "react-icons/bi";
 import { useStore } from "src/stores/rootStore";
 import { Spinner } from "src/components";
 
-const SearchDiv = styled.input`
-  flex-grow: 1;
-  padding: 8px;
-  border-radius: 50px;
-  border-width: 0;
-  color: ${(props) => props.theme.color.field.text};
-  background-color: ${(props) => props.theme.color.field.default};
+// const SearchDiv = styled.input`
+//   flex-grow: 1;
+//   padding: 8px;
+//   border-radius: 50px;
+//   border-width: 0;
+//   color: ${(props) => props.theme.color.field.color};
+//   background-color: ${(props) => props.theme.color.field.bgColor};
 
-  &:focus {
-    outline: none;
-    background-color: ${(props) => props.theme.color.field.hover};
-  }
-`;
+//   &:focus {
+//     outline: none;
+//     background-color: ${(props) => props.theme.color.field.bgHover};
+//   }
+// `;
 
-const HeaderDiv = styled.div<{ height: number }>`
+const HeaderDiv = styled.div`
   background-color: ${(props) => props.theme.color.bg.secondary};
   width: 100%;
-  height: ${(props) => props.height}px;
+  padding: 10px 30px;
+  height: fit-content;
 
   display: flex;
   align-items: center;
 
-  position: fixed;
   z-index: 10;
 
   box-shadow: 0 0 10px ${(props) => props.theme.color.shadow};
@@ -37,23 +37,16 @@ const HeaderDiv = styled.div<{ height: number }>`
   }
 `;
 
-function SearchBar() {
-  return <SearchDiv type="search" placeholder="Search" />;
-}
-
-export default withTheme(function Header(props: {
-  height: number;
-  theme: DefaultTheme;
-}) {
+export default withTheme(function Header(props: { theme: DefaultTheme }) {
   const tags = useStore((state) => state.tags);
   const tagsLoaded = useStore((state) => state.tagsLoaded);
   const editMode = useStore((state) => state.editMode);
   const toggleEditMode = useStore((state) => state.toggleEditMode);
 
-  const { height, theme } = props;
+  const { theme } = props;
 
   return (
-    <HeaderDiv height={height}>
+    <HeaderDiv>
       <UserSection />
       {tagsLoaded ? (
         <TagsPanel />
@@ -79,7 +72,7 @@ export default withTheme(function Header(props: {
               justifyContent: "center",
               borderColor:
                 editMode === "delete"
-                  ? theme.color.buttonDanger.default
+                  ? theme.color.buttonDanger.bgColor
                   : "transparent",
               borderStyle: "solid",
               padding: "8px",
@@ -91,7 +84,7 @@ export default withTheme(function Header(props: {
               size={30}
               color={
                 editMode === "delete"
-                  ? theme.color.buttonDanger.default
+                  ? theme.color.buttonDanger.bgColor
                   : "black"
               }
               style={{ margin: "0" }}

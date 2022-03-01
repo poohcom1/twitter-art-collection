@@ -1,32 +1,37 @@
 // styled.d.ts
-import 'styled-components';
-declare module 'styled-components' {
-    export interface DefaultTheme {
-        color: {
-            primary: IButtonPalette
-            field: IButtonPalette
-            button: IButtonPalette
-            buttonCancel: IButtonPalette
-            buttonDanger: IButtonPalette
+import "styled-components";
+declare module "styled-components" {
+  export interface DefaultTheme {
+    color: {
+      tab: ISwitchPalette;
 
-            shadow: string
-            bg: IPalette
-        }
-    }
+      button: IButtonPalette;
+      buttonCancel: IButtonPalette;
+      buttonDanger: IButtonPalette;
 
-    export interface IPalette {
-        primary: string
-        secondary: string
-    }
+      shadow: string;
+      bg: IPalette;
+    };
+  }
 
-    export interface IButtonPalette {
-        default: string
-        hover: string
-        active: string
+  export interface IPalette {
+    primary: string;
+    secondary: string;
+  }
 
-        text: string
-        textHover: string
-        textActive: string
-    }
+  export interface IButtonPalette {
+    bgColor: string;
+    bgHover: string;
+    bgActive: string;
 
+    color: string;
+    hover: string;
+    active: string;
+  }
+
+  export interface ISwitchPalette extends IButtonPalette {
+    activeHover: string;
+
+    bgActiveHover: string;
+  }
 }
