@@ -141,7 +141,6 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
     (type: FilterTypes, tag?: TagSchema) => () => {
       if (window) {
         document.body.classList.add("wait");
-        window.scrollTo(0, 0);
       }
 
       if (type === "all") {

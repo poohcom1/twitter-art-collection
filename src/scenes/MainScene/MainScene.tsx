@@ -29,13 +29,7 @@ export default function MainScene() {
       style={{ display: "flex", flexDirection: "column", height: "100vh" }}
     >
       <Header />
-      {tweetsLoaded ? (
-        <div style={{ overflowY: "scroll" }}>
-          <TweetsGallery />
-        </div>
-      ) : (
-        <LoadingScene display={true} />
-      )}
+      {tweetsLoaded ? <TweetsGallery /> : <LoadingScene display={true} />}
     </div>
   );
 }

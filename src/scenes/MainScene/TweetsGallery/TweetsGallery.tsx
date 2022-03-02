@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { useCallback, useMemo } from "react";
 import { useStore } from "src/stores/rootStore";
 import { TweetComponent } from "../../../components";
@@ -7,6 +7,8 @@ import Masonry from "react-masonry-css";
 
 const MainDiv = styled.div`
   background-color: ${(props) => props.theme.color.bg.primary};
+  padding: 32px;
+  overflow-y: scroll;
 `;
 
 function LoadingMasonry(props: { children: React.ReactNode[] }) {
@@ -28,6 +30,9 @@ function LoadingMasonry(props: { children: React.ReactNode[] }) {
 export default function TweetsGallery() {
   // Filtering and rendering
   const tweets = useStore((state) => state.tweets);
+  const imageFilter = useStore((state) => state.imageFilter);
+  // For scroll to top
+  const mainDivRef = useRef<HTMLDivElement>(null);
 
   const images: TweetSchema[] = useMemo(() => {
     if (tweets)
@@ -39,8 +44,13 @@ export default function TweetsGallery() {
     useCallback((state) => images.filter(state.imageFilter), [images])
   );
 
+  // Scroll to top on filter change
+  useEffect(() => {
+    if (mainDivRef.current) mainDivRef.current.scrollTo(0, 0);
+  }, [imageFilter]);
+
   return (
-    <MainDiv style={{ padding: "32px" }}>
+    <MainDiv ref={mainDivRef}>
       <LoadingMasonry>
         {filteredTags.map((data, i) => (
           <TweetComponent id={data.id} ast={data.ast} key={data.id} order={i} />

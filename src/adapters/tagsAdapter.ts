@@ -30,7 +30,6 @@ export async function postTag(tag: TagSchema): Promise<Response> {
 }
 
 export async function putTags(tag: TagSchema): Promise<Response> {
-  console.log(JSON.stringify(sanitizeTag(tag)));
   return fetch(`/api/tags/${tag.name}`, {
     method: "PUT",
     headers: {

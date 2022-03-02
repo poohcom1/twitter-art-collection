@@ -39,7 +39,9 @@ const TweetDiv = styled.div`
 
 const MemoTweet = React.memo(Tweet);
 
-const MIN_RENDER_COUNT = 0;
+const MIN_RENDER_QUEUE = 0; // How many Tweets to render automatically
+const MAX_RENDER_QUEUE = 8; // How many Tweets to render until everything else loads at once
+const RENDER_INTERVAL = 10; // in ms
 
 function TweetComponent(props: {
   id: string;
@@ -47,13 +49,19 @@ function TweetComponent(props: {
   index?: number;
   order: number;
 }) {
-  const [rendered, setRendered] = useState(props.order < MIN_RENDER_COUNT);
+  const [rendered, setRendered] = useState(props.order < MIN_RENDER_QUEUE);
   const [delayedRender, setDelayedRender] = useState(false);
 
   useEffect(() => {
     setRendered(false);
-    setTimeout(() => setDelayedRender(true), props.order * 100);
-  }, [props.id, props.ast, props.order]);
+    setTimeout(
+      () => setDelayedRender(true),
+      Math.min(
+        props.order * RENDER_INTERVAL,
+        MAX_RENDER_QUEUE * RENDER_INTERVAL
+      )
+    );
+  }, [props.order]);
 
   return (
     <VisibilitySensor
