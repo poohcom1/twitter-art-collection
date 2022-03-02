@@ -62,6 +62,7 @@ const Tab = styled(StyledTab)`
 
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
+  border-width: 0;
 `;
 
 /**

@@ -1,3 +1,7 @@
+/**
+ * A toggled tab with an non-active and active state
+ */
+
 import { pickPalette, ThemedAttributes } from "src/utils/themeUtils";
 import styled, { css, ISwitchPalette } from "styled-components";
 
