@@ -7,8 +7,7 @@ import Masonry from "react-masonry-css";
 
 const MainDiv = styled.div`
   background-color: ${(props) => props.theme.color.background};
-  padding: 32px;
-  padding-top: 120px;
+  padding: 120px 32px;
   overflow-y: scroll;
 `;
 
