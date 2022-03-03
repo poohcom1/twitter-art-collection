@@ -66,6 +66,7 @@ const TextDiv = styled.div`
 
 const GithubLinkA = styled.a`
   margin-left: auto;
+  text-decoration: none;
 `;
 
 const SampleImageDiv = styled.div`
@@ -122,7 +123,10 @@ export default function Index() {
       <ThemeProvider theme={lightTheme}>
         <Body>
           <HeaderDiv>
-            <a href="https://twitter-art-collection.vercel.app/">
+            <a
+              style={{ color: "white", textDecoration: "none" }}
+              href="https://twitter-art-collection.vercel.app/"
+            >
               <h2>Twitter Art Collection</h2>
             </a>
             <GithubLink />

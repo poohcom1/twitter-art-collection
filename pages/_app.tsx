@@ -1,5 +1,6 @@
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
+import Router from "next/router";
 import "../styles/globals.css";
 
 // Suppress specific warnings in dev
@@ -23,6 +24,19 @@ if (process.env.NODE_ENV === "development") {
 }
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
+  // Page change loading indicator
+  //  @see styles/globals.css
+  Router.events.on("routeChangeStart", () => {
+    if (document) document.body.classList.add("wait");
+  });
+
+  Router.events.on("routeChangeComplete", () => {
+    if (document) document.body.classList.remove("wait");
+  });
+
+  Router.events.on("routeChangeError", () => {
+    if (document) document.body.classList.remove("wait");
+  });
   return (
     <SessionProvider session={session}>
       <Component {...pageProps} />

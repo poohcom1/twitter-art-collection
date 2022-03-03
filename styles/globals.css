@@ -41,7 +41,7 @@ body {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
-  display: "flex";
+  display: flex;
   justify-content: center;
   align-items: center;
 }

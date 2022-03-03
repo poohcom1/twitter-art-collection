@@ -32,7 +32,10 @@ export default function Privacy() {
         </a>
         .
       </p>
-      <Link href="/">Back to home</Link>
+
+      <div className="center">
+        <Link href="/">Back to home</Link>
+      </div>
     </div>
   );
 }
