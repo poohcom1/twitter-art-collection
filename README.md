@@ -1,6 +1,8 @@
 # Twitter Art Collection (WIP)
 [<img src="http://therealsujitk-vercel-badge.vercel.app/?app=twitter-art-collection&style=for-the-badge&logo=false"/>](https://twitter-art-collection.vercel.app/)
 
+![Sample image](public/assets/sample_image.png)
+
 A web app to organize arts and photos from your Twitter likes!
 
 There are a surprising amount of amazing art on Twitter, and once you accumulate a large amount of likes it gets rather hard to go back and find old art, unless you're willing to scroll for while.
