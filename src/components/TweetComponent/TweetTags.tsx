@@ -45,13 +45,15 @@ const TabContainer = styled.div<TabContainerProps & { overflow?: boolean }>`
 `;
 
 const StyledAddButton = styled.div`
-  color: ${(props) => props.theme.color.onPrimary};
   padding: 0;
   margin: 0;
   height: ${BUTTON_SIZE}px;
   width: ${BUTTON_SIZE}px;
 `;
 
+/**
+ * Tab with lower border radius removed
+ */
 const Tab = styled(StyledTab)`
   padding: 5px 10px;
   margin: 0 5px;
@@ -93,7 +95,7 @@ function AddImagesPopupListItem(
  * @param props
  * @returns
  */
-export default withTheme(function TweetTags(props: {
+const TweetTags = withTheme(function TweetTags(props: {
   image: TweetSchema;
   theme: DefaultTheme;
 }) {
@@ -225,3 +227,5 @@ export default withTheme(function TweetTags(props: {
     </MainContainer>
   );
 });
+
+export default React.memo(TweetTags);

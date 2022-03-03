@@ -92,4 +92,4 @@ function TweetComponent(props: {
   );
 }
 
-export default TweetComponent;
+export default React.memo(TweetComponent);

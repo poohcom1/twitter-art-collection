@@ -37,7 +37,7 @@ const StyledTagsPanel = styled.div`
 /**
  * Create new tag component
  */
-function NewTag() {
+function NewTag(props: { theme: DefaultTheme }) {
   const session = useSession();
 
   const addTag = useStore((state) => state.addTag);
@@ -96,9 +96,15 @@ function NewTag() {
     <StyledPopup
       trigger={useMemo(
         () => (
-          <Tag style={{ width: DEFAULT_TAG_WIDTH }}>+ New</Tag>
+          <Tag
+            style={{ width: DEFAULT_TAG_WIDTH }}
+            color={props.theme.color.primary}
+            textColor={props.theme.color.onPrimary}
+          >
+            + New
+          </Tag>
         ),
-        []
+        [props.theme.color.onPrimary, props.theme.color.primary]
       )}
       position="bottom left"
       nested
@@ -143,7 +149,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
 
   return (
     <StyledTagsPanel>
-      <NewTag />
+      <NewTag theme={props.theme} />
 
       {/* Special filters Section */}
       <Tag
