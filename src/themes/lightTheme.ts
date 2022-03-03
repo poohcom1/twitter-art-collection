@@ -2,14 +2,14 @@ import { DefaultTheme } from "styled-components";
 
 export const lightTheme: DefaultTheme = {
   color: {
-    primary: "black",
-    secondary: "black",
+    primary: "rgb(89, 56, 167)",
+    secondary: "rgb(30, 30, 30)",
     accent: "white",
 
     danger: "rgb(255, 100, 100)",
 
-    background: "#f6f5f4",
-    surface: "white",
+    background: "#f3eef8",
+    surface: "#ffffff",
 
     // Text
     onPrimary: "white",

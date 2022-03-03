@@ -5,28 +5,22 @@ import { BiTrash as TrashIcon } from "react-icons/bi";
 import { useStore } from "src/stores/rootStore";
 import { Spinner } from "src/components";
 
-// const SearchDiv = styled.input`
-//   flex-grow: 1;
-//   padding: 8px;
-//   border-radius: 50px;
-//   border-width: 0;
-//   color: ${(props) => props.theme.color.field.color};
-//   background-color: ${(props) => props.theme.color.field.bgColor};
-
-//   &:focus {
-//     outline: none;
-//     background-color: ${(props) => props.theme.color.field.bgHover};
-//   }
-// `;
-
 const HeaderDiv = styled.div`
-  background-color: ${(props) => props.theme.color.surface};
   width: 100%;
   padding: 10px 30px;
   height: fit-content;
 
   display: flex;
   align-items: center;
+
+  position: absolute;
+
+  background-color: rgb(255, 255, 255, 0.85);
+
+  @supports (backdrop-filter: blur(10px)) {
+    background-color: rgb(255, 255, 255, 0.4);
+    backdrop-filter: blur(10px);
+  }
 
   z-index: 10;
 
@@ -42,8 +36,6 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
   const tagsLoaded = useStore((state) => state.tagsLoaded);
   const editMode = useStore((state) => state.editMode);
   const toggleEditMode = useStore((state) => state.toggleEditMode);
-
-  const { theme } = props;
 
   return (
     <HeaderDiv>
@@ -71,19 +63,21 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
               display: "flex",
               justifyContent: "center",
               borderColor:
-                editMode === "delete" ? theme.color.danger : "transparent",
+                editMode === "delete"
+                  ? props.theme.color.danger
+                  : "transparent",
               borderStyle: "solid",
               padding: "8px",
               marginLeft: "auto",
-              backgroundColor: "white",
+              backgroundColor: "transparent",
             }}
           >
             <TrashIcon
               size={30}
               color={
                 editMode === "delete"
-                  ? theme.color.danger
-                  : theme.color.secondary
+                  ? props.theme.color.danger
+                  : props.theme.color.secondary
               }
               style={{ margin: "0" }}
             />

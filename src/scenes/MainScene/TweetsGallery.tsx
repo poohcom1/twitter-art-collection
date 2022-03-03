@@ -2,12 +2,13 @@ import styled from "styled-components";
 import React, { useEffect, useRef } from "react";
 import { useCallback, useMemo } from "react";
 import { useStore } from "src/stores/rootStore";
-import { TweetComponent } from "../../../components";
+import { TweetComponent } from "../../components";
 import Masonry from "react-masonry-css";
 
 const MainDiv = styled.div`
   background-color: ${(props) => props.theme.color.background};
   padding: 32px;
+  padding-top: 120px;
   overflow-y: scroll;
 `;
 

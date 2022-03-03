@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import Header from "./Header/Header";
 import { LoadingScene } from "..";
-import TweetsGallery from "./TweetsGallery/TweetsGallery";
+import TweetsGallery from "./TweetsGallery";
 import { useSession } from "next-auth/react";
 import { useStore } from "src/stores/rootStore";
 

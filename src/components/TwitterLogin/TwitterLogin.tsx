@@ -3,9 +3,41 @@ import styled from "styled-components";
 import Image from "next/image";
 
 const SignInButton = styled.div`
+  display: flex;
+  align-items: center;
   cursor: pointer;
-  height: 28px;
-  width: 158px;
+
+  width: fit-content;
+  padding: 15px;
+
+  border-style: solid;
+  border-radius: 15em;
+  border-width: 2px;
+  border-color: transparent;
+
+  background-color: #ffffff11;
+
+  .container:before {
+    box-shadow: inset 0 0 2000px rgba(255, 255, 255, 0.5);
+    filter: blur(10px);
+  }
+
+  &:hover {
+    border-color: ${(props) => props.theme.color.onSecondary};
+    background-color: #ffffff34;
+  }
+
+  * {
+    margin: 0 15px;
+  }
+
+  transition: all 0.1s;
+
+  .image-div {
+    -webkit-filter: drop-shadow(0px 0px 5px #0000006d);
+    filter: drop-shadow(0px 0px 5px #0000006d);
+    overflow: visible;
+  }
 `;
 
 export default function TwitterLogin() {
@@ -14,12 +46,15 @@ export default function TwitterLogin() {
   if (session.status !== "authenticated") {
     return (
       <SignInButton onClick={() => signIn("twitter")}>
-        <Image
-          src="/assets/twitter/twitter-signin.png"
-          alt="Twitter Sign In"
-          width={158}
-          height={28}
-        />
+        <div className="image-div">
+          <Image
+            src="/assets/twitter/twitter_logo_blue.png"
+            alt="Twitter Sign In"
+            width={50}
+            height={40}
+          />
+        </div>
+        <h3>Sign in with Twitter</h3>
       </SignInButton>
     );
   }

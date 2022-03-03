@@ -1,31 +1,10 @@
-:root {
-  --primary: black;
-  --secondary: white;
-  --primary-hover: grey;
-
-  --primary-selected: white;
-  --secondary-selected: black;
-  --primary-selected-hover: grey;
-  --secondary-selected-hover: black;
-
-  --highlight: coral;
-
-  --bg-primary: #f6f5f4;
-  --bg-secondary: white;
-
-  --element: var(--bg-primary);
-  --hover: rgb(204, 204, 204);
-  --selected: #afafaf;
-
-  --bg-error: rgb(238, 119, 119);
-}
-
 html,
 body {
   padding: 0;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  font-size: large;
 }
 
 .wait,
