@@ -10,8 +10,6 @@ const MainDiv = styled.div`
   padding: 32px;
   padding-top: 120px;
   overflow-y: scroll;
-
-  width: 100%;
 `;
 
 function LoadingMasonry(props: { children: React.ReactNode[] }) {
