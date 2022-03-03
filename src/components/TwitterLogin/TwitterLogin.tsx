@@ -32,12 +32,6 @@ const SignInButton = styled.div`
   }
 
   transition: all 0.1s;
-
-  .image-div {
-    -webkit-filter: drop-shadow(0px 0px 5px #0000006d);
-    filter: drop-shadow(0px 0px 5px #0000006d);
-    overflow: visible;
-  }
 `;
 
 export default function TwitterLogin() {
@@ -48,10 +42,10 @@ export default function TwitterLogin() {
       <SignInButton onClick={() => signIn("twitter")}>
         <div className="image-div">
           <Image
-            src="/assets/twitter/twitter_logo_blue.png"
+            src="/assets/twitter/twitter_social_blue.svg"
             alt="Twitter Sign In"
             width={50}
-            height={40}
+            height={50}
           />
         </div>
         <h3>Sign in with Twitter</h3>
