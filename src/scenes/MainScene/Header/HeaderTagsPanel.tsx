@@ -7,11 +7,7 @@ import {
   StyledTab,
 } from "src/components";
 import { useStore, FilterTypes } from "src/stores/rootStore";
-import styled, {
-  DefaultTheme,
-  ISwitchPalette,
-  withTheme,
-} from "styled-components";
+import styled, { DefaultTheme, withTheme } from "styled-components";
 import { AiOutlineCloseCircle as CloseCircle } from "react-icons/ai";
 
 const DEFAULT_TAG_WIDTH = "75px";
@@ -23,11 +19,6 @@ const Tag = styled(StyledTab)`
   border-radius: 1.5em;
 
   cursor: pointer;
-
-  border-color: ${(props) =>
-    props.color
-      ? props.color
-      : props.theme.color.tab[props.active ? "active" : "color"]};
 
   & p {
     margin: auto;
@@ -139,10 +130,6 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
   // create filter reducers
   const setFilter = useCallback(
     (type: FilterTypes, tag?: TagSchema) => () => {
-      if (window) {
-        document.body.classList.add("wait");
-      }
-
       if (type === "all") {
         setStateFilter({ type: "all" });
       } else if (type === "uncategorized") {
@@ -193,7 +180,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
               <Tag
                 key={i}
                 active={filterType === "tag" && filterTag === tag.name}
-                palette={props.theme.color.buttonDanger as ISwitchPalette}
+                color={props.theme.color.danger}
               >
                 {tag.name}
                 <CloseCircle
@@ -211,7 +198,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
                 text="Are you sure you want to delete this tag?"
                 acceptText="Delete"
                 cancelText="Cancel"
-                acceptColor={props.theme.color.buttonDanger}
+                acceptColor={props.theme.color.danger}
                 closeCallback={close}
                 onAccept={() => {
                   if (session.data) {

@@ -3,14 +3,23 @@ import "styled-components";
 declare module "styled-components" {
   export interface DefaultTheme {
     color: {
-      tab: ISwitchPalette;
+      primary: string;
+      secondary: string;
+      accent: string;
 
-      button: IButtonPalette;
-      buttonCancel: IButtonPalette;
-      buttonDanger: IButtonPalette;
+      danger: string;
+
+      background: string;
+      surface: string;
 
       shadow: string;
-      bg: IPalette;
+
+      // Text
+      onPrimary: string;
+      onSecondary: string;
+      onAccent: string;
+      onBackground: string;
+      onSurface: string;
     };
   }
 

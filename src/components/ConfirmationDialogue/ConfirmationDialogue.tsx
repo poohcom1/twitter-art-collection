@@ -1,15 +1,12 @@
 import React, { useCallback, useMemo } from "react";
 import { ForwardedRef, forwardRef } from "react";
-import styled, {
-  DefaultTheme,
-  IButtonPalette,
-  withTheme,
-} from "styled-components";
+import styled, { DefaultTheme, withTheme } from "styled-components";
 import { StyledButton } from "..";
 
 const DialogueDiv = styled.div`
   padding: 32px;
-  background-color: ${(props) => props.theme.color.bg.secondary};
+  color: ${(props) => props.theme.color.onSurface};
+  background-color: ${(props) => props.theme.color.surface};
 `;
 
 const ButtonDiv = styled.div`
@@ -24,8 +21,8 @@ interface ConfirmationDialogueProps {
   acceptText?: string;
   cancelText?: string;
 
-  acceptColor?: IButtonPalette;
-  cancelColor?: IButtonPalette;
+  acceptColor?: string;
+  cancelColor?: string;
 
   onAccept?: () => void;
 }
@@ -43,7 +40,7 @@ const ConfirmationDialogue = withTheme(
         <br />
         <ButtonDiv>
           <StyledButton
-            palette={props.acceptColor ?? props.theme.color.button}
+            color={props.acceptColor ?? props.theme.color.primary}
             onClick={useCallback(
               () => (props.onAccept ? props.onAccept() : {}),
               [props]
@@ -52,7 +49,7 @@ const ConfirmationDialogue = withTheme(
             {useMemo(() => props.acceptText ?? "Accept", [props.acceptText])}
           </StyledButton>
           <StyledButton
-            palette={props.cancelColor ?? props.theme.color.buttonCancel}
+            color={props.cancelColor ?? props.theme.color.secondary}
             onClick={useCallback(() => props.closeCallback(), [props])}
           >
             {useMemo(() => props.cancelText ?? "Cancel", [props.cancelText])}

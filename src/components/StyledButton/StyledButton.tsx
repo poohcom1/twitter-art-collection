@@ -1,12 +1,11 @@
-import { pickPalette, ThemedAttributes } from "src/utils/themeUtils";
+import { HTMLAttributes } from "react";
 import styled, { IButtonPalette } from "styled-components";
 
-interface ButtonProps
-  extends ThemedAttributes<HTMLButtonElement, IButtonPalette> {
+interface ButtonProps extends HTMLAttributes<HTMLButtonElement> {
   palette?: IButtonPalette;
+  color?: string;
+  textColor?: string;
 }
-
-const buttonPalette = "button";
 
 const StyledButton = styled.button<ButtonProps>`
   padding: 5px 15px;
@@ -18,20 +17,18 @@ const StyledButton = styled.button<ButtonProps>`
   padding: 16px;
   font-size: 1.1em;
 
-  color: ${pickPalette(buttonPalette, (c) => c.color)};
-  background-color: ${pickPalette(buttonPalette, (c) => c.bgColor)};
-  border-color: ${pickPalette(buttonPalette, (c) => c.bgColor)};
+  color: ${(props) => props.textColor ?? props.theme.color.onSecondary};
+  background-color: ${(props) => props.color ?? props.theme.color.secondary};
+  border-color: ${(props) => props.textColor ?? props.theme.color.secondary};
 
   &:hover {
-    color: ${pickPalette(buttonPalette, (c) => c.hover)};
-    background-color: ${pickPalette(buttonPalette, (c) => c.bgHover)};
-    border-color: ${pickPalette(buttonPalette, (c) => c.bgHover)};
+    opacity: 70%;
   }
 
   &:active {
-    color: ${pickPalette(buttonPalette, (c) => c.active)};
-    background-color: ${pickPalette(buttonPalette, (c) => c.bgActive)};
-    border-color: ${pickPalette(buttonPalette, (c) => c.bgActive)};
+    color: ${(props) => props.theme.color.onAccent};
+    background-color: ${(props) => props.theme.color.accent};
+    border-color: ${(props) => props.theme.color.onAccent};
   }
 `;
 

@@ -30,6 +30,10 @@ export default function Index() {
     <>
       <Head>
         <title>Twitter Art Collection</title>
+        <link
+          rel="canonical"
+          href="https://twitter-art-collection.vercel.app/collection"
+        />
       </Head>
       <ThemeProvider theme={lightTheme}>
         <MainScene />

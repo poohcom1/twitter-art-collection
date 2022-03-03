@@ -6,16 +6,12 @@ import { TweetComponent } from "../../../components";
 import Masonry from "react-masonry-css";
 
 const MainDiv = styled.div`
-  background-color: ${(props) => props.theme.color.bg.primary};
+  background-color: ${(props) => props.theme.color.background};
   padding: 32px;
   overflow-y: scroll;
 `;
 
 function LoadingMasonry(props: { children: React.ReactNode[] }) {
-  useEffect(() => {
-    setTimeout(() => document.body.classList.remove("wait"), 100);
-  }, [props.children]);
-
   return (
     <Masonry
       breakpointCols={4}

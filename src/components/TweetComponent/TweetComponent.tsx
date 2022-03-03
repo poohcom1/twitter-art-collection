@@ -9,11 +9,11 @@ const Tweet = dynamic<{ id: string; ast: object[] }>(() =>
 
 const blink = (props: { theme: DefaultTheme }) => keyframes`  
   from {
-    background-color: ${props.theme.color.bg.primary};
+    background-color: ${props.theme.color.background};
   }
 
   to {
-    background-color: ${props.theme.color.bg.secondary};
+    background-color: ${props.theme.color.surface};
   }
 `;
 

@@ -34,3 +34,5 @@ export const pickPalette =
       props.palette ? props.palette : props.theme.color[defaultColor]
     );
   };
+
+

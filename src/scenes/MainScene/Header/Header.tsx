@@ -20,7 +20,7 @@ import { Spinner } from "src/components";
 // `;
 
 const HeaderDiv = styled.div`
-  background-color: ${(props) => props.theme.color.bg.secondary};
+  background-color: ${(props) => props.theme.color.surface};
   width: 100%;
   padding: 10px 30px;
   height: fit-content;
@@ -71,9 +71,7 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
               display: "flex",
               justifyContent: "center",
               borderColor:
-                editMode === "delete"
-                  ? theme.color.buttonDanger.bgColor
-                  : "transparent",
+                editMode === "delete" ? theme.color.danger : "transparent",
               borderStyle: "solid",
               padding: "8px",
               marginLeft: "auto",
@@ -84,8 +82,8 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
               size={30}
               color={
                 editMode === "delete"
-                  ? theme.color.buttonDanger.bgColor
-                  : "black"
+                  ? theme.color.danger
+                  : theme.color.secondary
               }
               style={{ margin: "0" }}
             />

@@ -15,11 +15,7 @@ import {
 import { GiHamburgerMenu as MenuIcon } from "react-icons/gi";
 import { useStore } from "src/stores/rootStore";
 import { arrayEqual, imageEqual } from "src/utils/objectUtils";
-import styled, {
-  DefaultTheme,
-  ISwitchPalette,
-  withTheme,
-} from "styled-components";
+import styled, { DefaultTheme, withTheme } from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
 
 const BUTTON_SIZE = 35;
@@ -49,7 +45,7 @@ const TabContainer = styled.div<TabContainerProps & { overflow?: boolean }>`
 `;
 
 const StyledAddButton = styled.div`
-  color: ${(props) => props.theme.color.tab.color};
+  color: ${(props) => props.theme.color.onPrimary};
   padding: 0;
   margin: 0;
   height: ${BUTTON_SIZE}px;
@@ -191,11 +187,7 @@ export default withTheme(function TweetTags(props: {
       <TabContainer ref={tagsContainerRef} overflowing={overflow}>
         {includedTags.map((tag) => (
           <Tab
-            palette={
-              editMode !== "delete"
-                ? undefined
-                : (props.theme.color.buttonDanger as ISwitchPalette)
-            }
+            color={editMode !== "delete" ? undefined : props.theme.color.danger}
             key={tag.name}
             active={filterTag === tag.name}
             onClick={() => {

@@ -13,7 +13,7 @@ const rotate = keyframes`
 
 const MainDiv = styled.div`
   position: absolute;
-  background-color: ${(props) => props.theme.color.bg.primary};
+  background-color: ${(props) => props.theme.color.background};
   width: 100vw;
   height: 100vh;
   margin: auto;
