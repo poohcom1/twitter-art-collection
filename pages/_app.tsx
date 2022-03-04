@@ -1,6 +1,8 @@
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import Router from "next/router";
+import { useState } from "react";
+import { LoadingScene } from "src/scenes";
 import "../styles/globals.css";
 
 // Suppress specific warnings in dev
@@ -24,21 +26,27 @@ if (process.env.NODE_ENV === "development") {
 }
 
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
+  const [pageLoading, setPageLoading] = useState(false);
+
   // Page change loading indicator
   //  @see styles/globals.css
   Router.events.on("routeChangeStart", () => {
+    setPageLoading(true);
     if (document) document.body.classList.add("wait");
   });
 
   Router.events.on("routeChangeComplete", () => {
+    setPageLoading(false);
     if (document) document.body.classList.remove("wait");
   });
 
   Router.events.on("routeChangeError", () => {
+    setPageLoading(false);
     if (document) document.body.classList.remove("wait");
   });
   return (
     <SessionProvider session={session}>
+      <LoadingScene display={pageLoading} />
       <Component {...pageProps} />
     </SessionProvider>
   );

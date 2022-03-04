@@ -13,7 +13,6 @@ const rotate = keyframes`
 
 const MainDiv = styled.div`
   position: absolute;
-  background-color: ${(props) => props.theme.color.background};
   width: 100vw;
   height: 100vh;
   margin: auto;
@@ -21,6 +20,8 @@ const MainDiv = styled.div`
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
+  background-color: white;
 
   font-weight: 800;
 `;
@@ -32,9 +33,9 @@ const SpinnerDiv = styled.div`
   display: flex;
 `;
 
-export default function LoadingScene(props: { display?: boolean }) {
+export default function LoadingScene({ display = true }) {
   return (
-    <MainDiv style={{ display: props.display ? "flex" : "none" }}>
+    <MainDiv style={{ display: display ? "flex" : "none" }}>
       <h1>Loading...</h1>
       <SpinnerDiv>
         <Spinner size={40} />

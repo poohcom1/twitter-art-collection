@@ -8,31 +8,10 @@ import styled, {
 import { lightTheme } from "src/themes";
 import Image from "next/image";
 // Next SSR
-import type { GetServerSideProps } from "next";
 import { TwitterLogin } from "src/components";
-import { getServerSession } from "next-auth";
-import { authOptions } from "lib/nextAuth";
-
-// Redirect to about if signed in
-// TODO Remove if slow
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  console.time("session");
-  const session = await getServerSession(context, authOptions);
-  console.timeEnd("session");
-
-  if (session?.user) {
-    return {
-      redirect: {
-        permanent: false,
-        destination: "/collection",
-      },
-    };
-  }
-
-  return {
-    props: { session },
-  };
-};
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const Body = styled.div`
   background: ${(props) => props.theme.color.primary};
@@ -111,6 +90,15 @@ const FooterDiv = styled.div`
 `;
 
 export default function Index() {
+  const session = useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!session.data?.user) {
+      router.push("/");
+    }
+  });
+
   return (
     <>
       <Head>

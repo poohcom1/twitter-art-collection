@@ -49,9 +49,9 @@ export const useStore = create(
         await getTags().then((tags) => set({ tags, tagsLoaded: true }));
       },
       initTweets: async () => {
-        await getLikedTweets().then((tweets) =>
-          set({ tweets, tweetsLoaded: true })
-        );
+        await getLikedTweets().then((tweets) => {
+          set({ tweets, tweetsLoaded: true });
+        });
       },
       /* ---------------------------------- Tags ---------------------------------- */
       addTag: (tag: TagSchema): void =>

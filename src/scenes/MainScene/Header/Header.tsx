@@ -17,14 +17,14 @@ const HeaderDiv = styled.div`
 
   background-color: rgb(255, 255, 255, 0.85);
 
+  box-shadow: 0 0 10px ${(props) => props.theme.color.shadow};
+
   @supports (backdrop-filter: blur(10px)) {
     background-color: rgb(255, 255, 255, 0.4);
     backdrop-filter: blur(10px);
   }
 
   z-index: 10;
-
-  box-shadow: 0 0 10px ${(props) => props.theme.color.shadow};
 
   & * {
     margin: 5px;

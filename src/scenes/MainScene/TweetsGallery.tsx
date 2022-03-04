@@ -4,6 +4,7 @@ import { useCallback, useMemo } from "react";
 import { useStore } from "src/stores/rootStore";
 import { TweetComponent } from "../../components";
 import Masonry from "react-masonry-css";
+import ReactVisibilitySensor from "react-visibility-sensor";
 
 const MainDiv = styled.div`
   background-color: ${(props) => props.theme.color.background};
@@ -52,6 +53,9 @@ export default function TweetsGallery() {
           <TweetComponent id={data.id} ast={data.ast} key={data.id} order={i} />
         ))}
       </LoadingMasonry>
+      <ReactVisibilitySensor>
+        {({ isVisible }) => <p>Loading...</p>}
+      </ReactVisibilitySensor>
     </MainDiv>
   );
 }
