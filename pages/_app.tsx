@@ -32,22 +32,22 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   //  @see styles/globals.css
   Router.events.on("routeChangeStart", () => {
     setPageLoading(true);
-    if (document) document.body.classList.add("wait");
   });
 
   Router.events.on("routeChangeComplete", () => {
     setPageLoading(false);
-    if (document) document.body.classList.remove("wait");
   });
 
   Router.events.on("routeChangeError", () => {
     setPageLoading(false);
-    if (document) document.body.classList.remove("wait");
   });
   return (
     <SessionProvider session={session}>
-      <LoadingScene display={pageLoading} />
-      <Component {...pageProps} />
+      {pageLoading ? (
+        <LoadingScene display={true} />
+      ) : (
+        <Component {...pageProps} />
+      )}
     </SessionProvider>
   );
 }
