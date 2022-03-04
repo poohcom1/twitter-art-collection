@@ -53,6 +53,8 @@ const GithubLinkA = styled.a`
 `;
 
 const SampleImageDiv = styled.div`
+  width: fit-content;
+  height: fit-content;
   overflow: hidden;
   border-radius: 15px;
   box-shadow: 15px 15px 0 #ffffff3e;

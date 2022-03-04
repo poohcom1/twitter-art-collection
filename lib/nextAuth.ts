@@ -53,7 +53,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     redirect: async ({ baseUrl }) => {
-      return baseUrl;
+      return baseUrl + "/collection";
     },
   },
   session: {
