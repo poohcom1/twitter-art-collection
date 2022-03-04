@@ -94,8 +94,8 @@ export default function Index() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!session.data?.user) {
-      router.push("/");
+    if (session.data?.user) {
+      router.push("/collection");
     }
   });
 
