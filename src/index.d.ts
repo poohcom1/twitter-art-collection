@@ -28,10 +28,20 @@ interface UserSchema {
   tags: TagCollection;
 }
 
-// API Objects
+// Request Body Types
 
 type PostTagBody = TagSchema;
 
 type PutTagBody = TagSchema;
 
 type DeleteTagBody = TagSchema;
+
+// Response Types
+
+interface LikedTweetResponse {
+  tweets: TweetSchema[];
+  /**
+   * The amount of pages fetched from twitter
+   */
+  next_token?: string;
+}

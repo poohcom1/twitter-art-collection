@@ -1,4 +1,4 @@
-import { fetchRetry, jsonOrError } from "./adapter";
+import { jsonOrError } from "./adapter";
 
 function sanitizeTag(tag: TagSchema): TagSchema {
   tag.images = tag.images.map((image) => ({
@@ -10,7 +10,7 @@ function sanitizeTag(tag: TagSchema): TagSchema {
 }
 
 export async function getTags(): Promise<TagCollection> {
-  const res = await fetchRetry(`/api/tags/`, {
+  const res = await fetch(`/api/tags/`, {
     method: "GET",
   });
 
