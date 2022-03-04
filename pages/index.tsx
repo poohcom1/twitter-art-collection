@@ -1,5 +1,4 @@
 import Head from "next/head";
-import { getSession } from "next-auth/react";
 import "react-static-tweets/styles.css";
 import styled, {
   DefaultTheme,
@@ -11,10 +10,15 @@ import Image from "next/image";
 // Next SSR
 import type { GetServerSideProps } from "next";
 import { TwitterLogin } from "src/components";
+import { getServerSession } from "next-auth";
+import { authOptions } from "lib/nextAuth";
 
 // Redirect to about if signed in
+// TODO Remove if slow
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const session = await getSession(context);
+  console.time("session");
+  const session = await getServerSession(context, authOptions);
+  console.timeEnd("session");
 
   if (session?.user) {
     return {
