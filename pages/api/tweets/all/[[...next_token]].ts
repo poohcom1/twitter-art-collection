@@ -11,7 +11,6 @@ const pagination_count = 100;
 /**
  * Responds with an object containing paginated tweets, next token, and deleted tweets
  * @param req.query.nextToken Next token for the Twitter API. Required as url parameter
- * @param req.query.page Page for pagination. Only used for data syncing and caching
  */
 export default async function handler(
   req: NextApiRequest,
@@ -43,6 +42,8 @@ export default async function handler(
         userLikedTweetsOptions
       );
 
+      console.log(payload);
+
       const next_token = payload.data.meta.next_token;
 
       // Fetch asts
@@ -66,9 +67,7 @@ export default async function handler(
         }
       }
 
-      console.log(tweetAsts);
-
-      const responseObject: LikedTweetResponse = {
+      const responseObject: AllTweetsResponse = {
         tweets: tweetAsts as TweetSchema[],
         next_token,
       };

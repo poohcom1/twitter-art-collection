@@ -38,14 +38,18 @@ type DeleteTagBody = TagSchema;
 
 // Response Types
 
-interface LikedTweetResponse {
+interface TweetsResponse {
   tweets: TweetSchema[];
+}
+
+interface AllTweetsResponse extends TweetsResponse {
   /**
    * The amount of pages fetched from twitter
    */
   next_token?: string;
 }
 
+// Error handling
 interface Result<T, E> {
   error: E;
   data: T;

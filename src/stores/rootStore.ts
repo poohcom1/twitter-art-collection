@@ -4,6 +4,7 @@ import {
   deleteTag,
   getLikedTweets,
   getTags,
+  getTweetAsts,
   postTag,
   putTags,
 } from "src/adapters";
@@ -42,16 +43,53 @@ export const useStore = create(
       editMode: <"add" | "delete">"add",
       // Twitter
       tweets: <TweetSchema[]>[],
+      extraTweets: new Set<TweetSchema>(),
     },
     (set, get) => ({
       initTags: async () => {
         await getTags().then((tags) => set({ tags, tagsLoaded: true }));
       },
+
+      /**
+       * Loads liked tweets
+       * @returns error
+       */
       loadTweets: async () => {
         let error = 0;
 
         await getLikedTweets().then((tweetsData) => {
           set({ tweets: get().tweets.concat(tweetsData.data) });
+
+          error = tweetsData.error;
+        });
+
+        return error;
+      },
+
+      /**
+       * Load tweets based on array of ids
+       * @param ids IDs to load ast
+       * @returns
+       */
+      loadExtraTweets: async (ids: string[]) => {
+        let error = 0;
+
+        const existingIds = get()
+          .tweets.concat(Array.from(get().extraTweets))
+          .map((tweet) => tweet.id);
+
+        const idsToFetch = ids.filter((id) => !existingIds.includes(id));
+
+        if (idsToFetch.length === 0) {
+          return 0;
+        }
+
+        await getTweetAsts(idsToFetch).then((tweetsData) => {
+          const extraTweets = get().extraTweets;
+
+          tweetsData.data.forEach((tweet) => extraTweets.add(tweet));
+
+          set({ extraTweets: new Set(extraTweets) });
 
           error = tweetsData.error;
         });
