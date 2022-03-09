@@ -122,32 +122,4 @@ describe("twitter lib", () => {
       expect(updated).toStrictEqual(upstream.slice(0, database.length));
     });
   });
-
-  describe(`${updateAndFindOrphans.name} e2e`, () => {
-    const total = 35; // total data nodes
-    const n = 10;
-
-    let database: string[] = [];
-    let upstream: string[] = [];
-
-    beforeEach(() => {
-      database = [];
-      upstream = [];
-
-      for (let i = 0; i < total; i++) {
-        upstream.push("" + i);
-      }
-    });
-
-    it("should update database on initial call", () => {
-      const { updated } = updateAndFindOrphans(
-        database,
-        upstream.slice(0, n),
-        0,
-        n
-      );
-
-      expect(updated).toStrictEqual(upstream.slice(0, n));
-    });
-  });
 });

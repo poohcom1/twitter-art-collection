@@ -48,9 +48,15 @@ export const useStore = create(
         await getTags().then((tags) => set({ tags, tagsLoaded: true }));
       },
       loadTweets: async () => {
-        await getLikedTweets().then((tweets) => {
-          set({ tweets: get().tweets.concat(tweets) });
+        let error = 0;
+
+        await getLikedTweets().then((tweetsData) => {
+          set({ tweets: get().tweets.concat(tweetsData.data) });
+
+          error = tweetsData.error;
         });
+
+        return error;
       },
 
       /* ---------------------------------- Tags ---------------------------------- */

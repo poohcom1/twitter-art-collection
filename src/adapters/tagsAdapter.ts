@@ -14,9 +14,11 @@ export async function getTags(): Promise<TagCollection> {
     method: "GET",
   });
 
-  const object: object = await jsonOrError(res);
+  const object = await jsonOrError(res);
 
-  return new Map(Object.entries(object));
+  // TODO Error handling
+
+  return new Map(Object.entries(object.data));
 }
 
 export async function postTag(tag: TagSchema): Promise<Response> {

@@ -61,10 +61,6 @@ export function updateAndFindOrphans<T>(
   const deleted = databaseSlice.filter((data) => !upstream.includes(data));
   const updated = database.filter((data) => !deleted.includes(data));
 
-  if (updated.length < (page + 1) * count) {
-    updated.push(...upstream);
-  }
-
   return { updated, deleted };
 }
 

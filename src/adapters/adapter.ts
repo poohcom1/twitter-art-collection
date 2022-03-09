@@ -1,7 +1,11 @@
-export const jsonOrError = (res: Response) => {
+export const jsonOrError = async (
+  res: Response
+): Promise<Result<object, number>> => {
   if (res.ok) {
-    return res.json();
+    return { error: 0, data: await res.json() };
   } else {
-    throw new Error("Server Error");
+    console.error(await res.text());
+
+    return { error: res.status, data: {} };
   }
 };

@@ -11,6 +11,7 @@ export default function MainScene() {
   const session = useSession();
   // Loading
   const [tweetsLoaded, setTweetsLoaded] = useState(false);
+  const [tweetsError, setTweetsError] = useState("");
 
   const initTags = useStore((state) => state.initTags);
   const loadTweets = useStore((state) => state.loadTweets);
@@ -20,7 +21,18 @@ export default function MainScene() {
     if (session.status === "authenticated") {
       initTags().then().catch(alert);
       loadTweets()
-        .then(() => setTweetsLoaded(true))
+        .then((err) => {
+          switch (err) {
+            case 0:
+              setTweetsLoaded(true);
+              break;
+            case 429:
+              setTweetsError("Server overloaded! Please try again later");
+              break;
+            default:
+              setTweetsError(`An error occured! Error code: ${err}`);
+          }
+        })
         .catch(alert);
     }
   }, [initTags, loadTweets, session.status]);
@@ -31,7 +43,13 @@ export default function MainScene() {
       style={{ display: "flex", flexDirection: "column", height: "100vh" }}
     >
       <Header />
-      {tweetsLoaded ? <TweetsGallery /> : <LoadingScene display={true} />}
+      {tweetsError !== "" ? (
+        <div className="main">{tweetsError}</div>
+      ) : tweetsLoaded ? (
+        <TweetsGallery />
+      ) : (
+        <LoadingScene display={true} />
+      )}
     </div>
   );
 }

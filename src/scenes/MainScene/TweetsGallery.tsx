@@ -82,7 +82,7 @@ export default function TweetsGallery() {
         ))}
       </Masonry>
       <div className="center">
-        {shouldLoadMore ? (
+        {shouldLoadMore && tweets.length > 0 ? (
           <>
             {moreTweetsLoading ? (
               <Spinner />

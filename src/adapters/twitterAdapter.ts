@@ -1,6 +1,5 @@
 import { jsonOrError } from "./adapter";
 
-let page = 0;
 let next_token = "";
 
 const cache_age = 60 * 60 * 24;
@@ -10,26 +9,25 @@ const cache_age = 60 * 60 * 24;
  * Each subsequent fetch will return the next page
  * @returns
  */
-export async function getLikedTweets(): Promise<TweetSchema[]> {
+export async function getLikedTweets(): Promise<Result<TweetSchema[], number>> {
   try {
-    const query = next_token ? "next_token=" + next_token : "";
-
-    const res = await fetch(`/api/tweets/all/${page}${query}`, {
+    const res = await fetch(`/api/tweets/all/${next_token ?? ""}`, {
       method: "GET",
       headers: {
         "cache-control": `private, max-age=${cache_age}`,
       },
     });
 
-    const responseObject: LikedTweetResponse = await jsonOrError(res);
-
-    page++;
+    const { data: responseObject, error } = <
+      { data: LikedTweetResponse; error: number }
+    >await jsonOrError(res);
 
     next_token = responseObject.next_token ?? "";
 
-    return responseObject.tweets;
+    console.log(next_token);
+
+    return { data: responseObject.tweets, error };
   } catch (e) {
-    console.error(e);
-    return [];
+    return { data: [], error: 1 };
   }
 }

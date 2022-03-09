@@ -1,11 +1,10 @@
 import getMongoConnection from "lib/mongodb";
 import { authOptions } from "lib/nextAuth";
-import { filterTweets, updateAndFindOrphans, getTwitterApi } from "lib/twitter";
-import UserModel from "models/User";
+import { filterTweets, getTwitterApi } from "lib/twitter";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { fetchTweetAst } from "static-tweets";
-import type { TweetV2PaginableListParams } from "twitter-api-v2";
+import { TweetV2PaginableListParams, ApiResponseError } from "twitter-api-v2";
 
 const pagination_count = 100;
 
@@ -33,9 +32,9 @@ export default async function handler(
         max_results: pagination_count,
       };
 
-      if (req.query.nextToken) {
+      if (req.query.next_token) {
         userLikedTweetsOptions["pagination_token"] = req.query
-          .nextToken as string;
+          .next_token as string;
       }
 
       // Make API call
@@ -67,36 +66,11 @@ export default async function handler(
         }
       }
 
-      // Check for orphaned tweets
-      if (!req.query.page || typeof req.query.page !== "string") {
-        res
-          .status(500)
-          .send("Page path parameter is missing or is not a string!");
-        return;
-      }
-
-      const user = await UserModel.findOne({ uid: session.user.id });
-
-      if (!user) {
-        res
-          .status(500)
-          .send("User does not exist. Something went very wrong lmao");
-        return;
-      }
-
-      const { deleted: deletedTweetIds } = updateAndFindOrphans(
-        user.tweetIds,
-        likedTweetsIds,
-        parseInt(req.query.page),
-        pagination_count
-      );
-
-      // TODO sync when one pages > 0
+      console.log(tweetAsts);
 
       const responseObject: LikedTweetResponse = {
         tweets: tweetAsts as TweetSchema[],
         next_token,
-        deletedTweetIds,
       };
 
       res.status(200).send(responseObject);
@@ -104,6 +78,12 @@ export default async function handler(
       res.status(200).send([]);
     }
   } catch (e) {
+    if (e instanceof ApiResponseError) {
+      if (e.code === 429) {
+        return res.status(429).send("Too many tweets");
+      }
+    }
+
     console.error(e);
     res.status(500).send("Server Error");
   }
