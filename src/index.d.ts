@@ -26,6 +26,7 @@ type TagCollection = Map<string, TagSchema>;
 interface UserSchema {
   uid: string;
   tags: TagCollection;
+  tweetIds: string[];
 }
 
 // Request Body Types
@@ -44,4 +45,5 @@ interface LikedTweetResponse {
    * The amount of pages fetched from twitter
    */
   next_token?: string;
+  deletedTweetIds: string[];
 }
