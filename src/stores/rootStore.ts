@@ -37,22 +37,22 @@ export const useStore = create(
       imageFilter: <ImagePredicate>((_image, _index, _array) => {
         return true;
       }),
-      filterTagName: "",
       filterType: <FilterTypes>"all",
+      filterTagName: "",
       editMode: <"add" | "delete">"add",
       // Twitter
       tweets: <TweetSchema[]>[],
-      tweetsLoaded: false,
     },
     (set, get) => ({
       initTags: async () => {
         await getTags().then((tags) => set({ tags, tagsLoaded: true }));
       },
-      initTweets: async () => {
+      loadTweets: async () => {
         await getLikedTweets().then((tweets) => {
-          set({ tweets, tweetsLoaded: true });
+          set({ tweets: get().tweets.concat(tweets) });
         });
       },
+
       /* ---------------------------------- Tags ---------------------------------- */
       addTag: (tag: TagSchema): void =>
         set((state) => {

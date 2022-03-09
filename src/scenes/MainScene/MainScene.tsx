@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "./Header/Header";
 import { LoadingScene } from "..";
 import TweetsGallery from "./TweetsGallery";
@@ -10,18 +10,20 @@ import { useStore } from "src/stores/rootStore";
 export default function MainScene() {
   const session = useSession();
   // Loading
-  const tweetsLoaded = useStore((state) => state.tweetsLoaded);
+  const [tweetsLoaded, setTweetsLoaded] = useState(false);
 
   const initTags = useStore((state) => state.initTags);
-  const initTweet = useStore((state) => state.initTweets);
+  const loadTweets = useStore((state) => state.loadTweets);
 
   useEffect(() => {
     // TODO Use modal for alert
     if (session.status === "authenticated") {
       initTags().then().catch(alert);
-      initTweet().then().catch(alert);
+      loadTweets()
+        .then(() => setTweetsLoaded(true))
+        .catch(alert);
     }
-  }, [initTags, initTweet, session.status]);
+  }, [initTags, loadTweets, session.status]);
 
   return (
     <div

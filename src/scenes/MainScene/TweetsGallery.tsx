@@ -1,8 +1,8 @@
 import styled from "styled-components";
-import React, { useEffect, useRef } from "react";
-import { useCallback, useMemo } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback } from "react";
 import { useStore } from "src/stores/rootStore";
-import { TweetComponent } from "../../components";
+import { Spinner, TweetComponent } from "../../components";
 import Masonry from "react-masonry-css";
 import ReactVisibilitySensor from "react-visibility-sensor";
 
@@ -12,33 +12,16 @@ const MainDiv = styled.div`
   overflow-y: scroll;
 `;
 
-function LoadingMasonry(props: { children: React.ReactNode[] }) {
-  return (
-    <Masonry
-      breakpointCols={4}
-      className="my-masonry-grid"
-      columnClassName="my-masonry-grid_column"
-    >
-      {props.children}
-    </Masonry>
-  );
-}
-
 export default function TweetsGallery() {
   // Filtering and rendering
   const tweets = useStore((state) => state.tweets);
   const imageFilter = useStore((state) => state.imageFilter);
+
   // For scroll to top
   const mainDivRef = useRef<HTMLDivElement>(null);
 
-  const images: TweetSchema[] = useMemo(() => {
-    if (tweets)
-      return tweets.map((tweet) => ({ ...tweet, platform: "twitter" }));
-    else return [];
-  }, [tweets]);
-
-  const filteredTags = useStore(
-    useCallback((state) => images.filter(state.imageFilter), [images])
+  const filteredImages = useStore(
+    useCallback((state) => tweets.filter(state.imageFilter), [tweets])
   );
 
   // Scroll to top on filter change
@@ -46,16 +29,73 @@ export default function TweetsGallery() {
     if (mainDivRef.current) mainDivRef.current.scrollTo(0, 0);
   }, [imageFilter]);
 
+  // Loading more tweets
+  const [moreTweetsLoading, setMoreTweetsLoading] = useState(false);
+
+  const loadMoreTweet = useStore((state) => state.loadTweets);
+  const [filterType, filterTagName] = useStore((state) => [
+    state.filterType,
+    state.filterTagName,
+  ]);
+
+  const tags = useStore().tags;
+
+  const loadMoreCallback = useCallback(
+    (isVisible: boolean) => {
+      if (isVisible && !moreTweetsLoading) {
+        setMoreTweetsLoading(true);
+
+        setTimeout(
+          () =>
+            loadMoreTweet()
+              .then(() => setMoreTweetsLoading(false))
+              .catch(alert),
+          1000
+        );
+      }
+    },
+    [loadMoreTweet, moreTweetsLoading]
+  );
+
+  const shouldLoadMore = useMemo(() => {
+    if (filterType === "tag") {
+      console.log(
+        filteredImages.length,
+        " ",
+        tags.get(filterTagName)?.images.length
+      );
+      return filteredImages.length !== tags.get(filterTagName)?.images.length;
+    }
+
+    return true;
+  }, [filterType, filteredImages, tags, filterTagName]);
+
   return (
     <MainDiv ref={mainDivRef}>
-      <LoadingMasonry>
-        {filteredTags.map((data, i) => (
+      <Masonry
+        breakpointCols={4}
+        className="my-masonry-grid"
+        columnClassName="my-masonry-grid_column"
+      >
+        {filteredImages.map((data, i) => (
           <TweetComponent id={data.id} ast={data.ast} key={data.id} order={i} />
         ))}
-      </LoadingMasonry>
-      <ReactVisibilitySensor>
-        {({ isVisible }) => <p>Loading...</p>}
-      </ReactVisibilitySensor>
+      </Masonry>
+      <div className="center">
+        {shouldLoadMore ? (
+          <>
+            {moreTweetsLoading ? (
+              <Spinner />
+            ) : (
+              <ReactVisibilitySensor onChange={loadMoreCallback}>
+                <p>Loading...</p>
+              </ReactVisibilitySensor>
+            )}
+          </>
+        ) : (
+          <></>
+        )}
+      </div>
     </MainDiv>
   );
 }

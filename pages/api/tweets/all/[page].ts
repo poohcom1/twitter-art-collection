@@ -1,41 +1,26 @@
+import getMongoConnection from "lib/mongodb";
 import { authOptions } from "lib/nextAuth";
-import { getTwitterApi } from "lib/twitter";
+import { filterTweets, updateAndFindOrphans, getTwitterApi } from "lib/twitter";
+import UserModel from "models/User";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { fetchTweetAst } from "static-tweets";
-import type {
-  TweetV2,
-  Tweetv2ListResult,
-  TweetV2PaginableListParams,
-} from "twitter-api-v2";
+import type { TweetV2PaginableListParams } from "twitter-api-v2";
+
+const pagination_count = 100;
 
 /**
- * Predicate to filter for only tweets with photo media
- * @param payloadData
- * @returns
+ * Responds with an object containing paginated tweets, next token, and deleted tweets
+ * @param req.query.nextToken Next token for the Twitter API. Required as url parameter
+ * @param req.query.page Page for pagination. Only used for data syncing and caching
  */
-const filterTweets = (payloadData: Tweetv2ListResult) => (tweet: TweetV2) => {
-  if (!tweet.attachments) {
-    return false;
-  }
-
-  const keys = tweet.attachments?.media_keys;
-
-  for (const key of keys!) {
-    const media = payloadData.includes?.media?.find(
-      (obj) => obj.media_key === key
-    );
-
-    if (media?.type === "photo") return true;
-  }
-  return false;
-};
-
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
   const session = await getServerSession({ req, res }, authOptions);
+
+  await getMongoConnection();
 
   try {
     if (session) {
@@ -45,6 +30,7 @@ export default async function handler(
       const userLikedTweetsOptions: Partial<TweetV2PaginableListParams> = {
         expansions: ["attachments.media_keys"],
         "media.fields": ["url"],
+        max_results: pagination_count,
       };
 
       if (req.query.nextToken) {
@@ -69,20 +55,49 @@ export default async function handler(
         likedTweetsIds.map((id) => fetchTweetAst(id))
       );
 
-      const responseObject: LikedTweetResponse = {
-        tweets: [],
-        next_token,
-      };
+      const tweetAsts = [];
 
       for (let i = 0; i < likedTweetsIds.length; i++) {
         if (tweetDataAsts[i]) {
-          responseObject.tweets.push({
+          tweetAsts.push({
             id: likedTweetsIds[i],
             ast: tweetDataAsts[i],
             platform: "twitter",
           });
         }
       }
+
+      // Check for orphaned tweets
+      if (!req.query.page || typeof req.query.page !== "string") {
+        res
+          .status(500)
+          .send("Page path parameter is missing or is not a string!");
+        return;
+      }
+
+      const user = await UserModel.findOne({ uid: session.user.id });
+
+      if (!user) {
+        res
+          .status(500)
+          .send("User does not exist. Something went very wrong lmao");
+        return;
+      }
+
+      const { deleted: deletedTweetIds } = updateAndFindOrphans(
+        user.tweetIds,
+        likedTweetsIds,
+        parseInt(req.query.page),
+        pagination_count
+      );
+
+      // TODO sync when one pages > 0
+
+      const responseObject: LikedTweetResponse = {
+        tweets: tweetAsts as TweetSchema[],
+        next_token,
+        deletedTweetIds,
+      };
 
       res.status(200).send(responseObject);
     } else {
