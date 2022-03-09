@@ -1,14 +1,21 @@
 import { useSession } from "next-auth/react";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   ConfirmationDialogue,
   StyledModel,
   StyledPopup,
   StyledTab,
 } from "src/components";
-import { useStore, FilterTypes } from "src/stores/rootStore";
+import { useStore, FilterType, isFilterType } from "src/stores/rootStore";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { AiOutlineCloseCircle as CloseCircle } from "react-icons/ai";
+import { useRouter } from "next/router";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
@@ -118,6 +125,7 @@ function NewTag(props: { theme: DefaultTheme }) {
  * Main Component
  */
 export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
+  // Tag
   const tags = useStore((state) => state.tags);
   const editMode = useStore((state) => state.editMode);
   const toggleEditMode = useStore((state) => state.toggleEditMode);
@@ -128,14 +136,26 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
   ]);
 
   const removeTag = useStore((state) => state.removeTag);
-
   const setStateFilter = useStore((state) => state.setFilter);
 
   const session = useSession();
 
+  // URL query
+  const router = useRouter();
+
+  const filter: string = router.query.filter as string;
+  const tag: string = router.query.tag as string;
+
+  useEffect(() => {
+    if (isFilterType(filter)) {
+      setStateFilter({ type: filter, tag: tags.get(tag)! });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // create filter reducers
   const setFilter = useCallback(
-    (type: FilterTypes, tag?: TagSchema) => () => {
+    (type: FilterType, tag?: TagSchema) => () => {
       if (type === "all") {
         setStateFilter({ type: "all" });
       } else if (type === "uncategorized") {
@@ -143,6 +163,12 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
       } else {
         setStateFilter({ type: "tag", tag: tag! });
       }
+
+      window.history.replaceState(
+        null,
+        "",
+        `?filter=${type}${type === "tag" ? "&tag=" + tag!.name : ""}`
+      );
     },
     [setStateFilter]
   );

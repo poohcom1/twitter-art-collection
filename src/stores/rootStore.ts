@@ -17,9 +17,13 @@ type ImagePredicate = <S extends ImageSchema>(
   array?: ImageSchema[]
 ) => image is S;
 
-export type FilterTypes = "all" | "uncategorized" | "tag";
+const FILTERS = ["all", "uncategorized", "tag"] as const;
+export type FilterType = typeof FILTERS[number];
+export function isFilterType(filter: string): filter is FilterType {
+  return FILTERS.includes(filter as FilterType);
+}
 
-interface FilterAction<A extends FilterTypes> {
+interface FilterAction<A extends FilterType> {
   type: A;
 }
 
@@ -38,7 +42,7 @@ export const useStore = create(
       imageFilter: <ImagePredicate>((_image, _index, _array) => {
         return true;
       }),
-      filterType: <FilterTypes>"all",
+      filterType: <FilterType>"all",
       filterTagName: "",
       editMode: <"add" | "delete">"add",
       // Twitter

@@ -42,8 +42,6 @@ export default async function handler(
         userLikedTweetsOptions
       );
 
-      console.log(payload);
-
       const next_token = payload.data.meta.next_token;
 
       // Fetch asts
