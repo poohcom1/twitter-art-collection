@@ -191,7 +191,7 @@ const TweetTags = withTheme(function TweetTags(props: {
           <Tab
             color={editMode !== "delete" ? undefined : props.theme.color.danger}
             key={tag.name}
-            active={filterTag === tag.name}
+            active={filterTag === tag.name && editMode !== "delete"} // Active overrides danger color, so don't show it
             onClick={() => {
               if (editMode !== "delete") {
                 setFilter({ type: "tag", tag: tag });
