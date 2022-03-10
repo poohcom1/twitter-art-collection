@@ -143,10 +143,10 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
   // URL query
   const router = useRouter();
 
-  const filter: string = router.query.filter as string;
-  const tag: string = router.query.tag as string;
-
   useEffect(() => {
+    const filter: string = router.query.filter as string;
+    const tag: string = router.query.tag as string;
+
     if (isFilterType(filter)) {
       setStateFilter({ type: filter, tag: tags.get(tag)! });
     }

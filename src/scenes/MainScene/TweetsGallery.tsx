@@ -56,10 +56,6 @@ export default function TweetsGallery() {
   const [moreTweetsLoading, setMoreTweetsLoading] = useState(false);
 
   const loadMoreTweet = useStore((state) => state.loadTweets);
-  const [filterType, filterTagName] = useStore((state) => [
-    state.filterType,
-    state.filterTagName,
-  ]);
 
   const loadMoreCallback = useCallback(
     (isVisible: boolean) => {
@@ -80,27 +76,7 @@ export default function TweetsGallery() {
     [loadMoreTweet, moreTweetsLoading]
   );
 
-  /// Check if should load more
-  const tags = useStore().tags;
-  const loadExtraTweets = useStore().loadExtraTweets;
   const tweetsAllFetched = useStore((state) => state.tweetsAllFetched);
-
-  useEffect(() => {
-    switch (filterType) {
-      case "tag":
-        // Tags could have unloaded images, so load their AST immediately to extra tweets
-        loadExtraTweets(tags.get(filterTagName)!.images.map((im) => im.id))
-          .then()
-          .catch(console.error);
-
-        setShouldLoadMore(false);
-        break;
-      case "all":
-      case "uncategorized":
-        setShouldLoadMore(!tweetsAllFetched);
-        break;
-    }
-  }, [filterTagName, filterType, loadExtraTweets, tags, tweetsAllFetched]);
 
   return (
     <MainDiv ref={mainDivRef}>
@@ -110,16 +86,12 @@ export default function TweetsGallery() {
         ))}
       </Masonry>
       <div className="center" style={{ margin: "20px" }}>
-        {shouldLoadMore && filteredImages.length > 0 ? (
-          <>
-            {moreTweetsLoading ? (
-              <Spinner size={30} />
-            ) : (
-              <ReactVisibilitySensor onChange={loadMoreCallback}>
-                <h3>Loading...</h3>
-              </ReactVisibilitySensor>
-            )}
-          </>
+        {moreTweetsLoading ? (
+          <Spinner size={30} />
+        ) : shouldLoadMore && filteredImages.length > 0 ? (
+          <ReactVisibilitySensor onChange={loadMoreCallback}>
+            <h3>Loading...</h3>
+          </ReactVisibilitySensor>
         ) : (
           <h3>{tweetsAllFetched ? "That's all the Tweets you got!" : ""}</h3>
         )}

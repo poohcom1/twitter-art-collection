@@ -33,14 +33,14 @@ const HeaderDiv = styled.div`
 
 export default withTheme(function Header(props: { theme: DefaultTheme }) {
   const tags = useStore((state) => state.tags);
-  const tagsLoaded = useStore((state) => state.tagsLoaded);
+  const tagsLoaded = useStore((state) => state.tagsStatus);
   const editMode = useStore((state) => state.editMode);
   const toggleEditMode = useStore((state) => state.toggleEditMode);
 
   return (
     <HeaderDiv>
       <UserSection />
-      {tagsLoaded ? (
+      {tagsLoaded === "loaded" ? (
         <TagsPanel />
       ) : (
         <div className="flex-row">

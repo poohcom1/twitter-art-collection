@@ -41,6 +41,11 @@ export async function getLikedTweets(): Promise<Result<TweetSchema[], number>> {
   }
 }
 
+/**
+ *
+ * @param ids IDs to convert to AST. Does not check for duplicates
+ * @returns
+ */
 export async function getTweetAsts(
   ids: string[]
 ): Promise<Result<TweetSchema[], number>> {

@@ -39,7 +39,7 @@ export const useStore = create(
   combine(
     {
       tags: <TagCollection>new Map(),
-      tagsLoaded: false,
+      tagsStatus: <"loading" | "loaded" | "error">"loading",
       imageFilter: <ImagePredicate>((_image, _index, _array) => {
         return true;
       }),
@@ -52,8 +52,57 @@ export const useStore = create(
       tweetsAllFetched: false,
     },
     (set, get) => ({
-      initTags: async () => {
-        await getTags().then((tags) => set({ tags, tagsLoaded: true }));
+      initTweetsAndTags: async () => {
+        let error = 0;
+        let tags: TagCollection = new Map();
+
+        // Get tags
+        try {
+          tags = await getTags();
+
+          set({ tags, tagsStatus: "loaded" });
+        } catch (e) {
+          return set({ tagsStatus: "error" });
+        }
+
+        // Get liked tweets
+        const tweetsData = await getLikedTweets();
+
+        set({ tweets: tweetsData.data });
+
+        error = tweetsData.error;
+
+        if (error === ERR_LAST_PAGE) {
+          console.log("Tweets all fetched");
+          set({ tweetsAllFetched: true });
+        }
+
+        // Get tag tweets
+        if (error === 0) {
+          try {
+            const tagList = Array.from(tags.values());
+            const tweetIds = tweetsData.data.map((tweet) => tweet.id);
+
+            // Find all tweets that are not yet fetched from the initial page fetch
+            const tagsToFetch: string[] = tagList
+              .reduce(
+                (ids, tag) => ids.concat(tag.images.map((im) => im.id)),
+                <string[]>[]
+              )
+              .filter((id) => !tweetIds.includes(id));
+
+            // Fetch tweets, removing duplicates by converting list to a Set and back
+            const extraTweetsData = await getTweetAsts(
+              Array.from(new Set(tagsToFetch))
+            );
+
+            set({ extraTweets: extraTweetsData.data });
+
+            error = extraTweetsData.error;
+          } catch (e) {}
+        }
+
+        return error;
       },
 
       /**
@@ -63,43 +112,16 @@ export const useStore = create(
       loadTweets: async () => {
         let error = 0;
 
-        await getLikedTweets().then((tweetsData) => {
-          set({ tweets: get().tweets.concat(tweetsData.data) });
+        const tweetsData = await getLikedTweets();
 
-          error = tweetsData.error;
-        });
+        set({ tweets: get().tweets.concat(tweetsData.data) });
+
+        error = tweetsData.error;
 
         if (error === ERR_LAST_PAGE) {
           console.log("Tweets all fetched");
           set({ tweetsAllFetched: true });
         }
-
-        return error;
-      },
-
-      /**
-       * Load tweets based on array of ids
-       * @param ids IDs to load ast
-       * @returns
-       */
-      loadExtraTweets: async (ids: string[]) => {
-        let error = 0;
-
-        const existingIds = get()
-          .tweets.concat(get().extraTweets)
-          .map((tweet) => tweet.id);
-
-        const idsToFetch = ids.filter((id) => !existingIds.includes(id));
-
-        if (idsToFetch.length === 0) {
-          return 0;
-        }
-
-        await getTweetAsts(idsToFetch).then((tweetsData) => {
-          set({ extraTweets: get().extraTweets.concat(tweetsData.data) });
-
-          error = tweetsData.error;
-        });
 
         return error;
       },

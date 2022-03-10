@@ -14,14 +14,12 @@ export default function MainScene() {
   const [tweetsLoaded, setTweetsLoaded] = useState(false);
   const [tweetsError, setTweetsError] = useState("");
 
-  const initTags = useStore((state) => state.initTags);
-  const loadTweets = useStore((state) => state.loadTweets);
+  const initTweetsAndTags = useStore((state) => state.initTweetsAndTags);
 
   useEffect(() => {
     // TODO Use modal for alert
     if (session.status === "authenticated") {
-      initTags().then().catch(alert);
-      loadTweets()
+      initTweetsAndTags()
         .then((err) => {
           switch (err) {
             case 0:
@@ -35,9 +33,10 @@ export default function MainScene() {
               setTweetsError(`An error occured! Error code: ${err}`);
           }
         })
+
         .catch(alert);
     }
-  }, [initTags, loadTweets, session.status]);
+  }, [initTweetsAndTags, session.status]);
 
   return (
     <div
