@@ -39,7 +39,7 @@ type DeleteTagBody = TagSchema;
 // Response Types
 
 interface TweetsResponse {
-  tweets: TweetSchema[];
+  tweets: TweetSchema[] | null;
 }
 
 interface AllTweetsResponse extends TweetsResponse {

@@ -42,6 +42,17 @@ export default async function handler(
         userLikedTweetsOptions
       );
 
+      // Tweets all loaded
+      // FIXME The documentation seem to suggest that next_token would be undefined when all tweets are loaded,
+      //  but it seems to be the case that the payload data is null instead
+      if (!payload.data.data) {
+        const responseObject: AllTweetsResponse = {
+          tweets: [],
+        };
+
+        return res.send(responseObject);
+      }
+
       const next_token = payload.data.meta.next_token;
 
       // Fetch asts
@@ -72,7 +83,7 @@ export default async function handler(
 
       res.status(200).send(responseObject);
     } else {
-      res.status(200).send([]);
+      res.status(400).send([]);
     }
   } catch (e) {
     if (e instanceof ApiResponseError) {

@@ -4,6 +4,8 @@ let next_token = "";
 
 const cache_age = 60 * 60 * 24;
 
+export const ERR_LAST_PAGE = 9999;
+
 /**
  * Fetches liked tweets of the current user, and keeps track of pagination
  * Each subsequent fetch will return the next page
@@ -26,7 +28,14 @@ export async function getLikedTweets(): Promise<Result<TweetSchema[], number>> {
     //  need to check if issue happens in prod
     next_token = responseObject.next_token ?? "";
 
-    return { data: responseObject.tweets, error };
+    let fetchError = error;
+
+    if (error === 0 && responseObject.next_token === undefined) {
+      console.info("Tweets all loaded!");
+      fetchError = ERR_LAST_PAGE;
+    }
+
+    return { data: responseObject.tweets ?? [], error: fetchError };
   } catch (e) {
     return { data: [], error: 1 };
   }
@@ -49,7 +58,7 @@ export async function getTweetAsts(
       { data: AllTweetsResponse; error: number }
     >await jsonOrError(res);
 
-    return { data: responseObject.tweets, error };
+    return { data: responseObject.tweets ?? [], error };
   } catch (e) {
     return { data: [], error: 1 };
   }

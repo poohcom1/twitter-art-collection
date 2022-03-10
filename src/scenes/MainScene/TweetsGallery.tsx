@@ -5,6 +5,7 @@ import { useStore } from "src/stores/rootStore";
 import { Spinner, TweetComponent } from "../../components";
 import Masonry from "react-masonry-css";
 import ReactVisibilitySensor from "react-visibility-sensor";
+import { ERR_LAST_PAGE } from "src/adapters";
 
 const MainDiv = styled.div`
   background-color: ${(props) => props.theme.color.background};
@@ -60,23 +61,24 @@ export default function TweetsGallery() {
       if (isVisible && !moreTweetsLoading) {
         setMoreTweetsLoading(true);
 
-        if (filterType === "tag") {
-        }
-        setTimeout(
-          () =>
-            loadMoreTweet()
-              .then(() => setMoreTweetsLoading(false))
-              .catch(alert),
-          200
-        );
+        loadMoreTweet()
+          .then((err) => {
+            if (err === ERR_LAST_PAGE) {
+              setShouldLoadMore(false);
+            }
+
+            setMoreTweetsLoading(false);
+          })
+          .catch(alert);
       }
     },
-    [filterType, loadMoreTweet, moreTweetsLoading]
+    [loadMoreTweet, moreTweetsLoading]
   );
 
   /// Check if should load more
   const tags = useStore().tags;
   const loadExtraTweets = useStore().loadExtraTweets;
+  const tweetsAllFetched = useStore((state) => state.tweetsAllFetched);
 
   useEffect(() => {
     switch (filterType) {
@@ -90,10 +92,10 @@ export default function TweetsGallery() {
         break;
       case "all":
       case "uncategorized":
-        setShouldLoadMore(true);
+        setShouldLoadMore(!tweetsAllFetched);
         break;
     }
-  }, [filterTagName, filterType, loadExtraTweets, tags]);
+  }, [filterTagName, filterType, loadExtraTweets, tags, tweetsAllFetched]);
 
   return (
     <MainDiv ref={mainDivRef}>
@@ -110,7 +112,7 @@ export default function TweetsGallery() {
         {shouldLoadMore && filteredImages.length > 0 ? (
           <>
             {moreTweetsLoading ? (
-              <Spinner />
+              <Spinner size={20} />
             ) : (
               <ReactVisibilitySensor onChange={loadMoreCallback}>
                 <p>Loading...</p>
@@ -118,7 +120,7 @@ export default function TweetsGallery() {
             )}
           </>
         ) : (
-          <></>
+          <>{tweetsAllFetched ? "That's all the Tweets you got!" : ""}</>
         )}
       </div>
     </MainDiv>

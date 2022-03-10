@@ -2,6 +2,7 @@ import create from "zustand";
 import { combine } from "zustand/middleware";
 import {
   deleteTag,
+  ERR_LAST_PAGE,
   getLikedTweets,
   getTags,
   getTweetAsts,
@@ -48,6 +49,7 @@ export const useStore = create(
       // Twitter
       tweets: <TweetSchema[]>[],
       extraTweets: new Set<TweetSchema>(),
+      tweetsAllFetched: false,
     },
     (set, get) => ({
       initTags: async () => {
@@ -66,6 +68,10 @@ export const useStore = create(
 
           error = tweetsData.error;
         });
+
+        if (error === ERR_LAST_PAGE) {
+          set({ tweetsAllFetched: true });
+        }
 
         return error;
       },

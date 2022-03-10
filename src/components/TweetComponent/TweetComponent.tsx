@@ -8,19 +8,23 @@ const Tweet = dynamic<{ id: string; ast: object[] }>(() =>
 );
 
 const blink = (props: { theme: DefaultTheme }) => keyframes`  
-  from {
+  0% {
     background-color: ${props.theme.color.background};
   }
 
-  to {
+  50% {
     background-color: ${props.theme.color.surface};
+  }
+
+  100% {
+    background-color: ${props.theme.color.background};
   }
 `;
 
 const PlaceholderDiv = styled.div`
   min-height: 500px;
 
-  animation: ${(props) => blink(props)} 1s linear infinite;
+  animation: ${(props) => blink(props)} 2s linear infinite;
 `;
 
 const fadeIn = keyframes`
@@ -66,6 +70,7 @@ function TweetComponent(props: {
   return (
     <VisibilitySensor
       partialVisibility={true}
+      offset={{ top: -1500 }}
       onChange={useCallback(() => {
         if (!rendered) setRendered(true);
       }, [rendered])}

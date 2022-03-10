@@ -4,6 +4,7 @@ import { LoadingScene } from "..";
 import TweetsGallery from "./TweetsGallery";
 import { useSession } from "next-auth/react";
 import { useStore } from "src/stores/rootStore";
+import { ERR_LAST_PAGE } from "src/adapters";
 
 // Styles
 
@@ -24,6 +25,7 @@ export default function MainScene() {
         .then((err) => {
           switch (err) {
             case 0:
+            case ERR_LAST_PAGE:
               setTweetsLoaded(true);
               break;
             case 429:
