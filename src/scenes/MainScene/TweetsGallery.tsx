@@ -1,15 +1,15 @@
 import styled from "styled-components";
 import React, { useEffect, useRef, useState } from "react";
 import { useCallback } from "react";
+import ReactVisibilitySensor from "react-visibility-sensor";
+import Masonry from "@mui/lab/Masonry";
+import { ERR_LAST_PAGE } from "src/adapters";
 import { useStore } from "src/stores/rootStore";
 import { Spinner, TweetComponent } from "../../components";
-import Masonry from "react-masonry-css";
-import ReactVisibilitySensor from "react-visibility-sensor";
-import { ERR_LAST_PAGE } from "src/adapters";
 
 const MainDiv = styled.div`
   background-color: ${(props) => props.theme.color.background};
-  padding: 120px 32px;
+  padding: 120px 0;
   overflow-y: scroll;
   height: 100vh;
 `;
@@ -99,28 +99,24 @@ export default function TweetsGallery() {
 
   return (
     <MainDiv ref={mainDivRef}>
-      <Masonry
-        breakpointCols={4}
-        className="my-masonry-grid"
-        columnClassName="my-masonry-grid_column"
-      >
+      <Masonry columns={4} spacing={3} style={{ margin: "auto" }}>
         {filteredImages.map((data, i) => (
           <TweetComponent id={data.id} ast={data.ast} key={data.id} order={i} />
         ))}
       </Masonry>
-      <div className="center">
+      <div className="center" style={{ margin: "20px" }}>
         {shouldLoadMore && filteredImages.length > 0 ? (
           <>
             {moreTweetsLoading ? (
-              <Spinner size={20} />
+              <Spinner size={30} />
             ) : (
               <ReactVisibilitySensor onChange={loadMoreCallback}>
-                <p>Loading...</p>
+                <h3>Loading...</h3>
               </ReactVisibilitySensor>
             )}
           </>
         ) : (
-          <>{tweetsAllFetched ? "That's all the Tweets you got!" : ""}</>
+          <h3>{tweetsAllFetched ? "That's all the Tweets you got!" : ""}</h3>
         )}
       </div>
     </MainDiv>

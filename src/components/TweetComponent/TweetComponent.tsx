@@ -77,7 +77,7 @@ function TweetComponent(props: {
     >
       {({ isVisible }) => (
         <>
-          {(isVisible && delayedRender) || rendered ? (
+          {(isVisible && rendered) || delayedRender ? (
             <TweetDiv>
               <TweetTags
                 image={{

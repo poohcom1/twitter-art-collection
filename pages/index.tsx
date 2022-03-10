@@ -12,6 +12,7 @@ import { TwitterLogin } from "src/components";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { LoadingScene } from "src/scenes";
 
 const Body = styled.div`
   background: ${(props) => props.theme.color.primary};
@@ -114,6 +115,7 @@ export default function Index() {
           href="https://twitter-art-collection.vercel.app/"
         />
       </Head>
+      <LoadingScene display={session.status === "loading"} />
       <ThemeProvider theme={lightTheme}>
         <Body>
           <HeaderDiv>

@@ -15,15 +15,22 @@ const MainDiv = styled.div`
   position: absolute;
   width: 100vw;
   height: 100vh;
-  margin: auto;
+  margin: 0;
+
+  z-index: 50;
+
   display: flex;
+
   flex-direction: column;
   justify-content: center;
   align-items: center;
 
-  background-color: white;
+  background-color: #ffffff;
 
   font-weight: 800;
+
+  transition: opacity 0.5s;
+  pointer-events: none;
 `;
 
 const SpinnerDiv = styled.div`
@@ -35,7 +42,7 @@ const SpinnerDiv = styled.div`
 
 export default function LoadingScene({ display = true }) {
   return (
-    <MainDiv style={{ display: display ? "flex" : "none" }}>
+    <MainDiv style={{ opacity: display ? "100%" : "0" }}>
       <h1>Loading...</h1>
       <SpinnerDiv>
         <Spinner size={40} />

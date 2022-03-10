@@ -70,6 +70,7 @@ export const useStore = create(
         });
 
         if (error === ERR_LAST_PAGE) {
+          console.log("Tweets all fetched");
           set({ tweetsAllFetched: true });
         }
 
