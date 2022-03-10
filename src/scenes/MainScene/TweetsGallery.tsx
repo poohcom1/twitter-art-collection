@@ -6,6 +6,7 @@ import Masonry from "@mui/lab/Masonry";
 import { ERR_LAST_PAGE } from "src/adapters";
 import { useStore } from "src/stores/rootStore";
 import { Spinner, TweetComponent } from "../../components";
+import { imageEqual } from "src/utils/objectUtils";
 
 const MainDiv = styled.div`
   background-color: ${(props) => props.theme.color.background};
@@ -28,9 +29,13 @@ export default function TweetsGallery() {
     useCallback((state) => {
       let tweets = state.tweets;
 
-      if (state.filterType === "tag") {
-        tweets = tweets.concat(Array.from(state.extraTweets));
-      }
+      if (state.filterType === "tag")
+        tweets = tweets.concat(
+          // Concat unique tweets from
+          state.extraTweets.filter(
+            (extraTweet) => !tweets.find((t) => imageEqual(t, extraTweet))
+          )
+        );
 
       return tweets.filter(state.imageFilter);
     }, [])

@@ -58,13 +58,15 @@ function TweetComponent(props: {
 
   useEffect(() => {
     setRendered(false);
-    setTimeout(
+    const timeout = setTimeout(
       () => setDelayedRender(true),
       Math.min(
         props.order * RENDER_INTERVAL,
         MAX_RENDER_QUEUE * RENDER_INTERVAL
       )
     );
+    // Cleanup
+    return () => clearTimeout(timeout);
   }, [props.order]);
 
   return (

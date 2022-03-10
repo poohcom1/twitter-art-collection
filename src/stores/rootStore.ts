@@ -48,7 +48,7 @@ export const useStore = create(
       editMode: <"add" | "delete">"add",
       // Twitter
       tweets: <TweetSchema[]>[],
-      extraTweets: new Set<TweetSchema>(),
+      extraTweets: <TweetSchema[]>[],
       tweetsAllFetched: false,
     },
     (set, get) => ({
@@ -86,7 +86,7 @@ export const useStore = create(
         let error = 0;
 
         const existingIds = get()
-          .tweets.concat(Array.from(get().extraTweets))
+          .tweets.concat(get().extraTweets)
           .map((tweet) => tweet.id);
 
         const idsToFetch = ids.filter((id) => !existingIds.includes(id));
@@ -96,11 +96,7 @@ export const useStore = create(
         }
 
         await getTweetAsts(idsToFetch).then((tweetsData) => {
-          const extraTweets = get().extraTweets;
-
-          tweetsData.data.forEach((tweet) => extraTweets.add(tweet));
-
-          set({ extraTweets: new Set(extraTweets) });
+          set({ extraTweets: get().extraTweets.concat(tweetsData.data) });
 
           error = tweetsData.error;
         });

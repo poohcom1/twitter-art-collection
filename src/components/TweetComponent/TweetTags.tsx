@@ -161,6 +161,7 @@ const TweetTags = withTheme(function TweetTags(props: {
     <MainContainer>
       {/* Add image to tag section */}
       <StyledPopup
+        position={["bottom center", "bottom left", "bottom right"]}
         trigger={useMemo(
           () => (
             <Tab>
