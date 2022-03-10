@@ -54,52 +54,45 @@ export const useStore = create(
     (set, get) => ({
       initTweetsAndTags: async () => {
         let error = 0;
-        let tags: TagCollection = new Map();
 
-        // Get tags
-        try {
-          tags = await getTags();
+        const [tagsResult, tweetsResult] = await Promise.all([
+          getTags(),
+          getLikedTweets(),
+        ]);
 
-          set({ tags, tagsStatus: "loaded" });
-        } catch (e) {
-          return set({ tagsStatus: "error" });
-        }
+        error = tagsResult.error !== 0 ? tagsResult.error : tweetsResult.error;
 
-        // Get liked tweets
-        const tweetsData = await getLikedTweets();
-
-        set({ tweets: tweetsData.data });
-
-        error = tweetsData.error;
+        set({
+          tags: tagsResult.data,
+          tweets: tweetsResult.data,
+          tagsStatus: "loaded",
+        });
 
         if (error === ERR_LAST_PAGE) {
-          console.log("Tweets all fetched");
           set({ tweetsAllFetched: true });
         }
 
         // Get tag tweets
         if (error === 0) {
-          try {
-            const tagList = Array.from(tags.values());
-            const tweetIds = tweetsData.data.map((tweet) => tweet.id);
+          const tagList = Array.from(get().tags.values());
+          const tweetIds = get().tweets.map((tweet) => tweet.id);
 
-            // Find all tweets that are not yet fetched from the initial page fetch
-            const tagsToFetch: string[] = tagList
-              .reduce(
-                (ids, tag) => ids.concat(tag.images.map((im) => im.id)),
-                <string[]>[]
-              )
-              .filter((id) => !tweetIds.includes(id));
+          // Find all tweets that are not yet fetched from the initial page fetch
+          const tagsToFetch: string[] = tagList
+            .reduce(
+              (ids, tag) => ids.concat(tag.images.map((im) => im.id)),
+              <string[]>[]
+            )
+            .filter((id) => !tweetIds.includes(id));
 
-            // Fetch tweets, removing duplicates by converting list to a Set and back
-            const extraTweetsData = await getTweetAsts(
-              Array.from(new Set(tagsToFetch))
-            );
+          // Fetch tweets, removing duplicates by converting list to a Set and back
+          const extraTweetsData = await getTweetAsts(
+            Array.from(new Set(tagsToFetch))
+          );
 
-            set({ extraTweets: extraTweetsData.data });
+          set({ extraTweets: extraTweetsData.data });
 
-            error = extraTweetsData.error;
-          } catch (e) {}
+          error = extraTweetsData.error;
         }
 
         return error;

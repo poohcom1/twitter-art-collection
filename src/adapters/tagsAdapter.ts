@@ -9,18 +9,17 @@ function sanitizeTag(tag: TagSchema): TagSchema {
   return tag;
 }
 
-export async function getTags(): Promise<TagCollection> {
+export async function getTags(): Promise<Result<TagCollection, number>> {
   const res = await fetch(`/api/tags/`, {
     method: "GET",
   });
 
   const object = await jsonOrError(res);
 
-  // TODO Error handling
-
-  return new Map(Object.entries(object.data));
+  return { data: new Map(Object.entries(object.data)), error: object.error };
 }
 
+// TODO Error handling
 export async function postTag(tag: TagSchema): Promise<Response> {
   return fetch(`/api/tags/${tag.name}`, {
     method: "POST",
