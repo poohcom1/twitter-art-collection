@@ -52,6 +52,20 @@ export default function TweetsGallery() {
   }, [imageFilter]);
 
   // Loading more tweets
+  const filterType = useStore((state) => state.filterType);
+
+  useEffect(() => {
+    switch (filterType) {
+      case "all":
+      case "uncategorized":
+        setShouldLoadMore(true);
+        break;
+      case "tag":
+        setShouldLoadMore(false);
+        break;
+    }
+  }, [filterType]);
+
   const [shouldLoadMore, setShouldLoadMore] = useState(false);
   const [moreTweetsLoading, setMoreTweetsLoading] = useState(false);
 
