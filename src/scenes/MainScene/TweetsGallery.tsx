@@ -8,10 +8,8 @@ import { useStore } from "src/stores/rootStore";
 import { Spinner, TweetComponent } from "../../components";
 import { imageEqual } from "src/utils/objectUtils";
 
-const MainDiv = styled.div`
-  background-color: ${(props) => props.theme.color.background};
+const MainDiv = styled.div` 
   padding: 120px 0;
-  height: 100vh;
 `;
 
 /**

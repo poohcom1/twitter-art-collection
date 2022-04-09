@@ -5,8 +5,15 @@ import TweetsGallery from "./TweetsGallery";
 import { useSession } from "next-auth/react";
 import { useStore } from "src/stores/rootStore";
 import { ERR_LAST_PAGE } from "src/adapters";
+import styled from "styled-components";
 
 // Styles
+const AppDiv = styled.div`
+  background-color: ${(props) => props.theme.color.background};
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+`;
 
 export default function MainScene() {
   const session = useSession();
@@ -39,10 +46,7 @@ export default function MainScene() {
   }, [initTweetsAndTags, session.status]);
 
   return (
-    <div
-      className="App"
-      style={{ display: "flex", flexDirection: "column", height: "100vh" }}
-    >
+    <AppDiv className="App">
       <Header />
       {tweetsError !== "" ? (
         <div className="main">{tweetsError}</div>
@@ -51,6 +55,6 @@ export default function MainScene() {
       ) : (
         <LoadingScene display={true} />
       )}
-    </div>
+    </AppDiv>
   );
 }

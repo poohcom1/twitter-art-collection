@@ -3,6 +3,7 @@ import { signOut, useSession } from "next-auth/react";
 import { StyledPopup, PopupItem } from "src/components";
 import styled from "styled-components";
 import { useCallback, useMemo } from "react";
+import Link from "next/link";
 
 const Avatar = styled.div`
   border-radius: 50%;
@@ -31,6 +32,7 @@ function UserAvatar(props: {
 
   return (
     <StyledPopup
+      position={"bottom left"}
       trigger={useMemo(
         () => (
           <Avatar>
@@ -46,6 +48,19 @@ function UserAvatar(props: {
       )}
       closeOnDocumentClick
     >
+      <PopupItem
+        onClick={() =>
+          (window.location.href =
+            "https://github.com/poohcom1/twitter-art-collection/issues/new")
+        }
+      >
+        Give feedback
+      </PopupItem>
+      <PopupItem>
+        <Link href="privacy" passHref>
+          <div>Privacy</div>
+        </Link>
+      </PopupItem>
       <PopupItem onClick={onClick}>Logout</PopupItem>
     </StyledPopup>
   );
