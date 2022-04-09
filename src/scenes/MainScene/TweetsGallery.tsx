@@ -27,7 +27,7 @@ export default function TweetsGallery() {
   // Filter image, and add extra image if tag is selected
   const filteredImages = useStore(
     useCallback((state) => {
-      let tweets = state.tweets;
+      let tweets = state.getTweets();
 
       if (state.filterType === "tag")
         tweets = tweets.concat(

@@ -92,6 +92,11 @@ const StyledRight = styled(Right)<{ show: boolean }>`
   }
 `;
 
+const BlacklistButton = styled(PopupItem)`
+  color: red;
+  font-weight: 600;
+`;
+
 /* ------------------------------- Components ------------------------------- */
 
 /**
@@ -117,7 +122,9 @@ function AddImagesPopupListItem(
   }, [addImage, props, session.data]);
 
   return (
-    <PopupItem text={props.tag.name} key={props.keyNum} onClick={onClick} />
+    <PopupItem key={props.keyNum} onClick={onClick}>
+      {props.tag.name}
+    </PopupItem>
   );
 }
 
@@ -204,7 +211,7 @@ const TweetTags = withTheme(function TweetTags(props: {
   const [includedTags, notIncludedTags] = useStore(
     useCallback(
       (state) => {
-        const tags = Array.from(state.tags.values());
+        const tags = state.getTagList();
 
         const includedTags = tags.filter((tag) =>
           tag.images.find((im) => imageEqual(im, props.image))
@@ -238,6 +245,9 @@ const TweetTags = withTheme(function TweetTags(props: {
   // Preview Images
   const imageSrcs = useMemo(() => getImagesSrc(props.image), [props.image]);
 
+  // Blacklist Image
+  const blacklistImage = useStore((state) => state.blacklistImage);
+
   return (
     <MainContainer>
       {/* Add image to tag section */}
@@ -255,17 +265,30 @@ const TweetTags = withTheme(function TweetTags(props: {
         )}
         closeOnDocumentClick
       >
-        {(close: () => void) =>
-          notIncludedTags.map((tag) => (
-            <AddImagesPopupListItem
-              key={tag.name}
-              keyNum={tag.name}
-              tag={tag}
-              image={props.image}
-              close={close}
-            />
-          ))
-        }
+        {(close: () => void) => (
+          <>
+            {notIncludedTags.map((tag) => (
+              <AddImagesPopupListItem
+                key={tag.name}
+                keyNum={tag.name}
+                tag={tag}
+                image={props.image}
+                close={close}
+              />
+            ))}
+
+            {includedTags.length === 0 ? (
+              <>
+                <hr />
+                <BlacklistButton onClick={() => blacklistImage(props.image)}>
+                  Blacklist Image
+                </BlacklistButton>
+              </>
+            ) : (
+              <></>
+            )}
+          </>
+        )}
       </StyledPopup>
       {/* Included tags section */}
       <TabContainer ref={tagsContainerRef} overflowing={overflow}>

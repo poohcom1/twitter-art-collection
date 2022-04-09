@@ -93,6 +93,7 @@ function NewTag(props: { theme: DefaultTheme }) {
 export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
   // Tag
   const tags = useStore((state) => state.tags);
+  const tagList = useStore((state) => state.getTagList())
   const editMode = useStore((state) => state.editMode);
   const toggleEditMode = useStore((state) => state.toggleEditMode);
 
@@ -171,7 +172,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
 
       {/* Tags section */}
       <TagsContainer>
-        {Array.from(tags.values()).map((tag, i) =>
+        {tagList.map((tag, i) =>
           // Normal mode
           editMode === "add" ? (
             <Tag

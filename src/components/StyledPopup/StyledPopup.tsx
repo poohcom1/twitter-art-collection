@@ -1,4 +1,3 @@
-import { MouseEventHandler, useCallback, useMemo } from "react";
 import Popup from "reactjs-popup";
 import styled from "styled-components";
 
@@ -31,7 +30,7 @@ const StyledPopup = styled(Popup)`
   }
 `;
 
-const Item = styled.div`
+export const PopupItem = styled.div`
   background-color: white;
   padding: 5px 15px;
   cursor: pointer;
@@ -40,13 +39,5 @@ const Item = styled.div`
     background-color: lightgrey;
   }
 `;
-
-export function PopupItem(props: { text: string; onClick: MouseEventHandler }) {
-  return (
-    <Item onClick={useCallback((e) => props.onClick(e), [props])}>
-      {useMemo(() => props.text, [props.text])}
-    </Item>
-  );
-}
 
 export default StyledPopup;

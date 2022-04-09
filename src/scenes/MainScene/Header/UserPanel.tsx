@@ -46,7 +46,7 @@ function UserAvatar(props: {
       )}
       closeOnDocumentClick
     >
-      <PopupItem text="Logout" onClick={onClick} />
+      <PopupItem onClick={onClick}>Logout</PopupItem>
     </StyledPopup>
   );
 }

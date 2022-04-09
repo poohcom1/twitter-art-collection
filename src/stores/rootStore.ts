@@ -7,9 +7,10 @@ import {
   getTags,
   getTweetAsts,
   postTag,
-  putTags,
+  putTag,
 } from "src/adapters";
 import { imageEqual } from "src/utils/objectUtils";
+import { BLACKLIST_TAG } from "src/utils/constants";
 
 // Filters
 type ImagePredicate = <S extends ImageSchema>(
@@ -98,6 +99,19 @@ export const useStore = create(
         return error;
       },
 
+      getTweets: () => {
+        let tweets = get().tweets
+
+        const blacklist = get().tags.get(BLACKLIST_TAG)
+
+        if (blacklist) {
+          tweets = tweets.filter(tweet => !blacklist.images.find(image => imageEqual(tweet, image)))
+        }
+
+        return tweets
+      },
+    
+
       /**
        * Loads liked tweets
        * @returns error
@@ -120,6 +134,11 @@ export const useStore = create(
       },
 
       /* ---------------------------------- Tags ---------------------------------- */
+      getTagList: (): TagSchema[] => {
+        const tagList = Array.from(get().tags.values())
+
+        return tagList.filter(tag => tag.name !== BLACKLIST_TAG)
+      },
       addTag: (tag: TagSchema): void =>
         set((state) => {
           postTag(tag).then();
@@ -151,7 +170,7 @@ export const useStore = create(
           tag.images.push(image);
           tags.set(tag.name, tag);
 
-          putTags(tag).then();
+          putTag(tag).then();
 
           return { ...state, tags: tags };
         }),
@@ -161,10 +180,31 @@ export const useStore = create(
           tag.images = tag.images.filter((im) => !imageEqual(im, image));
           tags.set(tag.name, tag);
 
-          putTags(tag).then();
+          putTag(tag).then();
 
           return { ...state, tags: tags };
         }),
+      blacklistImage: (image: ImageSchema) => {
+        set((state) => {
+          const tags = state.tags
+
+          if (!tags.has(BLACKLIST_TAG)) {
+            const blacklistTag = { name: BLACKLIST_TAG, images: [image] }
+
+            tags.set(BLACKLIST_TAG, blacklistTag)
+
+            postTag(blacklistTag)
+          } else {
+            const blacklistTag = tags.get(BLACKLIST_TAG)
+
+            blacklistTag?.images.push(image)
+
+            putTag(blacklistTag!)
+          }
+
+          return {...state, tags}
+        })
+      },
 
       /* --------------------------------- Filters -------------------------------- */
       /**
@@ -199,7 +239,7 @@ function setFilter(
     | FilterAction<"uncategorized">
     | FilterTagAction,
   tags: TagCollection
-): { imageFilter: ImagePredicate, filterTagName: string, filterType: FilterType} {
+): { imageFilter: ImagePredicate, filterTagName: string, filterType: FilterType } {
   let imageFilter = <ImagePredicate>((_image) => true);
   switch (action.type) {
     case "all":
