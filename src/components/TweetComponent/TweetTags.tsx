@@ -8,11 +8,17 @@ import {
   useRef,
   useState,
 } from "react";
+import Image from "next/image";
 import {
   AiOutlinePlusCircle as PlusCircle,
   AiOutlineCloseCircle as CloseCircle,
 } from "react-icons/ai";
-import { GiHamburgerMenu as MenuIcon } from "react-icons/gi";
+import { MdOutlineImageSearch as MenuIcon } from "react-icons/md";
+import {
+  GoTriangleLeft as Left,
+  GoTriangleRight as Right,
+} from "react-icons/go";
+import Popup from "reactjs-popup";
 import { useStore } from "src/stores/rootStore";
 import { arrayEqual, imageEqual } from "src/utils/objectUtils";
 import styled, { DefaultTheme, withTheme } from "styled-components";
@@ -63,6 +69,33 @@ const Tab = styled(StyledTab)`
   border-width: 0;
 `;
 
+// Preview image modal styles
+const StyledModal = styled(Popup)`
+  &-overlay {
+    background-color: rgba(0, 0, 0, 0.7);
+  }
+`;
+
+const StyledMenuIcon = styled.div`
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
+const StyledLeft = styled(Left)<{ show: boolean }>`
+  &:hover {
+    cursor: ${(props) => (props.show ? "pointer" : "auto")};
+  }
+`;
+
+const StyledRight = styled(Right)<{ show: boolean }>`
+  &:hover {
+    cursor: ${(props) => (props.show ? "pointer" : "auto")};
+  }
+`;
+
+/* ------------------------------- Components ------------------------------- */
+
 /**
  * Add image component
  */
@@ -90,6 +123,63 @@ function AddImagesPopupListItem(
   );
 }
 
+function PreviewImage(
+  props: { imageSrcs: string[] } & React.HTMLProps<HTMLDivElement>
+) {
+  const [imageIndex, setImageIndex] = useState(0);
+
+  const leftCallback: React.MouseEventHandler<SVGElement> = useCallback(
+    (e) => {
+      e.stopPropagation();
+      if (imageIndex > 0) {
+        setImageIndex(imageIndex - 1);
+      }
+    },
+    [imageIndex]
+  );
+
+  const rightCallback: React.MouseEventHandler<SVGElement> = useCallback(
+    (e) => {
+      e.stopPropagation();
+      if (imageIndex < props.imageSrcs.length - 1) {
+        setImageIndex(imageIndex + 1);
+      }
+    },
+    [imageIndex, props.imageSrcs.length]
+  );
+
+  return (
+    <div
+      style={{ display: "flex", alignItems: "center" }}
+      onClick={props.onClick}
+    >
+      <StyledLeft
+        color={imageIndex > 0 ? "grey" : "transparent"}
+        show={imageIndex > 0}
+        size={80}
+        onClick={leftCallback}
+      />
+      <div
+        style={{ height: "80vh", width: "80vw", position: "relative" }}
+        onClick={close}
+      >
+        <Image
+          src={props.imageSrcs[imageIndex]}
+          alt="Tweet image"
+          layout="fill"
+          objectFit="contain"
+        />
+      </div>
+      <StyledRight
+        color={imageIndex < props.imageSrcs.length - 1 ? "grey" : "transparent"}
+        show={imageIndex < props.imageSrcs.length - 1}
+        size={80}
+        onClick={rightCallback}
+      />
+    </div>
+  );
+}
+
 /**
  * Main Component
  * @param props
@@ -100,7 +190,7 @@ const TweetTags = withTheme(function TweetTags(props: {
   theme: DefaultTheme;
 }) {
   const session = useSession();
-  //
+
   const editMode = useStore((state) => state.editMode);
 
   // Get filter
@@ -156,6 +246,9 @@ const TweetTags = withTheme(function TweetTags(props: {
       );
     }
   }, []);
+
+  // Preview Images
+  const imageSrcs = useMemo(() => getImagesSrc(props.image), [props.image]);
 
   return (
     <MainContainer>
@@ -223,10 +316,36 @@ const TweetTags = withTheme(function TweetTags(props: {
         }}
         draggable={true}
       >
-        <MenuIcon size={30} />
+        <StyledModal
+          trigger={
+            <StyledMenuIcon>
+              <MenuIcon size={30} />
+            </StyledMenuIcon>
+          }
+          modal
+          closeOnDocumentClick
+        >
+          {(close: () => void) => (
+            <PreviewImage imageSrcs={imageSrcs} onClick={close} />
+          )}
+        </StyledModal>
       </div>
     </MainContainer>
   );
 });
 
 export default React.memo(TweetTags);
+
+function getImagesSrc(tweet: TweetSchema): string[] {
+  const ast = tweet.ast[0];
+
+  const imageDiv = ast.nodes.find((node) => node.tag === "div");
+
+  if (imageDiv) {
+    const images = imageDiv.nodes.filter((node) => node.tag === "img");
+    if (images) {
+      return images.map((imageNode) => imageNode.props.src);
+    }
+  }
+  return [];
+}

@@ -59,6 +59,7 @@ const SampleImageDiv = styled.div`
   overflow: hidden;
   border-radius: 15px;
   box-shadow: 15px 15px 0 #ffffff3e;
+  margin-top: 50px;
 `;
 
 const GithubLink = withTheme(function GithubLink(props: {
@@ -143,6 +144,8 @@ export default function Index() {
                 alt="Sample image"
                 width={1901}
                 height={904}
+                placeholder="blur"
+                blurDataURL="sample_image_small.png"
               />
             </SampleImageDiv>
           </MainDiv>

@@ -10,7 +10,15 @@ type ImageSchema = BaseSchema<Platform>;
 
 // Tweet
 
-type TweetAst = Array<{ data: { id: string } }>;
+type TweetAst = Array<{ data: { id: string }, nodes: Node[] }>;
+
+interface Node {
+  tag: string
+  nodes: Node[]
+  props: {
+    src: string
+  }
+}
 
 interface TweetSchema extends BaseSchema<"twitter"> {
   ast: TweetAst;
