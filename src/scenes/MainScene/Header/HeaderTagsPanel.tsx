@@ -1,14 +1,9 @@
 import { useSession } from "next-auth/react";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import {
+  AddTag,
   ConfirmationDialogue,
-  StyledModel,
+  StyledModel as StyledModal,
   StyledPopup,
   StyledTab,
 } from "src/components";
@@ -39,66 +34,37 @@ const StyledTagsPanel = styled.div`
   margin-left: 16px;
   display: flex;
   justify-content: start;
+  align-items: start;
+`;
+
+const TagsContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  width: 65vw;
+
+  overflow-x: auto;
+  scrollbar-width: thin; /* Firefox */
+
+  margin-bottom: 0;
+
+  &::-webkit-scrollbar {
+    height: 7px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: lightgray;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: grey;
+  }
 `;
 
 /**
  * Create new tag component
  */
 function NewTag(props: { theme: DefaultTheme }) {
-  const session = useSession();
-
-  const addTag = useStore((state) => state.addTag);
-
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [tagName, setTagName] = useState("");
-
-  const tagInputHandler = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newString = e.target.value
-      .toLowerCase()
-      .replace(" ", "-")
-      .replace("_", "-");
-
-    if (newString !== "" && !newString.match(/^[a-z0-9-]+$/)) {
-      e.preventDefault();
-      return;
-    }
-
-    setTagName(newString);
-  };
-
-  const inputDiv = useCallback(
-    (close: () => void) => (
-      <input
-        ref={inputRef}
-        type="text"
-        value={tagName}
-        onChange={tagInputHandler}
-        onKeyUp={(e) => {
-          if (e.key === "Enter") {
-            if (!session.data) return true;
-
-            if (tagName.length <= 1 || !tagName.match(/^[a-z0-9-]+$/)) {
-              // TODO Error
-
-              return;
-            }
-
-            const body: PostTagBody = {
-              name: tagName,
-              images: [],
-            };
-
-            addTag(body);
-
-            setTagName("");
-            close();
-          }
-        }}
-      />
-    ),
-    [addTag, session.data, tagName]
-  );
-
   return (
     <StyledPopup
       trigger={useMemo(
@@ -116,7 +82,7 @@ function NewTag(props: { theme: DefaultTheme }) {
       position="bottom left"
       nested
     >
-      {inputDiv}
+      {(close: () => void) => <AddTag onFinish={close} />}
     </StyledPopup>
   );
 }
@@ -175,80 +141,92 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
 
   return (
     <StyledTagsPanel>
-      <NewTag theme={props.theme} />
+      <StyledTagsPanel>
+        <NewTag theme={props.theme} />
 
-      {/* Special filters Section */}
-      <Tag
-        style={{ width: DEFAULT_TAG_WIDTH }}
-        onClick={setFilter("all")}
-        active={filterType === "all"}
-      >
-        All
-      </Tag>
-      <Tag
-        onClick={setFilter("uncategorized")}
-        active={filterType === "uncategorized"}
-      >
-        Uncategorized
-      </Tag>
+        {/* Special filters Section */}
+        <Tag
+          style={{ width: DEFAULT_TAG_WIDTH }}
+          onClick={setFilter("all")}
+          active={filterType === "all"}
+        >
+          All
+        </Tag>
+        <Tag
+          onClick={setFilter("uncategorized")}
+          active={filterType === "uncategorized"}
+        >
+          Uncategorized
+        </Tag>
+      </StyledTagsPanel>
 
-      <div style={{ width: "1px", margin: "5px", backgroundColor: "grey" }} />
+      <div
+        style={{
+          minWidth: "1px",
+          height: "50px",
+          margin: "5px",
+          backgroundColor: "grey",
+        }}
+      />
 
       {/* Tags section */}
-      {Array.from(tags.values()).map((tag, i) =>
-        // Normal mode
-        editMode === "add" ? (
-          <Tag
-            key={i}
-            onClick={setFilter("tag", tag)}
-            active={filterType === "tag" && filterTag === tag.name}
-          >
-            {tag.name} - {tag.images.length}
-          </Tag>
-        ) : (
-          // Delete mode
-          <StyledModel
-            trigger={
-              <Tag
-                key={i}
-                active={filterType === "tag" && filterTag === tag.name}
-                color={props.theme.color.danger}
-              >
-                {tag.name}
-                <CloseCircle
-                  size={25}
-                  style={{ marginLeft: "5px", marginRight: "-5px" }}
-                />
-              </Tag>
-            }
-            modal
-          >
-            {/* Delete toggle */}
-            {(close: () => void) => (
-              <ConfirmationDialogue
-                title={`Deleting "${tag.name}"`}
-                text="Are you sure you want to delete this tag?"
-                acceptText="Delete"
-                cancelText="Cancel"
-                acceptColor={props.theme.color.danger}
-                closeCallback={close}
-                onAccept={() => {
-                  if (session.data) {
-                    removeTag(tag);
-                    if (filterType === "tag" && filterTag === tag.name) {
-                      setFilter("all");
+      <TagsContainer>
+        {Array.from(tags.values()).map((tag, i) =>
+          // Normal mode
+          editMode === "add" ? (
+            <Tag
+              style={{ whiteSpace: "nowrap" }}
+              key={i}
+              onClick={setFilter("tag", tag)}
+              active={filterType === "tag" && filterTag === tag.name}
+            >
+              {tag.name} - {tag.images.length}
+            </Tag>
+          ) : (
+            // Delete mode
+            <StyledModal
+              trigger={
+                <Tag
+                  key={i}
+                  active={filterType === "tag" && filterTag === tag.name}
+                  color={props.theme.color.danger}
+                >
+                  {tag.name}
+                  <CloseCircle
+                    size={25}
+                    style={{ marginLeft: "5px", marginRight: "-5px" }}
+                  />
+                </Tag>
+              }
+              modal
+            >
+              {/* Delete toggle */}
+              {(close: () => void) => (
+                <ConfirmationDialogue
+                  title={`Deleting "${tag.name}"`}
+                  text="Are you sure you want to delete this tag?"
+                  acceptText="Delete"
+                  cancelText="Cancel"
+                  acceptColor={props.theme.color.danger}
+                  closeCallback={close}
+                  onAccept={() => {
+                    if (session.data) {
+                      removeTag(tag);
+                      if (filterType === "tag" && filterTag === tag.name) {
+                        setFilter("all");
+                      }
+                      // Turn off edit mode when deleting tag
+                      // TODO Make this an option?
+                      toggleEditMode();
+                      close();
                     }
-                    // Turn off edit mode when deleting tag
-                    // TODO Make this an option?
-                    toggleEditMode();
-                    close();
-                  }
-                }}
-              />
-            )}
-          </StyledModel>
-        )
-      )}
+                  }}
+                />
+              )}
+            </StyledModal>
+          )
+        )}
+      </TagsContainer>
     </StyledTagsPanel>
   );
 });

@@ -1,13 +1,6 @@
 import { useSession } from "next-auth/react";
 import React from "react";
-import {
-  HTMLAttributes,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { HTMLAttributes, useCallback, useMemo, useState } from "react";
 import Image from "next/image";
 import {
   AiOutlinePlusCircle as PlusCircle,
@@ -23,6 +16,7 @@ import { useStore } from "src/stores/rootStore";
 import { arrayEqual, imageEqual } from "src/utils/objectUtils";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
+import { useOverflowDetector } from "src/hooks/useOverflowDetector";
 
 const BUTTON_SIZE = 35;
 
@@ -77,6 +71,10 @@ const StyledModal = styled(Popup)`
 `;
 
 const StyledMenuIcon = styled.div`
+  display: "flex";
+  align-items: "center";
+  margin-left: "auto";
+
   &:hover {
     cursor: pointer;
   }
@@ -235,17 +233,7 @@ const TweetTags = withTheme(function TweetTags(props: {
   );
 
   // Overflow detection
-  const tagsContainerRef = useRef<HTMLDivElement>(null);
-  const [overflow, setOverflow] = useState(false);
-
-  useEffect(() => {
-    if (tagsContainerRef.current) {
-      setOverflow(
-        tagsContainerRef.current.offsetWidth <
-          tagsContainerRef.current.scrollWidth
-      );
-    }
-  }, []);
+  const [tagsContainerRef, overflow] = useOverflowDetector();
 
   // Preview Images
   const imageSrcs = useMemo(() => getImagesSrc(props.image), [props.image]);
@@ -308,28 +296,20 @@ const TweetTags = withTheme(function TweetTags(props: {
         ))}
       </TabContainer>
       {/* TODO Hamburger menu */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          marginLeft: "auto",
-        }}
-        draggable={true}
+
+      <StyledModal
+        trigger={
+          <StyledMenuIcon>
+            <MenuIcon size={30} />
+          </StyledMenuIcon>
+        }
+        modal
+        closeOnDocumentClick
       >
-        <StyledModal
-          trigger={
-            <StyledMenuIcon>
-              <MenuIcon size={30} />
-            </StyledMenuIcon>
-          }
-          modal
-          closeOnDocumentClick
-        >
-          {(close: () => void) => (
-            <PreviewImage imageSrcs={imageSrcs} onClick={close} />
-          )}
-        </StyledModal>
-      </div>
+        {(close: () => void) => (
+          <PreviewImage imageSrcs={imageSrcs} onClick={close} />
+        )}
+      </StyledModal>
     </MainContainer>
   );
 });
