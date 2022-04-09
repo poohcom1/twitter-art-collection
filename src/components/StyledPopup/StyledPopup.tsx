@@ -32,8 +32,9 @@ const StyledPopup = styled(Popup)`
 
 export const PopupItem = styled.div`
   background-color: white;
-  padding: 5px 15px;
+  padding: 3px 10px;
   cursor: pointer;
+  font-size: 17px;
 
   &:hover {
     background-color: lightgrey;

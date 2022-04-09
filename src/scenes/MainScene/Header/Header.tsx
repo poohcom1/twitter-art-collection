@@ -31,6 +31,12 @@ const HeaderDiv = styled.div`
   }
 `;
 
+const StyledTrashIcon = styled(TrashIcon)`
+  &:hover {
+    cursor: pointer;
+  }
+`;
+
 export default withTheme(function Header(props: { theme: DefaultTheme }) {
   const tags = useStore((state) => state.tags);
   const tagsLoaded = useStore((state) => state.tagsStatus);
@@ -55,33 +61,20 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
           marginLeft: "auto",
           justifySelf: "flex-end",
         }}
-        onClick={() => toggleEditMode()}
+        onClick={() => {
+          toggleEditMode();
+        }}
       >
         {Array.from(tags.values()).length > 0 ? (
-          <button
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              borderColor:
-                editMode === "delete"
-                  ? props.theme.color.danger
-                  : "transparent",
-              borderStyle: "solid",
-              padding: "8px",
-              marginLeft: "auto",
-              backgroundColor: "transparent",
-            }}
-          >
-            <TrashIcon
-              size={30}
-              color={
-                editMode === "delete"
-                  ? props.theme.color.danger
-                  : props.theme.color.secondary
-              }
-              style={{ margin: "0" }}
-            />
-          </button>
+          <StyledTrashIcon
+            size={30}
+            color={
+              editMode === "delete"
+                ? props.theme.color.danger
+                : props.theme.color.secondary
+            }
+            style={{ margin: "0" }}
+          />
         ) : (
           <></>
         )}

@@ -195,7 +195,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
                   {tag.name}
                   <CloseCircle
                     size={25}
-                    style={{ marginLeft: "5px", marginRight: "-5px" }}
+                    style={{ marginLeft: "8px", marginRight: "-3px" }}
                   />
                 </Tag>
               }

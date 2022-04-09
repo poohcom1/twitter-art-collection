@@ -94,7 +94,6 @@ const StyledRight = styled(Right)<{ show: boolean }>`
 
 const BlacklistButton = styled(PopupItem)`
   color: red;
-  font-weight: 600;
 `;
 
 /* ------------------------------- Components ------------------------------- */
@@ -279,9 +278,16 @@ const TweetTags = withTheme(function TweetTags(props: {
 
             {includedTags.length === 0 ? (
               <>
-                <hr />
+                <div
+                  style={{
+                    height: "1px",
+                    margin: "5px",
+                    backgroundColor: "grey",
+                  }}
+                />
+
                 <BlacklistButton onClick={() => blacklistImage(props.image)}>
-                  Blacklist Image
+                  Blacklist
                 </BlacklistButton>
               </>
             ) : (
@@ -305,16 +311,16 @@ const TweetTags = withTheme(function TweetTags(props: {
               }
             }}
           >
+            {tag.name}
             {editMode === "delete" ? (
               <CloseCircle
-                style={{ marginRight: "5px" }}
+                style={{ marginLeft: "5px" }}
                 className="center"
                 size={20}
               />
             ) : (
               <></>
             )}
-            {tag.name}
           </Tab>
         ))}
       </TabContainer>
