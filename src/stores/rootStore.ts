@@ -131,11 +131,18 @@ export const useStore = create(
         }),
       removeTag: (tag: TagSchema): void =>
         set((state) => {
+          // Switch to "all" if current tag is deleted
+          let tagChangeObject = {}
+          if (state.filterTagName === tag.name) {
+            tagChangeObject = setFilter({ type: "all" }, state.tags)
+          }
+
           deleteTag(tag).then();
 
           const tags = state.tags;
           tags.delete(tag.name);
-          return { ...state, tags };
+
+          return { ...state, tags, ...tagChangeObject };
         }),
       /* --------------------------------- Images --------------------------------- */
       addImage: (tag: TagSchema, image: ImageSchema): void =>
@@ -171,39 +178,55 @@ export const useStore = create(
           | FilterAction<"uncategorized">
           | FilterTagAction
       ) =>
-        set((state) => {
-          switch (action.type) {
-            case "all":
-              state.imageFilter = <ImagePredicate>((_image) => true);
-              break;
-            case "uncategorized":
-              state.imageFilter = <ImagePredicate>((image) => {
-                const tags = Array.from(get().tags.values());
-                for (let i = 0; i < tags.length; i++) {
-                  const tag = tags[i];
-
-                  if (tag.images.find((im) => imageEqual(im, image)))
-                    return false;
-                }
-                return true;
-              });
-              break;
-            case "tag":
-              state.imageFilter = <ImagePredicate>((image) => {
-                return !!action.tag.images.find((im) => imageEqual(im, image));
-              });
-              break;
-          }
-
-          return {
-            imageFilter: state.imageFilter,
-            filterTagName: (action as FilterTagAction).tag?.name ?? "",
-            filterType: action.type,
-          };
-        }),
+        set((state) => ({ ...state, ...setFilter(action, state.tags) })),
       /* -------------------------------- EditMode -------------------------------- */
       toggleEditMode: () =>
         set({ editMode: get().editMode === "add" ? "delete" : "add" }),
     })
   )
 );
+
+
+/**
+ * Shared logic for setting tags filter state
+ * @param action Filter dispatch action
+ * @param tags Tag list
+ * @returns 
+ */
+function setFilter(
+  action:
+    | FilterAction<"all">
+    | FilterAction<"uncategorized">
+    | FilterTagAction,
+  tags: TagCollection
+): { imageFilter: ImagePredicate, filterTagName: string, filterType: FilterType} {
+  let imageFilter = <ImagePredicate>((_image) => true);
+  switch (action.type) {
+    case "all":
+      imageFilter = <ImagePredicate>((_image) => true);
+      break;
+    case "uncategorized":
+      imageFilter = <ImagePredicate>((image) => {
+        const tagList = Array.from(tags.values());
+        for (let i = 0; i < tagList.length; i++) {
+          const tag = tagList[i];
+
+          if (tag.images.find((im) => imageEqual(im, image)))
+            return false;
+        }
+        return true;
+      });
+      break;
+    case "tag":
+      imageFilter = <ImagePredicate>((image) => {
+        return !!action.tag.images.find((im) => imageEqual(im, image));
+      });
+      break;
+  }
+
+  return {
+    imageFilter: imageFilter,
+    filterTagName: (action as FilterTagAction).tag?.name ?? "",
+    filterType: action.type,
+  }
+}
