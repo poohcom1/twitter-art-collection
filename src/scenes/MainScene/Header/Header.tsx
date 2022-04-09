@@ -13,7 +13,7 @@ const HeaderDiv = styled.div`
   display: flex;
   align-items: center;
 
-  position: absolute;
+  position: fixed;
 
   background-color: rgb(255, 255, 255, 0.85);
 

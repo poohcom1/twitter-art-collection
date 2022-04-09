@@ -11,7 +11,6 @@ import { imageEqual } from "src/utils/objectUtils";
 const MainDiv = styled.div`
   background-color: ${(props) => props.theme.color.background};
   padding: 120px 0;
-  overflow-y: scroll;
   height: 100vh;
 `;
 
