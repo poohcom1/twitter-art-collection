@@ -17,7 +17,12 @@ async function getTags(req: NextApiRequest, res: NextApiResponse) {
   try {
     const user = await UserModel.findOne({ uid: session!.user.id });
 
-    res.status(200).send(user?.tags);
+    if (user) {
+      res.status(200).send(user.tags);
+    } else {
+      throw new Error
+    }
+
   } catch (e) {
     console.error("[GET tag] " + e);
     res.status(500).send("Error: " + e);

@@ -1,4 +1,3 @@
-import getMongoConnection from "lib/mongodb";
 import { authOptions } from "lib/nextAuth";
 import { filterTweets, getTwitterApi } from "lib/twitter";
 import type { NextApiRequest, NextApiResponse } from "next";
@@ -17,8 +16,6 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const session = await getServerSession({ req, res }, authOptions);
-
-  await getMongoConnection();
 
   try {
     if (session) {

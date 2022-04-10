@@ -8,7 +8,7 @@ import { useStore } from "src/stores/rootStore";
 import { Spinner, TweetComponent } from "../../components";
 import { imageEqual } from "src/utils/objectUtils";
 
-const MainDiv = styled.div` 
+const MainDiv = styled.div`
   padding: 120px 0;
 `;
 
@@ -21,21 +21,44 @@ export default function TweetsGallery() {
   // Filtering and rendering
   const imageFilter = useStore((state) => state.imageFilter);
 
+  const [shouldLoadMore, setShouldLoadMore] = useState(false);
+  const [moreTweetsLoading, setMoreTweetsLoading] = useState(false);
+  const loadMoreTweet = useStore((state) => state.loadTweets);
+
   // Filter image, and add extra image if tag is selected
   const filteredImages = useStore(
-    useCallback((state) => {
-      let tweets = state.getTweets();
+    useCallback(
+      (state) => {
+        let tweets = state.getTweets();
 
-      if (state.filterType === "tag")
-        tweets = tweets.concat(
-          // Concat unique tweets from
-          state.extraTweets.filter(
-            (extraTweet) => !tweets.find((t) => imageEqual(t, extraTweet))
-          )
-        );
+        if (state.filterType === "tag")
+          tweets = tweets.concat(
+            // Concat unique tweets from
+            state.extraTweets.filter(
+              (extraTweet) => !tweets.find((t) => imageEqual(t, extraTweet))
+            )
+          );
 
-      return tweets.filter(state.imageFilter);
-    }, [])
+        const filteredTweets = tweets.filter(state.imageFilter);
+
+        if (filteredTweets.length < 8) {
+          setMoreTweetsLoading(true);
+
+          loadMoreTweet()
+            .then((err) => {
+              if (err === ERR_LAST_PAGE) {
+                setShouldLoadMore(false);
+              }
+
+              setMoreTweetsLoading(false);
+            })
+            .catch(alert);
+        }
+
+        return filteredTweets;
+      },
+      [loadMoreTweet]
+    )
   );
 
   // For scroll to top
@@ -62,11 +85,6 @@ export default function TweetsGallery() {
         break;
     }
   }, [filterType]);
-
-  const [shouldLoadMore, setShouldLoadMore] = useState(false);
-  const [moreTweetsLoading, setMoreTweetsLoading] = useState(false);
-
-  const loadMoreTweet = useStore((state) => state.loadTweets);
 
   const loadMoreCallback = useCallback(
     (isVisible: boolean) => {
@@ -100,8 +118,12 @@ export default function TweetsGallery() {
         {moreTweetsLoading ? (
           <Spinner size={30} />
         ) : shouldLoadMore && filteredImages.length > 0 ? (
-          <ReactVisibilitySensor onChange={loadMoreCallback}>
-            <h3>Loading...</h3>
+          <ReactVisibilitySensor
+            partialVisibility
+            offset={{ top: -200 }}
+            onChange={loadMoreCallback}
+          >
+            <Spinner size={30} />
           </ReactVisibilitySensor>
         ) : (
           <h3>{tweetsAllFetched ? "That's all the Tweets you got!" : ""}</h3>
