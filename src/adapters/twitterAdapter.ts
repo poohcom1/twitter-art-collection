@@ -12,7 +12,7 @@ export const ERR_LAST_PAGE = 9999;
  */
 export async function getLikedTweets(): Promise<Result<TweetSchema[], number>> {
   try {
-    const res = await fetch(`/api/tweets/`, {
+    const res = await fetch(`/api/user/`, {
       method: "GET",
       headers: {
         "cache-control": `private, max-age=${cache_age}`,

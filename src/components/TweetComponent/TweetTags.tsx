@@ -1,7 +1,11 @@
 import { useSession } from "next-auth/react";
-import React from "react";
-import { HTMLAttributes, useCallback, useMemo, useState } from "react";
-import Image from "next/image";
+import React, {
+  RefObject,
+  HTMLAttributes,
+  useCallback,
+  useMemo,
+  useState,
+} from "react";
 import {
   AiOutlinePlusCircle as PlusCircle,
   AiOutlineCloseCircle as CloseCircle,
@@ -17,6 +21,7 @@ import { arrayEqual, imageEqual } from "src/utils/objectUtils";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
 import { useOverflowDetector } from "src/hooks/useOverflowDetector";
+import { getImagesSrcFromElement } from "src/utils/tweetUtils";
 
 const BUTTON_SIZE = 35;
 
@@ -80,13 +85,13 @@ const StyledMenuIcon = styled.div`
   }
 `;
 
-const StyledLeft = styled(Left)<{ show: boolean }>`
+const StyledLeft = styled(Left)<{ show: number }>`
   &:hover {
     cursor: ${(props) => (props.show ? "pointer" : "auto")};
   }
 `;
 
-const StyledRight = styled(Right)<{ show: boolean }>`
+const StyledRight = styled(Right)<{ show: number }>`
   &:hover {
     cursor: ${(props) => (props.show ? "pointer" : "auto")};
   }
@@ -159,30 +164,37 @@ function PreviewImage(
     >
       <StyledLeft
         color={imageIndex > 0 ? "grey" : "transparent"}
-        show={imageIndex > 0}
+        show={imageIndex > 0 ? 1 : 0}
         size={80}
         onClick={leftCallback}
       />
       <div
-        style={{ height: "80vh", width: "80vw", position: "relative" }}
+        style={{
+          height: "80vh",
+          width: "80vw",
+        }}
+        className="center"
         onClick={close}
       >
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={props.imageSrcs[imageIndex]}
           alt="Tweet image"
-          layout="fill"
-          objectFit="contain"
+          style={{ objectFit: "contain" }}
+          height="100%"
         />
       </div>
       <StyledRight
         color={imageIndex < props.imageSrcs.length - 1 ? "grey" : "transparent"}
-        show={imageIndex < props.imageSrcs.length - 1}
+        show={imageIndex < props.imageSrcs.length - 1 ? 1 : 0}
         size={80}
         onClick={rightCallback}
       />
     </div>
   );
 }
+
+/* ----------------------------- Main Component ----------------------------- */
 
 /**
  * Main Component
@@ -192,6 +204,7 @@ function PreviewImage(
 const TweetTags = withTheme(function TweetTags(props: {
   image: TweetSchema;
   theme: DefaultTheme;
+  tweetRef: RefObject<HTMLDivElement>;
 }) {
   const session = useSession();
 
@@ -241,11 +254,17 @@ const TweetTags = withTheme(function TweetTags(props: {
   // Overflow detection
   const [tagsContainerRef, overflow] = useOverflowDetector();
 
-  // Preview Images
-  const imageSrcs = useMemo(() => getImagesSrc(props.image), [props.image]);
-
   // Blacklist Image
   const blacklistImage = useStore((state) => state.blacklistImage);
+
+  // Preview Image
+  const [imageSrcs, setImageSrcs] = useState<string[]>([]);
+
+  const onPreviewClick = useCallback(() => {
+    if (props.tweetRef.current) {
+      setImageSrcs(getImagesSrcFromElement(props.tweetRef.current));
+    }
+  }, [props.tweetRef]);
 
   return (
     <MainContainer>
@@ -324,7 +343,6 @@ const TweetTags = withTheme(function TweetTags(props: {
           </Tab>
         ))}
       </TabContainer>
-      {/* TODO Hamburger menu */}
 
       <StyledModal
         trigger={
@@ -332,29 +350,20 @@ const TweetTags = withTheme(function TweetTags(props: {
             <MenuIcon size={30} />
           </StyledMenuIcon>
         }
+        onOpen={onPreviewClick}
         modal
         closeOnDocumentClick
       >
-        {(close: () => void) => (
-          <PreviewImage imageSrcs={imageSrcs} onClick={close} />
-        )}
+        {(close: () => void) =>
+          imageSrcs.length > 0 ? (
+            <PreviewImage imageSrcs={imageSrcs} onClick={close} />
+          ) : (
+            <></>
+          )
+        }
       </StyledModal>
     </MainContainer>
   );
 });
 
 export default React.memo(TweetTags);
-
-function getImagesSrc(tweet: TweetSchema): string[] {
-  const ast = tweet.ast[0];
-
-  const imageDiv = ast.nodes.find((node) => node.tag === "div");
-
-  if (imageDiv) {
-    const images = imageDiv.nodes.filter((node) => node.tag === "img");
-    if (images) {
-      return images.map((imageNode) => imageNode.props.src);
-    }
-  }
-  return [];
-}

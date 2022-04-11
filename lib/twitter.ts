@@ -96,3 +96,19 @@ export const filterTweets =
     }
     return false;
   };
+
+export function tweetIdsToSchema(ids: string[], ast?: TweetAst[]): TweetSchema[] {
+  const schemas = []
+
+  for (let i = 0; i < ids.length; i++) {
+    const schema: TweetSchema = {
+      id: ids[i],
+      platform: "twitter",
+      ast: ast ? ast[i] : null
+    }
+    
+    schemas.push(schema)
+  }
+
+  return schemas
+}

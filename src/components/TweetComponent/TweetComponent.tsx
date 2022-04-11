@@ -1,10 +1,7 @@
-import React from "react";
-import dynamic from "next/dynamic";
+import React, { useRef } from "react";
 import TweetTags from "./TweetTags";
 import styled, { keyframes } from "styled-components";
-const Tweet = dynamic<{ id: string; ast: object[] }>(() =>
-  import("react-static-tweets").then((module) => module.Tweet)
-);
+import { Tweet } from "react-static-tweets";
 
 const fadeIn = keyframes`
   from {
@@ -28,6 +25,8 @@ function TweetComponent(props: {
   index?: number;
   order: number;
 }) {
+  const tweetRef = useRef<HTMLDivElement>(null);
+
   return (
     <TweetDiv>
       <TweetTags
@@ -36,8 +35,9 @@ function TweetComponent(props: {
           platform: "twitter",
           ast: props.ast,
         }}
+        tweetRef={tweetRef}
       />
-      <MemoTweet id={props.ast[0].data.id} ast={props.ast} />
+      <MemoTweet id={props.id} ref={tweetRef} />
     </TweetDiv>
   );
 }

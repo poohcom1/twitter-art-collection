@@ -21,7 +21,7 @@ interface Node {
 }
 
 interface TweetSchema extends BaseSchema<"twitter"> {
-  ast: TweetAst;
+  ast: TweetAst | null;
 }
 
 interface TagSchema {
@@ -56,6 +56,21 @@ interface AllTweetsResponse extends TweetsResponse {
    * The amount of pages fetched from twitter
    */
   next_token?: string;
+}
+
+interface UserDataResponse<T extends string> {
+  tweets: TweetSchema[]
+
+  type: T
+}
+
+interface FullUserDataResponse extends UserDataResponse<"full"> {
+  tags: TagCollection
+}
+
+
+interface PartialUserDataResponse extends UserDataResponse<"partial"> {
+  next_token: string | undefined
 }
 
 // Error handling

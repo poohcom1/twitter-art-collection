@@ -1,71 +1,75 @@
 import getMongoConnection from "lib/mongodb";
 import { authOptions } from "lib/nextAuth";
-import { filterTweets, getTwitterApi, mergeTweets } from "lib/twitter";
-import UserModel from "models/User";
+import { filterTweets, getTwitterApi } from "lib/twitter";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { fetchTweetAst } from "static-tweets";
 import { TweetV2PaginableListParams, ApiResponseError } from "twitter-api-v2";
 
-const PAGINATION_COUNT = 100;
-
-const userLikedTweetsOptions: Partial<TweetV2PaginableListParams> = {
-  expansions: ["attachments.media_keys"],
-  "media.fields": ["url"],
-  max_results: PAGINATION_COUNT,
-};
+const pagination_count = 100;
 
 /**
  * Responds with an object containing paginated tweets, next token, and deleted tweets
- * @param req.query.index Tweet index to fetch from. This is used as the pagination token if a backend is not present
+ * @param req.query.nextToken Next token for the Twitter API. Required as url parameter
  */
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const [twitterApi, session, _mongoConnection] = await Promise.all([
-    getTwitterApi(),
-    getServerSession({ req, res }, authOptions),
-    getMongoConnection()
-  ])
+  const session = await getServerSession({ req, res }, authOptions);
+
+  await getMongoConnection();
 
   try {
     if (session) {
-      /* ------------------------------- Twitter API ------------------------------ */
-      /// Make API call
+      const twitterApi = await getTwitterApi();
+
+      // Set options
+      const userLikedTweetsOptions: Partial<TweetV2PaginableListParams> = {
+        expansions: ["attachments.media_keys"],
+        "media.fields": ["url"],
+        max_results: pagination_count,
+      };
+
+      if (req.query.next_token) {
+        userLikedTweetsOptions["pagination_token"] = req.query
+          .next_token as string;
+      }
+
+      // Make API call
       const payload = await twitterApi.v2.userLikedTweets(
         session.user.id,
         userLikedTweetsOptions
       );
 
-      /// Fetch asts
-      const newTweetIds = payload.data.data
+      // Tweets all loaded
+      // FIXME The documentation seem to suggest that next_token would be undefined when all tweets are loaded,
+      //  but it seems to be the case that the payload data is null instead
+      if (!payload.data.data) {
+        const responseObject: AllTweetsResponse = {
+          tweets: [],
+        };
+
+        return res.send(responseObject);
+      }
+
+      const next_token = payload.data.meta.next_token;
+
+      // Fetch asts
+      const likedTweetsIds = payload.data.data
         .filter(filterTweets(payload.data))
         .map((tweet) => tweet.id);
 
-      /* ------------------------------ User Database ----------------------------- */
-      const user = await UserModel.findOne({ uid: session!.user.id }).lean()
-
-      const databaseTweetIds = user!.tweetIds ?? []
-
-      /* ------------------------------- Tweet ASTs ------------------------------- */
-      // Merge tweets
-      const tweetIds = mergeTweets(newTweetIds, databaseTweetIds)
-
-      if (tweetIds.length === newTweetIds.length + databaseTweetIds.length) {
-        // TODO Database sync
-      }
-
       const tweetDataAsts = await Promise.all(
-        tweetIds.map((id) => fetchTweetAst(id))
+        likedTweetsIds.map((id) => fetchTweetAst(id))
       );
 
       const tweetAsts = [];
 
-      for (let i = 0; i < tweetIds.length; i++) {
+      for (let i = 0; i < likedTweetsIds.length; i++) {
         if (tweetDataAsts[i]) {
           tweetAsts.push({
-            id: tweetIds[i],
+            id: likedTweetsIds[i],
             ast: tweetDataAsts[i],
             platform: "twitter",
           });
@@ -74,6 +78,7 @@ export default async function handler(
 
       const responseObject: AllTweetsResponse = {
         tweets: tweetAsts as TweetSchema[],
+        next_token,
       };
 
       res.status(200).send(responseObject);
