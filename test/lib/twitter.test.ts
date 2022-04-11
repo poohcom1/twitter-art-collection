@@ -18,6 +18,14 @@ describe("twitter lib", () => {
 
       expect(merged).toStrictEqual(['1', '2', '3', '4', '5', '7', '8', '9'])
     })
+    it("should ignore upstream when upstream is empty", () => {
+      const upstream = []
+      const database = ['1', '2', '3', '4', '5']
+
+      const merged = mergeTweets(upstream, database)
+
+      expect(merged).toStrictEqual(['1', '2', '3', '4', '5'])
+    })
   })
   describe(`${updateAndFindOrphans.name} unit test`, () => {
     const total = 750; // total data nodes

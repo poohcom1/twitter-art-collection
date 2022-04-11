@@ -10,6 +10,9 @@ import {
 } from "masonic";
 import { TweetComponent } from "../../components";
 
+const COLUMN_WIDTH = 300;
+const COLUMN_GUTTER = 30;
+
 const MainDiv = styled.div`
   padding: 120px 20px;
 `;
@@ -27,9 +30,12 @@ export default function TweetsGallery(props: { images: TweetSchema[] }) {
     height,
   ]);
   const { scrollTop, isScrolling } = useScroller(offset);
-  const positioner = usePositioner({ width, columnWidth: 300, columnGutter: 50 }, [props.images.length]);
+  const positioner = usePositioner(
+    { width, columnWidth: COLUMN_WIDTH, columnGutter: COLUMN_GUTTER },
+    [props.images.length]
+  );
 
-  const resizeObserver = useResizeObserver(positioner)
+  const resizeObserver = useResizeObserver(positioner);
 
   return (
     <MainDiv>
