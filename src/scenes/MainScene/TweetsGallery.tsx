@@ -1,6 +1,13 @@
 import styled from "styled-components";
 import React from "react";
-import { Masonry } from "masonic";
+import { useWindowSize } from "@react-hook/window-size";
+import {
+  useContainerPosition,
+  useMasonry,
+  usePositioner,
+  useResizeObserver,
+  useScroller,
+} from "masonic";
 import { TweetComponent } from "../../components";
 
 const MainDiv = styled.div`
@@ -13,14 +20,30 @@ const MainDiv = styled.div`
  * Will immediately load tweets for "tag" filters into "extraTweets"
  */
 export default function TweetsGallery(props: { images: TweetSchema[] }) {
+  const containerRef = React.useRef(null);
+  const [windowWidth, height] = useWindowSize();
+  const { offset, width } = useContainerPosition(containerRef, [
+    windowWidth,
+    height,
+  ]);
+  const { scrollTop, isScrolling } = useScroller(offset);
+  const positioner = usePositioner({ width, columnWidth: 300, columnGutter: 50 }, [props.images.length]);
+
+  const resizeObserver = useResizeObserver(positioner)
+
   return (
     <MainDiv>
-      <Masonry
-        items={props.images}
-        render={MasonryCard}
-        columnWidth={300}
-        columnGutter={20}
-      />
+      {useMasonry({
+        positioner,
+        scrollTop,
+        isScrolling,
+        height,
+        containerRef,
+        resizeObserver,
+
+        items: props.images,
+        render: MasonryCard,
+      })}
     </MainDiv>
   );
 }
