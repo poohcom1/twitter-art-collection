@@ -21,7 +21,7 @@ const MemoTweet = React.memo(Tweet);
 
 function TweetComponent(props: {
   id: string;
-  ast: TweetAst;
+  ast: TweetAst | null;
   index?: number;
   order: number;
 }) {
