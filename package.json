@@ -13,8 +13,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@mui/lab": "^5.0.0-alpha.72",
     "date-fns": "^2.28.0",
+    "masonic": "^3.6.4",
     "memory-cache": "^0.2.0",
     "mongodb": "^4.4.0",
     "mongoose": "^6.2.2",

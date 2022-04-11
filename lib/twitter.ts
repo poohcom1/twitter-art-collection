@@ -42,6 +42,16 @@ export function setTwitterApi(api: TwitterApi) {
 
 // Helper funtions
 
+export function mergeTweets(upstream: string[], database: string[]) {
+  for (let i = 0; i < upstream.length; i++) {
+    if (upstream[i] === database[0]) {
+      return upstream.slice(0, i).concat(database)
+    }
+  }
+
+  return upstream.concat(database)
+}
+
 /**
  * Finds all orphaned data nodes database, given the a paginated list
  * @param database Datastored in database

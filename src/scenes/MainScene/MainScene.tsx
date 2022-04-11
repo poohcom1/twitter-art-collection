@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Header from "./Header/Header";
 import { LoadingScene } from "..";
 import TweetsGallery from "./TweetsGallery";
@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { useStore } from "src/stores/rootStore";
 import { ERR_LAST_PAGE } from "src/adapters";
 import styled from "styled-components";
+import { imageEqual } from "src/utils/objectUtils";
 
 // Styles
 const AppDiv = styled.div`
@@ -45,13 +46,39 @@ export default function MainScene() {
     }
   }, [initTweetsAndTags, session.status]);
 
+  // Filtering and rendering
+  const imageFilter = useStore((state) => state.imageFilter);
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [imageFilter]);
+
+  // Filter image, and add extra image if tag is selected
+  const filteredImages = useStore(
+    useCallback((state) => {
+      let tweets = state.getTweets();
+
+      if (state.filterType === "tag")
+        tweets = tweets.concat(
+          // Concat unique tweets from
+          state.extraTweets.filter(
+            (extraTweet) => !tweets.find((t) => imageEqual(t, extraTweet))
+          )
+        );
+
+      const filteredTweets = tweets.filter(state.imageFilter);
+
+      return filteredTweets;
+    }, [])
+  );
+
   return (
     <AppDiv className="App">
       <Header />
       {tweetsError !== "" ? (
         <div className="main">{tweetsError}</div>
       ) : tweetsLoaded ? (
-        <TweetsGallery />
+        <TweetsGallery images={filteredImages} />
       ) : (
         <LoadingScene display={true} />
       )}

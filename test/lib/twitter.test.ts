@@ -1,6 +1,24 @@
-import { updateAndFindOrphans } from "../../lib/twitter";
+import { mergeTweets, updateAndFindOrphans } from "../../lib/twitter";
 
 describe("twitter lib", () => {
+  describe(`${mergeTweets.name} unit test`, () => {
+    it("should merge arrays with overlap without repeat", () => {
+      const upstream = ['1', '2', '3', '4', '5']
+      const database = ['4', '5', '6']
+
+      const merged = mergeTweets(upstream, database)
+
+      expect(merged).toStrictEqual(['1', '2', '3', '4', '5', '6'])
+    })
+    it("should concat arrays with no overlap", () => {
+      const upstream = ['1', '2', '3', '4', '5']
+      const database = ['7', '8', '9']
+
+      const merged = mergeTweets(upstream, database)
+
+      expect(merged).toStrictEqual(['1', '2', '3', '4', '5', '7', '8', '9'])
+    })
+  })
   describe(`${updateAndFindOrphans.name} unit test`, () => {
     const total = 750; // total data nodes
 

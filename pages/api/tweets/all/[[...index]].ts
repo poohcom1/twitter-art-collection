@@ -1,7 +1,6 @@
-import { BACKEND_URL } from "lib/backend";
 import getMongoConnection from "lib/mongodb";
 import { authOptions } from "lib/nextAuth";
-import { filterTweets, getTwitterApi } from "lib/twitter";
+import { filterTweets, getTwitterApi, mergeTweets } from "lib/twitter";
 import UserModel from "models/User";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
@@ -24,61 +23,54 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const [twitterApi, session] = await Promise.all([getTwitterApi(), getServerSession({ req, res }, authOptions)])
+  const [twitterApi, session, _mongoConnection] = await Promise.all([
+    getTwitterApi(),
+    getServerSession({ req, res }, authOptions),
+    getMongoConnection()
+  ])
 
   try {
     if (session) {
-      let next_token = undefined
-      let likedTweetsIds: string[] = []
+      if (req.query.next_token) {
+        userLikedTweetsOptions["pagination_token"] = req.query
+          .index as string;
+      }
 
-      if (BACKEND_URL) {
-        await getMongoConnection()
+      /* ------------------------------- Twitter API ------------------------------ */
+      /// Make API call
+      const payload = await twitterApi.v2.userLikedTweets(
+        session.user.id,
+        userLikedTweetsOptions
+      );
 
-        const user = await UserModel.findOne({ uid: session!.user.id }).lean()
+      /// Fetch asts
+      const newTweetIds = payload.data.data
+        .filter(filterTweets(payload.data))
+        .map((tweet) => tweet.id);
 
-        likedTweetsIds = user!.tweetIds
-      } else {
-        if (req.query.next_token) {
-          userLikedTweetsOptions["pagination_token"] = req.query
-            .index as string;
-        }
+      /* ------------------------------ User Database ----------------------------- */
+      const user = await UserModel.findOne({ uid: session!.user.id }).lean()
 
-        // Make API call
-        const payload = await twitterApi.v2.userLikedTweets(
-          session.user.id,
-          userLikedTweetsOptions
-        );
+      const databaseTweetIds = user!.tweetIds
 
-        // Tweets all loaded
-        // FIXME The documentation seem to suggest that next_token would be undefined when all tweets are loaded,
-        //  but it seems to be the case that the payload data is null instead
-        if (!payload.data.data) {
-          const responseObject: AllTweetsResponse = {
-            tweets: [],
-          };
+      /* ------------------------------- Tweet ASTs ------------------------------- */
+      // Merge tweets
+      const tweetIds = mergeTweets(newTweetIds, databaseTweetIds)
 
-          return res.send(responseObject);
-        }
-
-        next_token = payload.data.meta.next_token;
-
-        // Fetch asts
-        likedTweetsIds = payload.data.data
-          .filter(filterTweets(payload.data))
-          .map((tweet) => tweet.id);
-
+      if (tweetIds.length === newTweetIds.length + databaseTweetIds.length) {
+        // TODO Database sync
       }
 
       const tweetDataAsts = await Promise.all(
-        likedTweetsIds.map((id) => fetchTweetAst(id))
+        tweetIds.map((id) => fetchTweetAst(id))
       );
 
       const tweetAsts = [];
 
-      for (let i = 0; i < likedTweetsIds.length; i++) {
+      for (let i = 0; i < tweetIds.length; i++) {
         if (tweetDataAsts[i]) {
           tweetAsts.push({
-            id: likedTweetsIds[i],
+            id: tweetIds[i],
             ast: tweetDataAsts[i],
             platform: "twitter",
           });
@@ -87,7 +79,6 @@ export default async function handler(
 
       const responseObject: AllTweetsResponse = {
         tweets: tweetAsts as TweetSchema[],
-        next_token,
       };
 
       res.status(200).send(responseObject);

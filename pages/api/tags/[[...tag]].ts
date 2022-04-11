@@ -3,7 +3,7 @@ import UserModel from "models/User";
 import { methodHandler } from "lib/restAPI";
 import { getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
-import { BACKEND_URL, createUser } from "lib/backend";
+import { createUser } from "lib/backend";
 
 export default methodHandler({
   GET: getTags,
@@ -30,9 +30,7 @@ async function getTags(req: NextApiRequest, res: NextApiResponse) {
 
         await user.save()
 
-        if (BACKEND_URL) {
-          createUser(user).then().catch(console.error)
-        }
+        createUser(user).then().catch(console.error)
 
         res.status(200).send(user.tags);
       }
