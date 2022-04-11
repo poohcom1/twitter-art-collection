@@ -16,7 +16,7 @@ This app is designed for those who have this issue, whether you're an art connoi
 
 ## For Developers
 
-The app is created entirely with Next.js, so it's easy to host on Vercel.
+The backend repository is https://github.com/poohcom1/twitter-art-collection-backend.
 
 Twitter API access and a Mongo database is required.
 
