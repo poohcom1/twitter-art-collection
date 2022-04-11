@@ -40,10 +40,10 @@ const SpinnerDiv = styled.div`
   display: flex;
 `;
 
-export default function LoadingScene({ display = true }) {
+export default function LoadingScene({ display = true, text = "" }) {
   return (
     <MainDiv style={{ opacity: display ? "100%" : "0" }}>
-      <h1>Loading...</h1>
+      <h1>{text !== "" ? text : "Loading..."}</h1>
       <SpinnerDiv>
         <Spinner size={40} />
       </SpinnerDiv>

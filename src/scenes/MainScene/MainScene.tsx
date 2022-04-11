@@ -40,6 +40,8 @@ export default function MainScene() {
   // Filtering and rendering
   const imageFilter = useStore((state) => state.imageFilter);
 
+  const newUser = useStore((state) => state.newUser);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [imageFilter]);
@@ -55,6 +57,7 @@ export default function MainScene() {
     }, [])
   );
 
+
   if (tweetsError !== "") {
     return (
       <AppDiv className="App">
@@ -64,14 +67,13 @@ export default function MainScene() {
     );
   }
 
-  if (!tweetsLoaded) {
+  if (!tweetsLoaded || newUser) {
     return (
       <AppDiv className="App">
-        <LoadingScene display={true} />
+        <LoadingScene display={true} text={newUser ? "Creating new user..." : ""}/>
       </AppDiv>
     );
   }
-
 
   return (
     <AppDiv className="App">

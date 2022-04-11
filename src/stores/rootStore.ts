@@ -2,7 +2,7 @@ import create from "zustand";
 import { combine } from "zustand/middleware";
 import { imageEqual } from "src/utils/objectUtils";
 import { BLACKLIST_TAG } from "src/utils/constants";
-import { getUser } from "src/adapters/userAdapter";
+import { getUser, postUser } from "src/adapters/userAdapter";
 import { postTag, deleteTag, putTag } from "src/adapters/tagsAdapter";
 
 // Filters
@@ -54,15 +54,33 @@ export const useStore = create(
             set({
               newUser: true
             })
+
+            const newUserData = await postUser()
+
+            if (newUserData.error === null) {
+              set({
+                tags: new Map(Object.entries(newUserData.data.tags)),
+                tweets: newUserData.data.tweets,
+                tagsStatus: "loaded",
+                newUser: false
+              });
+
+              return null
+
+            } else {
+              return newUserData.error
+            }
+            
           } else {
             set({
               tags: new Map(Object.entries(userData.data.tags)),
               tweets: userData.data.tweets,
               tagsStatus: "loaded",
             });
+
+            return null
           }
       
-          return null
         } else {
           return userData.error;
         }

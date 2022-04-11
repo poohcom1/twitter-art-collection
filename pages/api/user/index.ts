@@ -117,21 +117,19 @@ async function postUser(req: NextApiRequest, res: NextApiResponse) {
             "media.fields": ["url"],
         };
 
-        const user = new UserModel({
-            uid: session!.user.id,
-            tags: new Map(),
-            tweetIds: []
-        })
-
         try {
-            const payload = await twitterApi.v2.userLikedTweets(user.uid, userLikedTweetsOptions);
+            const payload = await twitterApi.v2.userLikedTweets(session!.user.id, userLikedTweetsOptions);
             await payload.fetchLast()
 
             const tweetIds = payload.data.data
                 .filter(filterTweets(payload.data))
                 .map((tweet) => tweet.id)
 
-            user.tweetIds = tweetIds
+            const user = new UserModel({
+                uid: session!.user.id,
+                tags: new Map(),
+                tweetIds
+            })
 
             try {
                 await user.save()
@@ -139,20 +137,20 @@ async function postUser(req: NextApiRequest, res: NextApiResponse) {
                 console.log("[user] User successfully created")
 
                 const response: UserDataResponse = {
-                    tweets: tweetIdsToSchema(user.tweetIds),
-                    tags: user.tags
+                    tweets: tweetIdsToSchema(tweetIds),
+                    tags: new Map()
                 }
                 res.send(response)
             } catch (e) {
-                console.error("[user] Database error" + e)
+                console.error("[user] Database error: " + e)
                 res.status(500).send("Failed to create user on database: " + e)
             }
         } catch (e) {
-            console.error("[user] Fetch error" + e)
+            console.error("[user] Fetch error: " + e)
             res.status(500).send("Failed to fetch tweets")
         }
     } catch (e) {
-        console.error("[user] Service error" + e)
+        console.error("[user] Service error: " + e)
         res.status(500).send("Database or API error")
     }
 }
