@@ -4,9 +4,7 @@ import { LoadingScene } from "..";
 import TweetsGallery from "./TweetsGallery";
 import { useSession } from "next-auth/react";
 import { useStore } from "src/stores/rootStore";
-import { ERR_LAST_PAGE } from "src/adapters";
 import styled from "styled-components";
-import { imageEqual } from "src/utils/objectUtils";
 
 // Styles
 const AppDiv = styled.div`
@@ -14,6 +12,7 @@ const AppDiv = styled.div`
   display: flex;
   flex-direction: column;
   height: fit-content;
+  min-height: 100vh;
 `;
 
 export default function MainScene() {
@@ -25,23 +24,15 @@ export default function MainScene() {
   const initTweetsAndTags = useStore((state) => state.initTweetsAndTags);
 
   useEffect(() => {
-    // TODO Use modal for alert
     if (session.status === "authenticated") {
       initTweetsAndTags()
         .then((err) => {
-          switch (err) {
-            case 0:
-            case ERR_LAST_PAGE:
-              setTweetsLoaded(true);
-              break;
-            case 429:
-              setTweetsError("Server overloaded! Please try again later");
-              break;
-            default:
-              setTweetsError(`An error occured! Error code: ${err}`);
+          setTweetsLoaded(true);
+
+          if (err) {
+            setTweetsError(err);
           }
         })
-
         .catch(alert);
     }
   }, [initTweetsAndTags, session.status]);
@@ -50,21 +41,13 @@ export default function MainScene() {
   const imageFilter = useStore((state) => state.imageFilter);
 
   useEffect(() => {
-    window.scrollTo(0, 0)
+    window.scrollTo(0, 0);
   }, [imageFilter]);
 
-  // Filter image, and add extra image if tag is selected
+  // Filter image
   const filteredImages = useStore(
     useCallback((state) => {
-      let tweets = state.getTweets();
-
-      if (state.filterType === "tag")
-        tweets = tweets.concat(
-          // Concat unique tweets from
-          state.extraTweets.filter(
-            (extraTweet) => !tweets.find((t) => imageEqual(t, extraTweet))
-          )
-        );
+      const tweets = state.getTweets();
 
       const filteredTweets = tweets.filter(state.imageFilter);
 
@@ -72,16 +55,28 @@ export default function MainScene() {
     }, [])
   );
 
+  if (tweetsError !== "") {
+    return (
+      <AppDiv className="App">
+        <Header />
+        <div className="main">{tweetsError}</div>
+      </AppDiv>
+    );
+  }
+
+  if (!tweetsLoaded) {
+    return (
+      <AppDiv className="App">
+        <LoadingScene display={true} />
+      </AppDiv>
+    );
+  }
+
+
   return (
     <AppDiv className="App">
       <Header />
-      {tweetsError !== "" ? (
-        <div className="main">{tweetsError}</div>
-      ) : tweetsLoaded ? (
-        <TweetsGallery images={filteredImages} />
-      ) : (
-        <LoadingScene display={true} />
-      )}
+      <TweetsGallery images={filteredImages} />
     </AppDiv>
   );
 }

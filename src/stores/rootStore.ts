@@ -1,16 +1,9 @@
 import create from "zustand";
 import { combine } from "zustand/middleware";
-import {
-  deleteTag,
-  ERR_LAST_PAGE,
-  getLikedTweets,
-  getTags,
-  getTweetAsts,
-  postTag,
-  putTag,
-} from "src/adapters";
 import { imageEqual } from "src/utils/objectUtils";
 import { BLACKLIST_TAG } from "src/utils/constants";
+import { getUser } from "src/adapters/userAdapter";
+import { postTag, deleteTag, putTag } from "src/adapters/tagsAdapter";
 
 // Filters
 type ImagePredicate = <S extends ImageSchema>(
@@ -47,56 +40,32 @@ export const useStore = create(
       filterType: <FilterType>"all",
       filterTagName: "",
       editMode: <"add" | "delete">"add",
+      // User
+      newUser: false,
       // Twitter
       tweets: <TweetSchema[]>[],
-      extraTweets: <TweetSchema[]>[],
-      tweetsAllFetched: false,
     },
     (set, get) => ({
-      initTweetsAndTags: async () => {
-        let error = 0;
+      initTweetsAndTags: async (): Promise<null | string> => {
+        const userData = await getUser()
 
-        const [tagsResult, tweetsResult] = await Promise.all([
-          getTags(),
-          getLikedTweets(),
-        ]);
-
-        error = tagsResult.error !== 0 ? tagsResult.error : tweetsResult.error;
-
-        set({
-          tags: tagsResult.data,
-          tweets: tweetsResult.data,
-          tagsStatus: "loaded",
-        });
-
-        if (error === ERR_LAST_PAGE) {
-          set({ tweetsAllFetched: true });
+        if (userData.error === null) {
+          if (userData.data.newUser) {
+            set({
+              newUser: true
+            })
+          } else {
+            set({
+              tags: new Map(Object.entries(userData.data.tags)),
+              tweets: userData.data.tweets,
+              tagsStatus: "loaded",
+            });
+          }
+      
+          return null
+        } else {
+          return userData.error;
         }
-
-        // Get tag tweets
-        if (error === 0) {
-          const tagList = Array.from(get().tags.values());
-          const tweetIds = get().tweets.map((tweet) => tweet.id);
-
-          // Find all tweets that are not yet fetched from the initial page fetch
-          const tagsToFetch: string[] = tagList
-            .reduce(
-              (ids, tag) => ids.concat(tag.images.map((im) => im.id)),
-              <string[]>[]
-            )
-            .filter((id) => !tweetIds.includes(id));
-
-          // Fetch tweets, removing duplicates by converting list to a Set and back
-          const extraTweetsData = await getTweetAsts(
-            Array.from(new Set(tagsToFetch))
-          );
-
-          set({ extraTweets: extraTweetsData.data });
-
-          error = extraTweetsData.error;
-        }
-
-        return error;
       },
 
       getTweets: () => {
@@ -110,28 +79,7 @@ export const useStore = create(
 
         return tweets
       },
-    
 
-      /**
-       * Loads liked tweets
-       * @returns error
-       */
-      loadTweets: async () => {
-        let error = 0;
-
-        const tweetsData = await getLikedTweets();
-
-        set({ tweets: get().tweets.concat(tweetsData.data) });
-
-        error = tweetsData.error;
-
-        if (error === ERR_LAST_PAGE) {
-          console.log("Tweets all fetched");
-          set({ tweetsAllFetched: true });
-        }
-
-        return error;
-      },
 
       /* ---------------------------------- Tags ---------------------------------- */
       getTagList: (): TagSchema[] => {
@@ -202,7 +150,7 @@ export const useStore = create(
             putTag(blacklistTag!)
           }
 
-          return {...state, tags}
+          return { ...state, tags }
         })
       },
 

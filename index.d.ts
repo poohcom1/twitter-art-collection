@@ -46,35 +46,20 @@ type PutTagBody = TagSchema;
 type DeleteTagBody = TagSchema;
 
 // Response Types
-
-interface TweetsResponse {
-  tweets: TweetSchema[] | null;
-}
-
-interface AllTweetsResponse extends TweetsResponse {
-  /**
-   * The amount of pages fetched from twitter
-   */
-  next_token?: string;
-}
-
-interface UserDataResponse<T extends string> {
+interface UserDataResponse {
   tweets: TweetSchema[]
-
-  type: T
-}
-
-interface FullUserDataResponse extends UserDataResponse<"full"> {
   tags: TagCollection
-}
 
-
-interface PartialUserDataResponse extends UserDataResponse<"partial"> {
-  next_token: string | undefined
+  newUser?: boolean
 }
 
 // Error handling
-interface Result<T, E> {
-  error: E;
-  data: T;
+
+
+type Result<T> = {
+  error: null,
+  data: T
+} | {
+  error: string,
+  data: null;
 }

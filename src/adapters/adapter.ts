@@ -1,11 +1,12 @@
-export const jsonOrError = async (
+export async function jsonOrError<T extends object>(
   res: Response
-): Promise<Result<object, number>> => {
+): Promise<Result<T>> {
   if (res.ok) {
-    return { error: 0, data: await res.json() };
+    return { error: null, data: await res.json() };
   } else {
-    console.error(await res.text());
+    const error = await res.text()
+    console.error(error);
 
-    return { error: res.status, data: {} };
+    return { error, data: null } ;
   }
 };

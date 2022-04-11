@@ -25,7 +25,7 @@ const MainDiv = styled.div`
   justify-content: center;
   align-items: center;
 
-  background-color: #ffffff;
+  background-color: #f7f5fe;
 
   font-weight: 800;
 
