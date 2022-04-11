@@ -1,11 +1,10 @@
 import styled from "styled-components";
 import React, { useEffect, useRef, useState } from "react";
 import { useCallback } from "react";
-import ReactVisibilitySensor from "react-visibility-sensor";
 import Masonry from "@mui/lab/Masonry";
 import { ERR_LAST_PAGE } from "src/adapters";
 import { useStore } from "src/stores/rootStore";
-import { Spinner, TweetComponent } from "../../components";
+import { TweetComponent } from "../../components";
 import { imageEqual } from "src/utils/objectUtils";
 
 const MainDiv = styled.div`
@@ -40,20 +39,6 @@ export default function TweetsGallery() {
           );
 
         const filteredTweets = tweets.filter(state.imageFilter);
-
-        if (filteredTweets.length < 8) {
-          setMoreTweetsLoading(true);
-
-          loadMoreTweet()
-            .then((err) => {
-              if (err === ERR_LAST_PAGE) {
-                setShouldLoadMore(false);
-              }
-
-              setMoreTweetsLoading(false);
-            })
-            .catch(alert);
-        }
 
         return filteredTweets;
       },
@@ -114,21 +99,6 @@ export default function TweetsGallery() {
           <TweetComponent id={data.id} ast={data.ast} key={data.id} order={i} />
         ))}
       </Masonry>
-      <div className="center" style={{ margin: "20px" }}>
-        {moreTweetsLoading ? (
-          <Spinner size={30} />
-        ) : shouldLoadMore && filteredImages.length > 0 ? (
-          <ReactVisibilitySensor
-            partialVisibility
-            offset={{ top: -200 }}
-            onChange={loadMoreCallback}
-          >
-            <Spinner size={30} />
-          </ReactVisibilitySensor>
-        ) : (
-          <h3>{tweetsAllFetched ? "That's all the Tweets you got!" : ""}</h3>
-        )}
-      </div>
     </MainDiv>
   );
 }

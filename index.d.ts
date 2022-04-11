@@ -34,6 +34,7 @@ type TagCollection = Map<string, TagSchema>;
 interface UserSchema {
   uid: string;
   tags: TagCollection;
+  tweetIds: string[]
 }
 
 // Request Body Types

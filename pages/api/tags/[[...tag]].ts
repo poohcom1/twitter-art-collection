@@ -3,6 +3,7 @@ import UserModel from "models/User";
 import { methodHandler } from "lib/restAPI";
 import { getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
+import { BACKEND_URL, createUser } from "lib/backend";
 
 export default methodHandler({
   GET: getTags,
@@ -14,18 +15,34 @@ export default methodHandler({
 async function getTags(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession({ req, res }, authOptions);
 
-  try {
-    const user = await UserModel.findOne({ uid: session!.user.id });
+  if (session) {
+    try {
+      const user = await UserModel.findOne({ uid: session.user.id });
 
-    if (user) {
-      res.status(200).send(user.tags);
-    } else {
-      throw new Error
+      if (user) {
+        res.status(200).send(user.tags);
+      } else {
+
+        const user = new UserModel({
+          uid: session.user.id,
+          tags: new Map()
+        })
+
+        await user.save()
+
+        if (BACKEND_URL) {
+          createUser(user).then().catch(console.error)
+        }
+
+        res.status(200).send(user.tags);
+      }
+
+    } catch (e) {
+      console.error("[GET tag] " + e);
+      res.status(500).send("Error: " + e);
     }
-
-  } catch (e) {
-    console.error("[GET tag] " + e);
-    res.status(500).send("Error: " + e);
+  } else {
+    res.status(401).send("Forbidden")
   }
 }
 
