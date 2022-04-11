@@ -46,7 +46,7 @@ export default async function handler(
       /* ------------------------------ User Database ----------------------------- */
       const user = await UserModel.findOne({ uid: session!.user.id }).lean()
 
-      const databaseTweetIds = user!.tweetIds
+      const databaseTweetIds = user!.tweetIds ?? []
 
       /* ------------------------------- Tweet ASTs ------------------------------- */
       // Merge tweets
