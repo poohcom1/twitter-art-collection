@@ -53,7 +53,7 @@ export default function MainScene() {
 
       const filteredTweets = tweets.filter(state.imageFilter);
 
-      return filteredTweets;
+      return filteredTweets.slice(0, 25);
     }, [])
   );
 

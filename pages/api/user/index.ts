@@ -8,15 +8,18 @@ import { fetchTweetAst } from "static-tweets";
 import { TweetV2PaginableListParams, ApiResponseError } from "twitter-api-v2";
 import { methodHandler } from "lib/restAPI"
 
+
+
 export default methodHandler({
     GET: getUser,
     POST: postUser
 })
 
-const userLikedTweetsOptions: Partial<TweetV2PaginableListParams> = {
-    // expansions: ["attachments.media_keys"],
-    // "media.fields": ["url"],
-    // max_results: PAGINATION_COUNT,
+const PAGINATION_COUNT = 25;
+
+const TWEET_OPTIONS: Partial<TweetV2PaginableListParams> = {
+    expansions: ["attachments.media_keys"],
+    "media.fields": ["url"],
 };
 
 async function getUser(
@@ -35,6 +38,8 @@ async function getUser(
             const user = await UserModel.findOne({ uid: session!.user.id }).lean()
 
             if (!user) {
+                console.log("[GET USER] New user found.")
+
                 const newUserResponse: UserDataResponse = {
                     newUser: true,
 
@@ -51,7 +56,7 @@ async function getUser(
             /// Make API call
             const payload = await twitterApi.v2.userLikedTweets(
                 session.user.id,
-                userLikedTweetsOptions
+                TWEET_OPTIONS
             );
 
             const newTweetIds = payload.data.data
@@ -69,13 +74,16 @@ async function getUser(
 
             /* ------------------------------- Tweet ASTs ------------------------------- */
 
-            if (req.query.ast === "true") {
-                const tweetDataAsts = await Promise.all(
-                    tweetIds.map((id) => fetchTweetAst(id))
-                );
+            // TODO Figure out limit
+            if (true || req.query.ast === "true") {
+                const FETCH_AST_LOG = `[GET USER] AST fetch n=${tweetIds.length}`
 
+                console.time(FETCH_AST_LOG)
+                const tweetDataAsts = await Promise.all(tweetIds.map(id => fetchTweetAst(id)))
 
-                for (let i = 0; i < tweetIds.length; i++) {
+                console.timeEnd(FETCH_AST_LOG)
+
+                for (let i = 0; i < tweetDataAsts.length; i++) {
                     if (tweetDataAsts[i]) {
                         tweets[i].ast = tweetDataAsts[i]
                     }
@@ -90,11 +98,12 @@ async function getUser(
 
             res.status(200).send(responseObject);
         } else {
-            res.status(400).send([]);
+            res.status(400).send("Error");
         }
     } catch (e) {
         if (e instanceof ApiResponseError) {
             if (e.code === 429) {
+                console.error("[GET USER] API Limit Reached")
                 return res.status(429).send("Too many tweets");
             }
         }
@@ -112,45 +121,51 @@ async function postUser(req: NextApiRequest, res: NextApiResponse) {
             getMongoConnection()
         ])
 
-        const userLikedTweetsOptions: Partial<TweetV2PaginableListParams> = {
-            expansions: ["attachments.media_keys"],
-            "media.fields": ["url"],
-        };
+        if (!session) {
+            console.error("[GET USER] Invalid session get attempt")
+            return res.status(401).send("Forbidden")
+        }
 
         try {
-            const payload = await twitterApi.v2.userLikedTweets(session!.user.id, userLikedTweetsOptions);
+            const payload = await twitterApi.v2.userLikedTweets(session.user.id, TWEET_OPTIONS);
             await payload.fetchLast()
+
+            if (payload.rateLimit) {
+                console.error(payload.rateLimit)
+            }
 
             const tweetIds = payload.data.data
                 .filter(filterTweets(payload.data))
                 .map((tweet) => tweet.id)
 
+            console.log(tweetIds.length)
+
             const user = new UserModel({
                 uid: session!.user.id,
                 tags: new Map(),
-                tweetIds
+                tweetIds: tweetIds
             })
 
             try {
                 await user.save()
 
-                console.log("[user] User successfully created")
+                console.log("[POST USER] User successfully created")
 
                 const response: UserDataResponse = {
                     tweets: tweetIdsToSchema(tweetIds),
                     tags: new Map()
                 }
-                res.send(response)
+                return res.send(response)
             } catch (e) {
-                console.error("[user] Database error: " + e)
-                res.status(500).send("Failed to create user on database: " + e)
+                console.error("[POST USER] Database error: " + e)
+                return res.status(500).send("Failed to create user on database: " + e)
             }
         } catch (e) {
-            console.error("[user] Fetch error: " + e)
-            res.status(500).send("Failed to fetch tweets")
+            console.error("[POST USER] Fetch error: " + e)
+            return res.status(500).send("Failed to fetch tweets")
         }
     } catch (e) {
-        console.error("[user] Service error: " + e)
-        res.status(500).send("Database or API error")
+        console.error("[POST USER] Service error: " + e)
+        return res.status(500).send("Database or API error")
     }
 }

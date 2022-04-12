@@ -22,6 +22,7 @@ import styled, { DefaultTheme, withTheme } from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
 import { useOverflowDetector } from "src/hooks/useOverflowDetector";
 import { getImagesSrcFromElement } from "src/utils/tweetUtils";
+import Image from "next/image";
 
 const BUTTON_SIZE = 35;
 
@@ -174,14 +175,13 @@ function PreviewImage(
           width: "80vw",
         }}
         className="center"
-        onClick={close}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={props.imageSrcs[imageIndex]}
+        <Image
+          src={props.imageSrcs[imageIndex].split("image?url=")[1]}
           alt="Tweet image"
-          style={{ objectFit: "contain" }}
-          height="100%"
+          layout="fill"
+          objectFit="contain"
         />
       </div>
       <StyledRight

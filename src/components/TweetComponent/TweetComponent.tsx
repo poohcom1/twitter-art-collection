@@ -27,6 +27,8 @@ function TweetComponent(props: {
 }) {
   const tweetRef = useRef<HTMLDivElement>(null);
 
+  console.log(props.ast);
+
   return (
     <TweetDiv>
       <TweetTags
