@@ -14,7 +14,7 @@ const COLUMN_WIDTH = 400;
 const COLUMN_GUTTER = 30;
 
 const MainDiv = styled.div`
-  padding: 120px 20px;
+  padding: 120px 40px;
 `;
 
 /**

@@ -86,16 +86,17 @@ const StyledMenuIcon = styled.div`
   }
 `;
 
-const StyledLeft = styled(Left)<{ show: number }>`
+const ModalClickableDiv = styled.div<{ show: number }>`
   &:hover {
     cursor: ${(props) => (props.show ? "pointer" : "auto")};
+    background-color: ${(props) =>
+      props.show ? "rgba(255, 255, 255, 0.2)" : "transparent"};
   }
-`;
-
-const StyledRight = styled(Right)<{ show: number }>`
-  &:hover {
-    cursor: ${(props) => (props.show ? "pointer" : "auto")};
-  }
+  width: 20vh;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 const BlacklistButton = styled(PopupItem)`
@@ -133,12 +134,17 @@ function AddImagesPopupListItem(
   );
 }
 
+/**
+ * Preview image modal
+ * @param props
+ * @returns
+ */
 function PreviewImage(
   props: { imageSrcs: string[] } & React.HTMLProps<HTMLDivElement>
 ) {
   const [imageIndex, setImageIndex] = useState(0);
 
-  const leftCallback: React.MouseEventHandler<SVGElement> = useCallback(
+  const leftCallback = useCallback(
     (e) => {
       e.stopPropagation();
       if (imageIndex > 0) {
@@ -148,7 +154,7 @@ function PreviewImage(
     [imageIndex]
   );
 
-  const rightCallback: React.MouseEventHandler<SVGElement> = useCallback(
+  const rightCallback = useCallback(
     (e) => {
       e.stopPropagation();
       if (imageIndex < props.imageSrcs.length - 1) {
@@ -160,15 +166,17 @@ function PreviewImage(
 
   return (
     <div
-      style={{ display: "flex", alignItems: "center" }}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "100vw",
+      }}
       onClick={props.onClick}
     >
-      <StyledLeft
-        color={imageIndex > 0 ? "grey" : "transparent"}
-        show={imageIndex > 0 ? 1 : 0}
-        size={80}
-        onClick={leftCallback}
-      />
+      <ModalClickableDiv onClick={leftCallback} show={imageIndex > 0 ? 1 : 0}>
+        <Left color={imageIndex > 0 ? "lightgrey" : "transparent"} size={80} />
+      </ModalClickableDiv>
       <div
         style={{
           height: "80vh",
@@ -186,12 +194,19 @@ function PreviewImage(
           objectFit="contain"
         />
       </div>
-      <StyledRight
-        color={imageIndex < props.imageSrcs.length - 1 ? "grey" : "transparent"}
-        show={imageIndex < props.imageSrcs.length - 1 ? 1 : 0}
-        size={80}
+      <ModalClickableDiv
         onClick={rightCallback}
-      />
+        show={imageIndex < props.imageSrcs.length - 1 ? 1 : 0}
+      >
+        <Right
+          color={
+            imageIndex < props.imageSrcs.length - 1
+              ? "lightgrey"
+              : "transparent"
+          }
+          size={80}
+        />
+      </ModalClickableDiv>
     </div>
   );
 }
