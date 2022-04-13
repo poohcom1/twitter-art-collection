@@ -137,7 +137,7 @@ export function completeTweetFields(
 
     tweetSchema.data = {
       id: tweetData.id,
-      url: `https://twitter.com/twitter/status/${tweetData.id}`,
+      url: `https://twitter.com/${user?.username}/status/${tweetData.id}`,
       avatar: user?.profile_image_url,
       name: user?.name,
       username: user?.username,

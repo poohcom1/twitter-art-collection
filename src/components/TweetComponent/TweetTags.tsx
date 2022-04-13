@@ -22,6 +22,7 @@ import styled, { DefaultTheme, withTheme } from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
 import { useOverflowDetector } from "src/hooks/useOverflowDetector";
 import Image from "next/image";
+import AddTag from "../AddTag/AddTag";
 
 const BUTTON_SIZE = 35;
 
@@ -278,6 +279,10 @@ const TweetTags = withTheme(function TweetTags(props: {
       >
         {(close: () => void) => (
           <>
+            <PopupItem>
+              <AddTag onFinish={close} />
+            </PopupItem>
+
             {notIncludedTags.map((tag) => (
               <AddImagesPopupListItem
                 key={tag.name}

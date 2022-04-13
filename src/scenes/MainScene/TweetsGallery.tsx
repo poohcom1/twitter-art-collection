@@ -10,7 +10,7 @@ import {
 } from "masonic";
 import { TweetComponent } from "../../components";
 
-const COLUMN_WIDTH = 300;
+const COLUMN_WIDTH = 400;
 const COLUMN_GUTTER = 30;
 
 const MainDiv = styled.div`

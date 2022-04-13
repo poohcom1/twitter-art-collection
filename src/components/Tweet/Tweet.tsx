@@ -1,34 +1,52 @@
 import Image from "next/image";
+import { useCallback } from "react";
+import { injectTweetLink } from "src/utils/tweetUtils";
 
 export default function Tweet(props: { data: TweetExpansions }) {
   const { data } = props;
 
-  const reg = /https:\/\/t.co\/[A-z0-9]*/;
+  const onImageClick = useCallback(
+    (index: number) => {
+      window.open(`${data.url}/photo/${index + 1}`, "_blank");
+    },
+    [data.url]
+  );
 
   return (
-    <div
-      className="tweet"
-      onClick={() => {
-        window.open(data.url, "_blank");
-      }}
-    >
+    <div className="tweet">
       <div className="tweet-header">
-        <div>
+        <a
+          className="tweet-header-avatar"
+          style={{ textDecoration: "none" }}
+          href={`https://twitter.com/${data.username}`}
+          target="_blank"
+          rel="noreferrer"
+        >
           <Image
-            className="tweet-header-avatar"
+            className="tweet-header-avatar-img"
             src={data.avatar!}
             alt={`${data.username} profile`}
             width="52px"
             height="52px"
             objectFit="contain"
           />
-        </div>
-        <div className="tweet-header-username">
+        </a>
+        <a
+          style={{ textDecoration: "none" }}
+          href={`https://twitter.com/${data.username}`}
+          target="_blank"
+          rel="noreferrer"
+        >
           <h3 className="tweet-header-name">{data.name}</h3>
           <p className="tweet-header-username">@{data.username}</p>
-        </div>
+        </a>
 
-        <div className="tweet-header-logo">
+        <a
+          className="tweet-header-logo"
+          href={data.url}
+          target="_blank"
+          rel="noreferrer"
+        >
           <Image
             src={"/assets/twitter/twitter_logo_blue.svg"}
             alt="Twitter Logo"
@@ -36,45 +54,38 @@ export default function Tweet(props: { data: TweetExpansions }) {
             width="42px"
             objectFit="contain"
           />
-        </div>
+        </a>
       </div>
 
       <div className="tweet-content">
         <div className="tweet-content-text">
-          {data.content.text?.replace(reg, "") ?? ""}
+          {data.content.text ? injectTweetLink(data.content.text) : ""}
         </div>
         <div
           className={`tweet-content-media tweet-image-${
             data.content.media!.length > 1 ? "grid" : "container"
           }`}
         >
-          {data.content.media!.length > 1 ? (
-            data.content.media?.map((im) => (
-              <Image
-                src={im.url}
-                alt="Twitter Image"
-                key={im.url}
-                width="100%"
-                height="100%"
-                layout="responsive"
-                objectFit="cover"
-              />
-            ))
-          ) : (
+          {data.content.media?.map((im, index) => (
             <Image
-              src={data.content.media![0].url}
+              className="tweet-image"
+              src={im.url}
               alt="Twitter Image"
-              key={data.content.media![0].url}
+              key={im.url}
               layout="responsive"
-              width={data.content.media![0].width}
-              height={data.content.media![0].height}
+              objectFit={data.content.media!.length > 1 ? "cover" : "contain"}
+              width={im.width}
+              height={im.height}
+              onClick={() => onImageClick(index)}
             />
-          )}
+          ))}
         </div>
       </div>
 
       <div className="tweet-footer">
-        <a href={data.url}>View on twitter</a>
+        <a href={data.url} target="_blank" rel="noreferrer">
+          View on twitter
+        </a>
 
         <div className="tweet-footer-date">
           <time>{new Date(data.date!).toDateString()}</time>

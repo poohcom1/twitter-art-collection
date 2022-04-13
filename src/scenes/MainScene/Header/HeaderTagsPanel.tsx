@@ -1,5 +1,5 @@
 import { useSession } from "next-auth/react";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import {
   AddTag,
   ConfirmationDialogue,
@@ -7,10 +7,9 @@ import {
   StyledPopup,
   StyledTab,
 } from "src/components";
-import { useStore, FilterType, isFilterType } from "src/stores/rootStore";
+import { useStore, FilterType } from "src/stores/rootStore";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { AiOutlineCloseCircle as CloseCircle } from "react-icons/ai";
-import { useRouter } from "next/router";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
@@ -92,7 +91,6 @@ function NewTag(props: { theme: DefaultTheme }) {
  */
 export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
   // Tag
-  const tags = useStore((state) => state.tags);
   const tagList = useStore((state) => state.getTagList());
   const editMode = useStore((state) => state.editMode);
   const toggleEditMode = useStore((state) => state.toggleEditMode);
@@ -106,19 +104,6 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
   const setStateFilter = useStore((state) => state.setFilter);
 
   const session = useSession();
-
-  // URL query
-  const router = useRouter();
-
-  useEffect(() => {
-    const filter: string = router.query.filter as string;
-    const tag: string = router.query.tag as string;
-
-    if (isFilterType(filter) && tags.has(tag)) {
-      setStateFilter({ type: filter, tag: tags.get(tag)! });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   // create filter reducers
   const setFilter = useCallback(
