@@ -23,6 +23,8 @@ interface Node {
 interface TweetSchema extends BaseSchema<"twitter"> {
   ast?: TweetAst | null;
   data?: TweetExpansions;
+
+  loading?: boolean;
 }
 
 interface TweetImage {

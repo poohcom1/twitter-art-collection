@@ -28,7 +28,6 @@ export default function Tweet(props: { data: TweetExpansions }) {
             alt={`${data.username} profile`}
             width="52px"
             height="52px"
-            objectFit="contain"
           />
         </a>
         <a

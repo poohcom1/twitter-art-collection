@@ -2,7 +2,9 @@ import styled from "styled-components";
 import React from "react";
 import { useWindowSize } from "@react-hook/window-size";
 import {
+  LoadMoreItemsCallback,
   useContainerPosition,
+  useInfiniteLoader,
   useMasonry,
   usePositioner,
   useResizeObserver,
@@ -22,7 +24,11 @@ const MainDiv = styled.div`
  * Will infinitely load tweets for "all" and "uncategorized" filters
  * Will immediately load tweets for "tag" filters into "extraTweets"
  */
-export default function TweetsGallery(props: { images: TweetSchema[] }) {
+export default function TweetsGallery(props: {
+  images: TweetSchema[];
+  fetchItems: () => Promise<void>;
+  maxItems: number;
+}) {
   const containerRef = React.useRef(null);
   const [windowWidth, height] = useWindowSize();
   const { offset, width } = useContainerPosition(containerRef, [
@@ -37,6 +43,22 @@ export default function TweetsGallery(props: { images: TweetSchema[] }) {
 
   const resizeObserver = useResizeObserver(positioner);
 
+  const fetchMoreItems = async (
+    _startIndex: number,
+    _stopIndex: number,
+    _currentItems: TweetSchema[]
+  ) => {
+    await props.fetchItems();
+  };
+
+  const maybeLoadMore = useInfiniteLoader<
+    TweetSchema,
+    LoadMoreItemsCallback<TweetSchema>
+  >(fetchMoreItems, {
+    isItemLoaded: (index, items) => index < items.length && !!items[index],
+    totalItems: props.maxItems,
+  });
+
   return (
     <MainDiv>
       {useMasonry({
@@ -46,6 +68,8 @@ export default function TweetsGallery(props: { images: TweetSchema[] }) {
         height,
         containerRef,
         resizeObserver,
+
+        onRender: maybeLoadMore,
 
         items: props.images,
         render: MasonryCard,

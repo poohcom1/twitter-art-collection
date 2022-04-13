@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Header from "./Header/Header";
 import { LoadingScene } from "..";
 import TweetsGallery from "./TweetsGallery";
@@ -64,9 +64,20 @@ export default function MainScene() {
   }, [tags]);
 
   // Filter image
-  const filteredImages = useStore(
-    useCallback((state) => state.getFilteredTweets(), [])
+  const filteredImages = useStore((state) => state.getFilteredTweets());
+  const allImages: TweetSchema[] = useStore((state) =>
+    state.getFilteredTweets(true)
   );
+
+  const loadTweetData = useStore((state) => state.loadTweetData);
+
+  // Load more tweets
+  const loadMoreTweets = useCallback(async () => {
+    const unfetchedImages = allImages.filter((im: TweetSchema) => !im.data);
+    const imagesToFetch = unfetchedImages.slice(0, 100);
+
+    await loadTweetData(imagesToFetch.filter((im) => !im.loading));
+  }, [allImages, loadTweetData]);
 
   if (tweetsError !== "") {
     return (
@@ -91,7 +102,11 @@ export default function MainScene() {
   return (
     <AppDiv className="App">
       <Header />
-      <TweetsGallery images={filteredImages} />
+      <TweetsGallery
+        images={filteredImages}
+        fetchItems={loadMoreTweets}
+        maxItems={allImages.length}
+      />
     </AppDiv>
   );
 }

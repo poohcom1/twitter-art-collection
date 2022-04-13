@@ -55,13 +55,13 @@ export function injectTweetLink(text: string) {
 
   const jsxElements = [];
 
-  for (const line of lines) {
-    const tokens = line.split(" ");
+  for (let i = 0; i < lines.length; i++) {
+    const tokens = lines[i].split(" ");
 
     let currentText = "";
 
-    for (let i = 0; i < tokens.length; i++) {
-      const token = tokens[i];
+    for (let j = 0; j < tokens.length; j++) {
+      const token = tokens[j];
 
       if (token.startsWith("#") || token.startsWith("＃")) {
         jsxElements.push(<span>{currentText}</span>);
@@ -69,7 +69,7 @@ export function injectTweetLink(text: string) {
 
         jsxElements.push(
           <a
-            key={line + "-" + i}
+            key={i + "-" + j}
             href={`https://twitter.com/hashtag/${token.slice(1)}`}
             target="_blank"
             rel="noreferrer"
@@ -83,7 +83,7 @@ export function injectTweetLink(text: string) {
 
         jsxElements.push(
           <a
-            key={line + "-" + i}
+            key={i + "-" + j}
             href={`https://twitter.com/${token.slice(1)}`}
             target="_blank"
             rel="noreferrer"
@@ -98,7 +98,7 @@ export function injectTweetLink(text: string) {
 
     if (currentText) {
       jsxElements.push(
-        <span key={line + "-" + tokens.length}>{currentText}</span>
+        <span key={i + "-" + (tokens.length + 1)}>{currentText}</span>
       );
       currentText = "";
     }

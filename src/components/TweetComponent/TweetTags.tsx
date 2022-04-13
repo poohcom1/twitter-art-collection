@@ -174,7 +174,10 @@ function PreviewImage(
       }}
       onClick={props.onClick}
     >
-      <ModalClickableDiv onClick={leftCallback} show={imageIndex > 0 ? 1 : 0}>
+      <ModalClickableDiv
+        onClick={imageIndex > 0 ? leftCallback : close}
+        show={imageIndex > 0 ? 1 : 0}
+      >
         <Left color={imageIndex > 0 ? "lightgrey" : "transparent"} size={80} />
       </ModalClickableDiv>
       <div
@@ -188,14 +191,14 @@ function PreviewImage(
         <Image
           src={props.imageSrcs[imageIndex]}
           alt="Tweet image"
-          width="100%"
-          height="100%"
           layout="fill"
           objectFit="contain"
         />
       </div>
       <ModalClickableDiv
-        onClick={rightCallback}
+        onClick={
+          imageIndex < props.imageSrcs.length - 1 ? rightCallback : close
+        }
         show={imageIndex < props.imageSrcs.length - 1 ? 1 : 0}
       >
         <Right

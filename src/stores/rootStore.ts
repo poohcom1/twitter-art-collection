@@ -4,6 +4,7 @@ import { imageEqual } from "src/utils/objectUtils";
 import { BLACKLIST_TAG } from "src/utils/constants";
 import { getUser, postUser } from "src/adapters/userAdapter";
 import { postTag, deleteTag, putTag } from "src/adapters/tagsAdapter";
+import { fetchTweetData } from "src/adapters/tweetAdapter";
 
 // Filters
 type ImagePredicate = <S extends ImageSchema>(
@@ -83,7 +84,39 @@ export const useStore = create(
         }
       },
 
-      getFilteredTweets: () => {
+      loadTweetData: async (tweets: TweetSchema[]) => {
+        console.log(`Fetching ${tweets.length} tweet data`);
+
+        if (tweets.length === 0) return;
+
+        const tweetsToFetch = tweets.filter((tweet) => !tweet.loading);
+        tweetsToFetch.forEach((tweet) => (tweet.loading = true));
+
+        const tweetExpansionsData = await fetchTweetData(
+          tweetsToFetch.map((t) => t.id)
+        );
+
+        if (tweetExpansionsData.error === null) {
+          const newTweets = tweetExpansionsData.data;
+
+          const currentTweets = get().tweets;
+
+          newTweets.forEach((newTweet) => {
+            const match = currentTweets.find(
+              (currentTweet) => currentTweet.id === newTweet.id
+            );
+
+            if (match) {
+              match.loading = false;
+              match.data = newTweet.data;
+            }
+          });
+
+          set({ tweets: [...currentTweets] });
+        }
+      },
+
+      getFilteredTweets: (includePartialTweets = false) => {
         let tweets = get().tweets;
 
         const blacklist = get().tags.get(BLACKLIST_TAG);
@@ -95,7 +128,9 @@ export const useStore = create(
           );
         }
 
-        return tweets.filter((im) => !!im.data).filter(get().imageFilter);
+        return tweets
+          .filter((im) => includePartialTweets || !!im.data)
+          .filter(get().imageFilter);
       },
 
       /* ---------------------------------- Tags ---------------------------------- */

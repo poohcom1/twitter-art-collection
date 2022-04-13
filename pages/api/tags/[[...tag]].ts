@@ -4,6 +4,7 @@ import { methodHandler } from "lib/restAPI";
 import { getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
 import { createUser } from "lib/backend";
+import { BLACKLIST_TAG } from "src/utils/constants";
 
 export default methodHandler({
   GET: getTags,
@@ -22,25 +23,23 @@ async function getTags(req: NextApiRequest, res: NextApiResponse) {
       if (user) {
         res.status(200).send(user.tags);
       } else {
-
         const user = new UserModel({
           uid: session.user.id,
-          tags: new Map()
-        })
+          tags: new Map(),
+        });
 
-        await user.save()
+        await user.save();
 
-        createUser(user).then().catch(console.error)
+        createUser(user).then().catch(console.error);
 
         res.status(200).send(user.tags);
       }
-
     } catch (e) {
       console.error("[GET tag] " + e);
       res.status(500).send("Error: " + e);
     }
   } else {
-    res.status(401).send("Forbidden")
+    res.status(401).send("Forbidden");
   }
 }
 
@@ -49,9 +48,9 @@ async function postTag(req: NextApiRequest, res: NextApiResponse) {
 
   const tag: PostTagBody = req.body;
 
-  if (!tag.name.match(/^[a-z0-9-]+$/)) {
+  if (tag.name !== BLACKLIST_TAG && !tag.name.match(/^[a-z0-9-]+$/)) {
     console.error("[POST tag] Validation failed");
-    res.status(500).send("Server error");
+    return res.status(500).send("Server error");
   }
 
   console.info("[POST tag] Tag added: " + tag.name);
