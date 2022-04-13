@@ -10,20 +10,42 @@ type ImageSchema = BaseSchema<Platform>;
 
 // Tweet
 
-type TweetAst = Array<{ data: { id: string }, nodes: Node[] }>;
+type TweetAst = Array<{ data: { id: string }; nodes: Node[] }>;
 
 interface Node {
-  tag: string
-  nodes: Node[]
+  tag: string;
+  nodes: Node[];
   props: {
-    src: string
-  }
+    src: string;
+  };
 }
 
 interface TweetSchema extends BaseSchema<"twitter"> {
-  ast: TweetAst | null;
+  ast?: TweetAst | null;
+  data?: TweetExpansions;
 }
 
+interface TweetImage {
+  url: string;
+  width: number;
+  height: number;
+}
+
+interface TweetExpansions {
+  id: string;
+  url: string;
+  date: string | undefined;
+
+  avatar: string | undefined;
+  name: string | undefined;
+  username: string | undefined;
+  content: {
+    text: string | undefined;
+    media: TweetImage[] | undefined;
+  };
+}
+
+// Data types
 interface TagSchema {
   name: string;
   images: ImageSchema[];
@@ -34,7 +56,7 @@ type TagCollection = Map<string, TagSchema>;
 interface UserSchema {
   uid: string;
   tags: TagCollection;
-  tweetIds: string[]
+  tweetIds: string[];
 }
 
 // Request Body Types
@@ -47,19 +69,20 @@ type DeleteTagBody = TagSchema;
 
 // Response Types
 interface UserDataResponse {
-  tweets: TweetSchema[]
-  tags: TagCollection
+  tweets: TweetSchema[];
+  tags: TagCollection;
 
-  newUser?: boolean
+  newUser?: boolean;
 }
 
 // Error handling
 
-
-type Result<T> = {
-  error: null,
-  data: T
-} | {
-  error: string,
-  data: null;
-}
+type Result<T> =
+  | {
+      error: null;
+      data: T;
+    }
+  | {
+      error: string;
+      data: null;
+    };

@@ -69,3 +69,70 @@ body {
   /* change div to reference your elements you put in <Masonry> */
   margin-bottom: 30px;
 }
+
+.tweet {
+  cursor: pointer;
+  background-color: white;
+  border-radius: 10px;
+  padding: 5%;
+}
+
+.tweet-header {
+  display: flex;
+  margin: 0;
+  align-items: center;
+}
+
+.tweet-header-logo {
+  margin-left: auto;
+}
+
+.tweet-header-avatar {
+  object-fit: cover;
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
+}
+
+.tweet-header-name {
+  color: black;
+  margin: 0;
+}
+
+.tweet-header-username {
+  color: grey;
+  margin: 0;
+}
+
+.tweet-header img {
+  object-fit: contain;
+  padding: 0;
+  margin-right: 10px;
+}
+
+.tweet-content {
+  margin-top: 15px;
+}
+
+.tweet-footer {
+  margin-top: 15px;
+  display: flex;
+}
+
+.tweet-footer-date {
+  color: grey;
+  margin-left: auto;
+}
+
+.tweet-content-media {
+  border-radius: 10px;
+}
+
+.tweet-image-container {
+  width: 100%;
+}
+.tweet-image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(50%, 1fr));
+  overflow: hidden;
+}

@@ -1,6 +1,8 @@
 import TwitterApi, {
   TweetV2,
+  Tweetv2FieldsParams,
   Tweetv2ListResult,
+  TweetV2LookupResult,
   TwitterApiReadOnly,
 } from "twitter-api-v2";
 
@@ -45,11 +47,11 @@ export function setTwitterApi(api: TwitterApi) {
 export function mergeTweets(upstream: string[], database: string[]) {
   for (let i = 0; i < upstream.length; i++) {
     if (upstream[i] === database[0]) {
-      return upstream.slice(0, i).concat(database)
+      return upstream.slice(0, i).concat(database);
     }
   }
 
-  return upstream.concat(database)
+  return upstream.concat(database);
 }
 
 /**
@@ -97,18 +99,74 @@ export const filterTweets =
     return false;
   };
 
-export function tweetIdsToSchema(ids: string[], ast?: TweetAst[]): TweetSchema[] {
-  const schemas = []
+export function tweetIdsToSchema(
+  ids: string[],
+  ast?: TweetAst[]
+): TweetSchema[] {
+  const schemas = [];
 
   for (let i = 0; i < ids.length; i++) {
     const schema: TweetSchema = {
       id: ids[i],
       platform: "twitter",
-      ast: ast ? ast[i] : null
-    }
-    
-    schemas.push(schema)
+      ast: ast ? ast[i] : null,
+    };
+
+    schemas.push(schema);
   }
 
-  return schemas
+  return schemas;
 }
+
+export function completeTweetFields(
+  tweets: TweetSchema[],
+  payload: TweetV2LookupResult
+) {
+  if (!payload.includes) {
+    return;
+  }
+
+  for (const tweetData of payload.data) {
+    const user = payload.includes.users?.find(
+      (user) => user.id === tweetData.author_id
+    );
+
+    const tweetSchema = tweets.find((tweet) => tweet.id === tweetData.id);
+
+    if (!tweetSchema) continue;
+
+    tweetSchema.data = {
+      id: tweetData.id,
+      url: `https://twitter.com/twitter/status/${tweetData.id}`,
+      avatar: user?.profile_image_url,
+      name: user?.name,
+      username: user?.username,
+      date: tweetData.created_at,
+      content: {
+        text: tweetData.text,
+        media: tweetData.attachments?.media_keys?.map((key) => {
+          const img = payload.includes!.media!.find((m) => m.media_key === key);
+
+          return {
+            url: img?.url ?? "",
+            width: img?.width ?? 0,
+            height: img?.height ?? 0,
+          };
+        }),
+      },
+    };
+  }
+}
+
+export const TWEET_OPTIONS: Partial<Tweetv2FieldsParams> = {
+  "user.fields": ["name", "username", "url", "profile_image_url"],
+  "tweet.fields": [
+    "text",
+    "created_at",
+    "lang",
+    "in_reply_to_user_id",
+    "source",
+  ],
+  expansions: ["attachments.media_keys", "author_id"],
+  "media.fields": ["url", "width", "height"],
+};

@@ -28,7 +28,7 @@ export default function AddTag(props: { onFinish: () => void }) {
             return;
           }
 
-          const body: PostTagBody = {
+          const body: TagSchema = {
             name: tagName,
             images: [],
           };

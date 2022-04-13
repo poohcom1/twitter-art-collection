@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import TweetTags from "./TweetTags";
 import styled, { keyframes } from "styled-components";
-import { Tweet } from "react-static-tweets";
+import { Tweet } from "..";
 
 const fadeIn = keyframes`
   from {
@@ -17,17 +17,13 @@ const TweetDiv = styled.div`
   /* animation: ${fadeIn} 0.2s linear; */
 `;
 
-const MemoTweet = React.memo(Tweet);
-
 function TweetComponent(props: {
   id: string;
-  ast: TweetAst | null;
+  tweet: TweetSchema;
   index?: number;
   order: number;
 }) {
   const tweetRef = useRef<HTMLDivElement>(null);
-
-  console.log(props.ast);
 
   return (
     <TweetDiv>
@@ -35,11 +31,12 @@ function TweetComponent(props: {
         image={{
           id: props.id,
           platform: "twitter",
-          ast: props.ast,
+          ast: props.tweet.ast,
         }}
         tweetRef={tweetRef}
+        imageSrcs={props.tweet.data?.content.media?.map((m) => m.url) ?? []}
       />
-      <MemoTweet id={props.id} ref={tweetRef} />
+      <Tweet data={props.tweet.data!} />
     </TweetDiv>
   );
 }

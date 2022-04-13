@@ -47,30 +47,28 @@ export const useStore = create(
     },
     (set, get) => ({
       initTweetsAndTags: async (): Promise<null | string> => {
-        const userData = await getUser()
+        const userData = await getUser();
 
         if (userData.error === null) {
           if (userData.data.newUser) {
             set({
-              newUser: true
-            })
+              newUser: true,
+            });
 
-            const newUserData = await postUser()
+            const newUserData = await postUser();
 
             if (newUserData.error === null) {
               set({
                 tags: new Map(Object.entries(newUserData.data.tags)),
                 tweets: newUserData.data.tweets,
                 tagsStatus: "loaded",
-                newUser: false
+                newUser: false,
               });
 
-              return null
-
+              return null;
             } else {
-              return newUserData.error
+              return newUserData.error;
             }
-            
           } else {
             set({
               tags: new Map(Object.entries(userData.data.tags)),
@@ -78,32 +76,33 @@ export const useStore = create(
               tagsStatus: "loaded",
             });
 
-            return null
+            return null;
           }
-      
         } else {
           return userData.error;
         }
       },
 
-      getTweets: () => {
-        let tweets = get().tweets
+      getFilteredTweets: () => {
+        let tweets = get().tweets;
 
-        const blacklist = get().tags.get(BLACKLIST_TAG)
+        const blacklist = get().tags.get(BLACKLIST_TAG);
 
         if (blacklist) {
-          tweets = tweets.filter(tweet => !blacklist.images.find(image => imageEqual(tweet, image)))
+          tweets = tweets.filter(
+            (tweet) =>
+              !blacklist.images.find((image) => imageEqual(tweet, image))
+          );
         }
 
-        return tweets
+        return tweets.filter((im) => !!im.data).filter(get().imageFilter);
       },
-
 
       /* ---------------------------------- Tags ---------------------------------- */
       getTagList: (): TagSchema[] => {
-        const tagList = Array.from(get().tags.values())
+        const tagList = Array.from(get().tags.values());
 
-        return tagList.filter(tag => tag.name !== BLACKLIST_TAG)
+        return tagList.filter((tag) => tag.name !== BLACKLIST_TAG);
       },
       addTag: (tag: TagSchema): void =>
         set((state) => {
@@ -117,9 +116,9 @@ export const useStore = create(
       removeTag: (tag: TagSchema): void =>
         set((state) => {
           // Switch to "all" if current tag is deleted
-          let tagChangeObject = {}
+          let tagChangeObject = {};
           if (state.filterTagName === tag.name) {
-            tagChangeObject = setFilter({ type: "all" }, state.tags)
+            tagChangeObject = setFilter({ type: "all" }, state.tags);
           }
 
           deleteTag(tag).then();
@@ -152,24 +151,24 @@ export const useStore = create(
         }),
       blacklistImage: (image: ImageSchema) => {
         set((state) => {
-          const tags = state.tags
+          const tags = state.tags;
 
           if (!tags.has(BLACKLIST_TAG)) {
-            const blacklistTag = { name: BLACKLIST_TAG, images: [image] }
+            const blacklistTag = { name: BLACKLIST_TAG, images: [image] };
 
-            tags.set(BLACKLIST_TAG, blacklistTag)
+            tags.set(BLACKLIST_TAG, blacklistTag);
 
-            postTag(blacklistTag)
+            postTag(blacklistTag);
           } else {
-            const blacklistTag = tags.get(BLACKLIST_TAG)
+            const blacklistTag = tags.get(BLACKLIST_TAG);
 
-            blacklistTag?.images.push(image)
+            blacklistTag?.images.push(image);
 
-            putTag(blacklistTag!)
+            putTag(blacklistTag!);
           }
 
-          return { ...state, tags }
-        })
+          return { ...state, tags };
+        });
       },
 
       /* --------------------------------- Filters -------------------------------- */
@@ -183,8 +182,7 @@ export const useStore = create(
           | FilterAction<"all">
           | FilterAction<"uncategorized">
           | FilterTagAction
-      ) =>
-        set((state) => ({ ...state, ...setFilter(action, state.tags) })),
+      ) => set((state) => ({ ...state, ...setFilter(action, state.tags) })),
       /* -------------------------------- EditMode -------------------------------- */
       toggleEditMode: () =>
         set({ editMode: get().editMode === "add" ? "delete" : "add" }),
@@ -192,20 +190,20 @@ export const useStore = create(
   )
 );
 
-
 /**
  * Shared logic for setting tags filter state
  * @param action Filter dispatch action
  * @param tags Tag list
- * @returns 
+ * @returns
  */
 function setFilter(
-  action:
-    | FilterAction<"all">
-    | FilterAction<"uncategorized">
-    | FilterTagAction,
+  action: FilterAction<"all"> | FilterAction<"uncategorized"> | FilterTagAction,
   tags: TagCollection
-): { imageFilter: ImagePredicate, filterTagName: string, filterType: FilterType } {
+): {
+  imageFilter: ImagePredicate;
+  filterTagName: string;
+  filterType: FilterType;
+} {
   let imageFilter = <ImagePredicate>((_image) => true);
   switch (action.type) {
     case "all":
@@ -217,8 +215,7 @@ function setFilter(
         for (let i = 0; i < tagList.length; i++) {
           const tag = tagList[i];
 
-          if (tag.images.find((im) => imageEqual(im, image)))
-            return false;
+          if (tag.images.find((im) => imageEqual(im, image))) return false;
         }
         return true;
       });
@@ -234,5 +231,5 @@ function setFilter(
     imageFilter: imageFilter,
     filterTagName: (action as FilterTagAction).tag?.name ?? "",
     filterType: action.type,
-  }
+  };
 }

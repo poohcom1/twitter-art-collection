@@ -48,15 +48,8 @@ export default function MainScene() {
 
   // Filter image
   const filteredImages = useStore(
-    useCallback((state) => {
-      const tweets = state.getTweets();
-
-      const filteredTweets = tweets.filter(state.imageFilter);
-
-      return filteredTweets.slice(0, 25);
-    }, [])
+    useCallback((state) => state.getFilteredTweets(), [])
   );
-
 
   if (tweetsError !== "") {
     return (
@@ -70,7 +63,10 @@ export default function MainScene() {
   if (!tweetsLoaded || newUser) {
     return (
       <AppDiv className="App">
-        <LoadingScene display={true} text={newUser ? "Creating new user..." : ""}/>
+        <LoadingScene
+          display={true}
+          text={newUser ? "Creating new user..." : ""}
+        />
       </AppDiv>
     );
   }

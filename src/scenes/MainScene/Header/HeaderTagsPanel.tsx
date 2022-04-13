@@ -93,7 +93,7 @@ function NewTag(props: { theme: DefaultTheme }) {
 export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
   // Tag
   const tags = useStore((state) => state.tags);
-  const tagList = useStore((state) => state.getTagList())
+  const tagList = useStore((state) => state.getTagList());
   const editMode = useStore((state) => state.editMode);
   const toggleEditMode = useStore((state) => state.toggleEditMode);
 
@@ -114,7 +114,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
     const filter: string = router.query.filter as string;
     const tag: string = router.query.tag as string;
 
-    if (isFilterType(filter)) {
+    if (isFilterType(filter) && tags.has(tag)) {
       setStateFilter({ type: filter, tag: tags.get(tag)! });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

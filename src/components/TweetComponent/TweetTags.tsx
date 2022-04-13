@@ -21,7 +21,6 @@ import { arrayEqual, imageEqual } from "src/utils/objectUtils";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
 import { useOverflowDetector } from "src/hooks/useOverflowDetector";
-import { getImagesSrcFromElement } from "src/utils/tweetUtils";
 import Image from "next/image";
 
 const BUTTON_SIZE = 35;
@@ -173,13 +172,15 @@ function PreviewImage(
         style={{
           height: "80vh",
           width: "80vw",
+          position: "relative",
         }}
         className="center"
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
         <Image
-          src={props.imageSrcs[imageIndex].split("image?url=")[1]}
+          src={props.imageSrcs[imageIndex]}
           alt="Tweet image"
+          width="100%"
+          height="100%"
           layout="fill"
           objectFit="contain"
         />
@@ -205,6 +206,7 @@ const TweetTags = withTheme(function TweetTags(props: {
   image: TweetSchema;
   theme: DefaultTheme;
   tweetRef: RefObject<HTMLDivElement>;
+  imageSrcs: string[];
 }) {
   const session = useSession();
 
@@ -256,15 +258,6 @@ const TweetTags = withTheme(function TweetTags(props: {
 
   // Blacklist Image
   const blacklistImage = useStore((state) => state.blacklistImage);
-
-  // Preview Image
-  const [imageSrcs, setImageSrcs] = useState<string[]>([]);
-
-  const onPreviewClick = useCallback(() => {
-    if (props.tweetRef.current) {
-      setImageSrcs(getImagesSrcFromElement(props.tweetRef.current));
-    }
-  }, [props.tweetRef]);
 
   return (
     <MainContainer>
@@ -350,13 +343,12 @@ const TweetTags = withTheme(function TweetTags(props: {
             <MenuIcon size={30} />
           </StyledMenuIcon>
         }
-        onOpen={onPreviewClick}
         modal
         closeOnDocumentClick
       >
         {(close: () => void) =>
-          imageSrcs.length > 0 ? (
-            <PreviewImage imageSrcs={imageSrcs} onClick={close} />
+          props.imageSrcs.length > 0 ? (
+            <PreviewImage imageSrcs={props.imageSrcs} onClick={close} />
           ) : (
             <></>
           )
