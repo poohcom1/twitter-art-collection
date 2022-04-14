@@ -51,7 +51,7 @@ function UserAvatar(props: {
       )}
       closeOnDocumentClick
     >
-      {(close) => (
+      {(close: () => void) => (
         <>
           <PopupItem
             onClick={() => {
@@ -70,7 +70,7 @@ function UserAvatar(props: {
             Give feedback
           </PopupItem>
           <PopupItem>
-            <Link href="privacy" passHref>
+            <Link href="/privacy" passHref>
               <div>Privacy</div>
             </Link>
           </PopupItem>
