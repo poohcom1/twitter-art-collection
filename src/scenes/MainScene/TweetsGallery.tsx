@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import React, { useEffect } from "react";
+import Image from "next/image"
 import { useWindowSize } from "@react-hook/window-size";
 import {
   LoadMoreItemsCallback,
@@ -80,6 +81,19 @@ export default function TweetsGallery(props: {
         items: props.images,
         render: MasonryCard,
       })}
+      {props.images.length < props.maxItems ? (
+        <div className="center">
+          <Image
+            src="/assets/pulse-loading.svg"
+            alt="Loader"
+            layout="fixed"
+            width="80px"
+            height="80px"
+          />
+        </div>
+      ) : (
+        <></>
+      )}
     </MainDiv>
   );
 }
