@@ -1,11 +1,5 @@
 import { useSession } from "next-auth/react";
-import React, {
-  RefObject,
-  HTMLAttributes,
-  useCallback,
-  useMemo,
-  useState,
-} from "react";
+import React, { RefObject, HTMLAttributes, useCallback, useState } from "react";
 import {
   AiOutlinePlusCircle as PlusCircle,
   AiOutlineCloseCircle as CloseCircle,
@@ -105,6 +99,35 @@ const BlacklistButton = styled(PopupItem)`
 
 /* ------------------------------- Components ------------------------------- */
 
+function AddImagesButton(props: { image: ImageSchema; theme: DefaultTheme }) {
+  const deleteMode = useStore(
+    (state) => state.editMode === "delete" && state.filterType === "tag"
+  );
+
+  // Remove image from current tag
+  const removeImageCallback = useStore((state) => () => {
+    const currentTag = state.tags.get(state.filterTagName);
+    if (currentTag) {
+      state.removeImage(currentTag, props.image);
+    }
+  });
+
+  return (
+    <Tab
+      color={!deleteMode ? undefined : props.theme.color.danger}
+      title={!deleteMode ? "Add image to tag" : "Remove image from current tag"}
+    >
+      <StyledAddButton onClick={!deleteMode ? undefined : removeImageCallback}>
+        {!deleteMode ? (
+          <PlusCircle size={BUTTON_SIZE} />
+        ) : (
+          <CloseCircle size={BUTTON_SIZE} />
+        )}
+      </StyledAddButton>
+    </Tab>
+  );
+}
+
 /**
  * Add image component
  */
@@ -121,9 +144,9 @@ function AddImagesPopupListItem(
 
   const onClick = useCallback(() => {
     if (session.data) {
-      addImage(props.tag, props.image);
-
       props.close();
+
+      addImage(props.tag, props.image);
     }
   }, [addImage, props, session.data]);
 
@@ -232,7 +255,7 @@ const TweetTags = withTheme(function TweetTags(props: {
   const editMode = useStore((state) => state.editMode);
 
   // Get filter
-  const filterTag = useStore((state) => state.filterTagName);
+  const filterTagName = useStore((state) => state.filterTagName);
 
   // Get filter actions
   const [removeImage, setFilter] = useStore((state) => [
@@ -283,16 +306,11 @@ const TweetTags = withTheme(function TweetTags(props: {
       {/* Add image to tag section */}
       <StyledPopup
         position={["bottom center", "bottom left", "bottom right"]}
-        trigger={useMemo(
-          () => (
-            <Tab>
-              <StyledAddButton>
-                <PlusCircle size={BUTTON_SIZE} />
-              </StyledAddButton>
-            </Tab>
-          ),
-          []
-        )}
+        trigger={
+          <div>
+            <AddImagesButton image={props.image} theme={props.theme} />
+          </div>
+        }
         closeOnDocumentClick
       >
         {(close: () => void) => (
@@ -333,31 +351,35 @@ const TweetTags = withTheme(function TweetTags(props: {
       </StyledPopup>
       {/* Included tags section */}
       <TabContainer ref={tagsContainerRef} overflowing={overflow}>
-        {includedTags.map((tag) => (
-          <Tab
-            color={editMode !== "delete" ? undefined : props.theme.color.danger}
-            key={tag.name}
-            active={filterTag === tag.name && editMode !== "delete"} // Active overrides danger color, so don't show it
-            onClick={() => {
-              if (editMode !== "delete") {
-                setFilter({ type: "tag", tag: tag });
-              } else if (session.data) {
-                removeImage(tag, props.image);
+        {includedTags
+          .filter((tag) => tag.name !== filterTagName)
+          .map((tag) => (
+            <Tab
+              color={
+                editMode !== "delete" ? undefined : props.theme.color.danger
               }
-            }}
-          >
-            {tag.name}
-            {editMode === "delete" ? (
-              <CloseCircle
-                style={{ marginLeft: "5px" }}
-                className="center"
-                size={20}
-              />
-            ) : (
-              <></>
-            )}
-          </Tab>
-        ))}
+              key={tag.name}
+              active={filterTagName === tag.name && editMode !== "delete"} // Active overrides danger color, so don't show it
+              onClick={() => {
+                if (editMode !== "delete") {
+                  setFilter({ type: "tag", tag: tag });
+                } else if (session.data) {
+                  removeImage(tag, props.image);
+                }
+              }}
+            >
+              {tag.name}
+              {editMode === "delete" ? (
+                <CloseCircle
+                  style={{ marginLeft: "5px" }}
+                  className="center"
+                  size={20}
+                />
+              ) : (
+                <></>
+              )}
+            </Tab>
+          ))}
       </TabContainer>
 
       <StyledModal

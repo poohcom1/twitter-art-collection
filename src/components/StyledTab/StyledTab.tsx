@@ -31,14 +31,9 @@ const StyledTab = styled.button<TabProps>`
   border-style: solid;
 
   &:hover,
-  &:focus {
-    opacity: 70%;
-  }
-
+  &:focus,
   &:active {
-    color: ${(props) => props.theme.color.onAccent};
-    background-color: ${(props) => props.theme.color.accent};
-    border-color: ${(props) => props.theme.color.onAccent};
+    opacity: 70%;
   }
 
   ${(props) =>

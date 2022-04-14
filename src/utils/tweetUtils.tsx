@@ -63,28 +63,22 @@ export function injectTweetLink(text: string) {
     for (let j = 0; j < tokens.length; j++) {
       const token = tokens[j];
 
-      if (token.startsWith("#") || token.startsWith("＃")) {
-        jsxElements.push(<span>{currentText}</span>);
+      if (
+        token.startsWith("#") ||
+        token.startsWith("＃") ||
+        token.startsWith("@")
+      ) {
+        jsxElements.push(<span key={`text-${i}-${j}`}>{currentText}</span>);
         currentText = " ";
 
         jsxElements.push(
           <a
-            key={i + "-" + j}
-            href={`https://twitter.com/hashtag/${token.slice(1)}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {token}
-          </a>
-        );
-      } else if (token.startsWith("@")) {
-        jsxElements.push(<span>{currentText}</span>);
-        currentText = " ";
-
-        jsxElements.push(
-          <a
-            key={i + "-" + j}
-            href={`https://twitter.com/${token.slice(1)}`}
+            key={`a-${i}-${j}`}
+            href={
+              token.startsWith("@")
+                ? `https://twitter.com/${token.slice(1)}`
+                : `https://twitter.com/hashtag/${token.slice(1)}`
+            }
             target="_blank"
             rel="noreferrer"
           >
@@ -98,12 +92,12 @@ export function injectTweetLink(text: string) {
 
     if (currentText) {
       jsxElements.push(
-        <span key={i + "-" + (tokens.length + 1)}>{currentText}</span>
+        <span key={`text-${i}-${tokens.length}`}>{currentText}</span>
       );
       currentText = "";
     }
 
-    jsxElements.push(<br />);
+    jsxElements.push(<br key={`br-${i}`} />);
   }
 
   return jsxElements;

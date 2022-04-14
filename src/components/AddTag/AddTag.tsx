@@ -1,6 +1,11 @@
 import { KeyboardEventHandler, useCallback, useRef, useState } from "react";
 import { useStore } from "src/stores/rootStore";
 import { standardizeTagName, validateTagName } from "src/utils/tagUtils";
+import styled from "styled-components";
+
+const StyledInput = styled.input`
+  height: 30px;
+`;
 
 export default function AddTag(props: { onFinish: () => void }) {
   const tagList = useStore((state) => Array.from(state.tags.keys()));
@@ -44,7 +49,7 @@ export default function AddTag(props: { onFinish: () => void }) {
   );
 
   return (
-    <input
+    <StyledInput
       ref={inputRef}
       type="text"
       value={tagName}

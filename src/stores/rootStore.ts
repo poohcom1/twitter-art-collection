@@ -123,7 +123,7 @@ export const useStore = create(
 
         const blacklist = get().tags.get(BLACKLIST_TAG);
 
-        if (blacklist) {
+        if (blacklist && get().filterTagName !== blacklist.name) {
           tweets = tweets.filter(
             (tweet) =>
               !blacklist.images.find((image) => imageEqual(tweet, image))
