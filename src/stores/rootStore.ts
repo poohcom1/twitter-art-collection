@@ -85,7 +85,7 @@ export const useStore = create(
       },
 
       loadTweetData: async (tweets: TweetSchema[]) => {
-        console.log(`Fetching ${tweets.length} tweet data`);
+        console.log(`Fetching ${tweets.length} tweets data`);
 
         if (tweets.length === 0) return;
 
@@ -97,6 +97,8 @@ export const useStore = create(
         );
 
         if (tweetExpansionsData.error === null) {
+          console.log(`Fetched ${tweetExpansionsData.data.length} tweets data`);
+
           const newTweets = tweetExpansionsData.data;
 
           const currentTweets = get().tweets;

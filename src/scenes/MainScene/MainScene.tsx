@@ -4,20 +4,24 @@ import { LoadingScene } from "..";
 import TweetsGallery from "./TweetsGallery";
 import { useSession } from "next-auth/react";
 import { isFilterType, useStore } from "src/stores/rootStore";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { useRouter } from "next/router";
 
 // Styles
+const GlobalStyle = createGlobalStyle`
+  body {
+    background-color: ${(props) => props.theme.color.background};
+  }
+`;
+
 const AppDiv = styled.div`
-  background-color: ${(props) => props.theme.color.background};
   display: flex;
   flex-direction: column;
-  height: fit-content;
-  min-height: 100vh;
 `;
 
 export default function MainScene() {
   const session = useSession();
+
   // Loading
   const [tweetsLoaded, setTweetsLoaded] = useState(false);
   const [tweetsError, setTweetsError] = useState("");
@@ -102,6 +106,7 @@ export default function MainScene() {
   return (
     <AppDiv className="App">
       <Header />
+      <GlobalStyle />
       <TweetsGallery
         images={filteredImages}
         fetchItems={loadMoreTweets}

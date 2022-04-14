@@ -4,6 +4,8 @@ import { StyledPopup, PopupItem } from "src/components";
 import styled from "styled-components";
 import { useCallback, useMemo } from "react";
 import Link from "next/link";
+import { useStore } from "src/stores/rootStore";
+import { BLACKLIST_TAG } from "src/utils/constants";
 
 const Avatar = styled.div`
   border-radius: 50%;
@@ -14,21 +16,20 @@ const Avatar = styled.div`
   cursor: pointer;
 `;
 
-const UserSectionDiv = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  & p {
-    vertical-align: middle;
-  }
-`;
-
 function UserAvatar(props: {
   image: string | null | undefined;
   name: string | null | undefined;
 }) {
-  const onClick = useCallback(() => signOut(), []);
+  const onSignoutClicked = useCallback(() => signOut(), []);
+
+  const onBlacklistClicked = useStore((state) => () => {
+    const blacklistTag = state.tags.get(BLACKLIST_TAG);
+    if (blacklistTag)
+      state.setFilter({
+        type: "tag",
+        tag: blacklistTag,
+      });
+  });
 
   return (
     <StyledPopup
@@ -48,6 +49,9 @@ function UserAvatar(props: {
       )}
       closeOnDocumentClick
     >
+      <PopupItem onClick={onBlacklistClicked}>
+        <div>Blacklist</div>
+      </PopupItem>
       <PopupItem
         onClick={() =>
           (window.location.href =
@@ -61,7 +65,7 @@ function UserAvatar(props: {
           <div>Privacy</div>
         </Link>
       </PopupItem>
-      <PopupItem onClick={onClick}>Logout</PopupItem>
+      <PopupItem onClick={onSignoutClicked}>Logout</PopupItem>
     </StyledPopup>
   );
 }

@@ -1,6 +1,6 @@
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import TagsPanel from "./HeaderTagsPanel";
-import UserSection from "./UserPanel";
+import UserSection from "./HeaderUserPanel";
 import { BiTrash as TrashIcon } from "react-icons/bi";
 import { useStore } from "src/stores/rootStore";
 import { Spinner } from "src/components";
