@@ -29,8 +29,9 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
   try {
     if (session) {
       /* ------------------------------ User Database ----------------------------- */
-      const user = await UserModel.findOne({ uid: session!.user.id }).lean();
+      const user = await UserModel.findOne({ uid: session!.user.id })
 
+      // New user
       if (!user) {
         console.log("[GET USER] New user found.");
 
@@ -48,20 +49,36 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
 
       /* ------------------------------- Twitter API ------------------------------ */
       /// Make API call
-      const payload = await twitterApi.v2.userLikedTweets(
+      let payload = await twitterApi.v2.userLikedTweets(
         session.user.id,
         TWEET_OPTIONS
       );
 
-      const newTweetIds = payload.data.data
+      let newTweetIds = payload.data.data
         .filter(filterTweets(payload.data))
         .map((tweet) => tweet.id);
 
       // Merge tweets
-      const tweetIds = mergeTweets(newTweetIds, databaseTweetIds);
+      let tweetIds = mergeTweets(newTweetIds, databaseTweetIds);
 
-      if (tweetIds.length === newTweetIds.length + databaseTweetIds.length) {
-        // TODO Database sync
+      while (!!payload && newTweetIds.length > 0 && tweetIds.length === newTweetIds.length + databaseTweetIds.length) {
+        payload = await twitterApi.v2.userLikedTweets(
+          session.user.id,
+          TWEET_OPTIONS
+        );
+
+        newTweetIds = payload.data.data
+          .filter(filterTweets(payload.data))
+          .map((tweet) => tweet.id);
+
+        tweetIds = mergeTweets(newTweetIds, databaseTweetIds);
+      }
+
+      // Update Database
+      if (newTweetIds.length > 0) {
+        user.tweetIds = tweetIds
+
+        await user.save()
       }
 
       const tweets: TweetSchema[] = tweetIds.map((id) => ({

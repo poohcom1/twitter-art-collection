@@ -43,37 +43,16 @@ export function setTwitterApi(api: TwitterApi) {
 }
 
 // Helper funtions
-
-export function mergeTweets(upstream: string[], database: string[]) {
-  for (let i = 0; i < upstream.length; i++) {
-    if (upstream[i] === database[0]) {
-      return upstream.slice(0, i).concat(database);
+export function mergeTweets<T>(upstream: T[], database: T[]) {
+  for (let j = 0; j < database.length; j++) {
+    for (let i = 0; i < upstream.length; i++) {
+      if (upstream[i] === database[j]) {
+        return upstream.slice(0, i).concat(database.slice(j));
+      }
     }
   }
 
   return upstream.concat(database);
-}
-
-/**
- * Finds all orphaned data nodes database, given the a paginated list
- * @param database Datastored in database
- * @param upstream Paginated data fetched from upstream
- * @param page Page of pagination
- * @param count Data nodes per page
- * @returns
- */
-export function updateAndFindOrphans<T>(
-  database: T[],
-  upstream: T[],
-  page: number,
-  count = 100
-): { updated: T[]; deleted: T[] } {
-  const databaseSlice = database.slice(page * count, (page + 1) * count);
-
-  const deleted = databaseSlice.filter((data) => !upstream.includes(data));
-  const updated = database.filter((data) => !deleted.includes(data));
-
-  return { updated, deleted };
 }
 
 /**
