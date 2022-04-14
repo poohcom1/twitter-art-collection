@@ -1,5 +1,4 @@
 import Head from "next/head";
-import "react-static-tweets/styles.css";
 import { ThemeProvider } from "styled-components";
 import { LoadingScene, MainScene } from "src/scenes";
 import { lightTheme } from "src/themes";

@@ -145,7 +145,7 @@ function PreviewImage(
   const [imageIndex, setImageIndex] = useState(0);
 
   const leftCallback = useCallback(
-    (e) => {
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       e.stopPropagation();
       if (imageIndex > 0) {
         setImageIndex(imageIndex - 1);
@@ -155,7 +155,7 @@ function PreviewImage(
   );
 
   const rightCallback = useCallback(
-    (e) => {
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
       e.stopPropagation();
       if (imageIndex < props.imageSrcs.length - 1) {
         setImageIndex(imageIndex + 1);
@@ -369,7 +369,7 @@ const TweetTags = withTheme(function TweetTags(props: {
         modal
         closeOnDocumentClick
       >
-        {(close: () => void) =>
+        {(close) =>
           props.imageSrcs.length > 0 ? (
             <PreviewImage imageSrcs={props.imageSrcs} onClick={close} />
           ) : (

@@ -120,14 +120,14 @@ export function tweetIdsToSchema(
 
 export function completeTweetFields(
   tweets: TweetSchema[],
-  payload: TweetV2LookupResult
+  tweetPayloadData: TweetV2LookupResult
 ) {
-  if (!payload.includes) {
+  if (!tweetPayloadData.includes) {
     return;
   }
 
-  for (const tweetData of payload.data) {
-    const user = payload.includes.users?.find(
+  for (const tweetData of tweetPayloadData.data) {
+    const user = tweetPayloadData.includes.users?.find(
       (user) => user.id === tweetData.author_id
     );
 
@@ -145,7 +145,7 @@ export function completeTweetFields(
       content: {
         text: tweetData.text,
         media: tweetData.attachments?.media_keys?.map((key) => {
-          const img = payload.includes!.media!.find((m) => m.media_key === key);
+          const img = tweetPayloadData.includes!.media!.find((m) => m.media_key === key);
 
           return {
             url: img?.url ?? "",

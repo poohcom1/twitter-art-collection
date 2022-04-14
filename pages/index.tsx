@@ -1,5 +1,4 @@
 import Head from "next/head";
-import "react-static-tweets/styles.css";
 import styled, {
   DefaultTheme,
   ThemeProvider,

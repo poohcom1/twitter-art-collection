@@ -11,7 +11,6 @@ import {
 import UserModel from "models/User";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
-import { fetchTweetAst } from "static-tweets";
 import { ApiResponseError } from "twitter-api-v2";
 import { methodHandler } from "lib/restAPI";
 
@@ -71,25 +70,6 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
         ast: null,
       }));
 
-      /* ------------------------------- Tweet ASTs (unused) ------------------------------- */
-
-      // TODO Figure out limit
-      if (req.query.ast === "true") {
-        const FETCH_AST_LOG = `[GET USER] AST fetch n=${tweetIds.length}`;
-
-        console.time(FETCH_AST_LOG);
-        const tweetDataAsts = await Promise.all(
-          tweetIds.map((id) => fetchTweetAst(id))
-        );
-
-        console.timeEnd(FETCH_AST_LOG);
-
-        for (let i = 0; i < tweetDataAsts.length; i++) {
-          if (tweetDataAsts[i]) {
-            tweets[i].ast = tweetDataAsts[i];
-          }
-        }
-      }
 
       /* ---------------------------- Tweet Expansions ---------------------------- */
       completeTweetFields(tweets, payload.data);
@@ -144,8 +124,6 @@ async function postUser(req: NextApiRequest, res: NextApiResponse) {
         .filter(filterTweets(payload.data))
         .map((tweet) => tweet.id);
 
-      console.log(tweetIds.length);
-
       const user = new UserModel({
         uid: session!.user.id,
         tags: new Map(),
@@ -157,8 +135,12 @@ async function postUser(req: NextApiRequest, res: NextApiResponse) {
 
         console.log("[POST USER] User successfully created");
 
+        const tweets = tweetIdsToSchema(tweetIds)
+
+        completeTweetFields(tweets, payload.data)
+
         const response: UserDataResponse = {
-          tweets: tweetIdsToSchema(tweetIds),
+          tweets: tweets,
           tags: new Map(),
         };
         return res.send(response);

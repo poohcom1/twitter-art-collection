@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { KeyboardEventHandler, useCallback, useRef, useState } from "react";
 import { useStore } from "src/stores/rootStore";
 import { standardizeTagName, validateTagName } from "src/utils/tagUtils";
 
@@ -16,7 +16,7 @@ export default function AddTag(props: { onFinish: () => void }) {
     []
   );
 
-  const onKeyUpHandler = useCallback(
+  const onKeyUpHandler: KeyboardEventHandler<HTMLInputElement> = useCallback(
     (e) => {
       if (e.key === "Enter") {
         if (tagName !== "") {
