@@ -16,8 +16,6 @@ This app is designed for those who have this issue, whether you're an art connoi
 
 ## For Developers
 
-The backend repository is https://github.com/poohcom1/twitter-art-collection-backend.
-
 Twitter API access and a Mongo database is required.
 
 ### Setup
