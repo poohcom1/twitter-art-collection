@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React from "react";
+import React, { useEffect } from "react";
 import { useWindowSize } from "@react-hook/window-size";
 import {
   LoadMoreItemsCallback,
@@ -58,6 +58,12 @@ export default function TweetsGallery(props: {
     isItemLoaded: (index, items) => index < items.length && !!items[index],
     totalItems: props.maxItems,
   });
+
+  useEffect(() => {
+    if (props.images.length === 0 && props.maxItems !== 0) {
+      props.fetchItems().then();
+    }
+  }, [props]);
 
   return (
     <MainDiv>
