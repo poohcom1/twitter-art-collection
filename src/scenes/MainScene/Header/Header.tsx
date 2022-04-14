@@ -93,6 +93,7 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
                   : props.theme.color.secondary
               }
               style={{ margin: "0" }}
+              title="Delete tags"
             />
           ) : (
             <></>

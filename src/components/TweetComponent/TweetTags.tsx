@@ -17,6 +17,7 @@ import { PopupItem, StyledPopup, StyledTab } from "..";
 import { useOverflowDetector } from "src/hooks/useOverflowDetector";
 import Image from "next/image";
 import AddTag from "../AddTag/AddTag";
+import { BLACKLIST_TAG } from "src/utils/constants";
 
 const BUTTON_SIZE = 35;
 
@@ -99,10 +100,11 @@ const BlacklistButton = styled(PopupItem)`
 
 /* ------------------------------- Components ------------------------------- */
 
-function AddImagesButton(props: { image: ImageSchema; theme: DefaultTheme }) {
-  const deleteMode = useStore(
-    (state) => state.editMode === "delete" && state.filterType === "tag"
-  );
+function AddImagesButton(props: { image: ImageSchema; theme: DefaultTheme; forceDeleteMode: boolean }) {
+  const deleteMode =
+    useStore(
+      (state) => state.editMode === "delete" && state.filterType === "tag"
+    ) || props.forceDeleteMode;
 
   // Remove image from current tag
   const removeImageCallback = useStore((state) => () => {
@@ -308,10 +310,15 @@ const TweetTags = withTheme(function TweetTags(props: {
         position={["bottom center", "bottom left", "bottom right"]}
         trigger={
           <div>
-            <AddImagesButton image={props.image} theme={props.theme} />
+            <AddImagesButton
+              image={props.image}
+              theme={props.theme}
+              forceDeleteMode={filterTagName === BLACKLIST_TAG}
+            />
           </div>
         }
         closeOnDocumentClick
+        disabled={filterTagName === BLACKLIST_TAG}
       >
         {(close: () => void) => (
           <>
@@ -384,7 +391,7 @@ const TweetTags = withTheme(function TweetTags(props: {
 
       <StyledModal
         trigger={
-          <StyledMenuIcon>
+          <StyledMenuIcon title="View image">
             <MenuIcon size={30} />
           </StyledMenuIcon>
         }

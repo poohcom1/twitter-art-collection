@@ -22,6 +22,14 @@ function UserAvatar(props: {
 }) {
   const onSignoutClicked = useCallback(() => signOut(), []);
 
+  // Blacklist
+
+  const showBlacklist = useStore(
+    (state) =>
+      state.tags.has(BLACKLIST_TAG) &&
+      state.tags.get(BLACKLIST_TAG)!.images.length > 0
+  );
+
   const onBlacklistClicked = useStore((state) => () => {
     window.history.replaceState(null, "", `?filter=tag&tag=__blacklist`);
 
@@ -53,14 +61,18 @@ function UserAvatar(props: {
     >
       {(close: () => void) => (
         <>
-          <PopupItem
-            onClick={() => {
-              close();
-              onBlacklistClicked();
-            }}
-          >
-            <div>Blacklist</div>
-          </PopupItem>
+          {showBlacklist ? (
+            <PopupItem
+              onClick={() => {
+                close();
+                onBlacklistClicked();
+              }}
+            >
+              <div>Blacklist</div>
+            </PopupItem>
+          ) : (
+            <></>
+          )}
           <PopupItem
             onClick={() =>
               (window.location.href =
