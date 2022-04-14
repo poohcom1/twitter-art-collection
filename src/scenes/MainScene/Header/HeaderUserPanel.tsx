@@ -23,6 +23,8 @@ function UserAvatar(props: {
   const onSignoutClicked = useCallback(() => signOut(), []);
 
   const onBlacklistClicked = useStore((state) => () => {
+    window.history.replaceState(null, "", `?filter=tag&tag=__blacklist`);
+
     const blacklistTag = state.tags.get(BLACKLIST_TAG);
     if (blacklistTag)
       state.setFilter({
@@ -49,23 +51,32 @@ function UserAvatar(props: {
       )}
       closeOnDocumentClick
     >
-      <PopupItem onClick={onBlacklistClicked}>
-        <div>Blacklist</div>
-      </PopupItem>
-      <PopupItem
-        onClick={() =>
-          (window.location.href =
-            "https://github.com/poohcom1/twitter-art-collection/issues/new")
-        }
-      >
-        Give feedback
-      </PopupItem>
-      <PopupItem>
-        <Link href="privacy" passHref>
-          <div>Privacy</div>
-        </Link>
-      </PopupItem>
-      <PopupItem onClick={onSignoutClicked}>Logout</PopupItem>
+      {(close) => (
+        <>
+          <PopupItem
+            onClick={() => {
+              close();
+              onBlacklistClicked();
+            }}
+          >
+            <div>Blacklist</div>
+          </PopupItem>
+          <PopupItem
+            onClick={() =>
+              (window.location.href =
+                "https://github.com/poohcom1/twitter-art-collection/issues/new")
+            }
+          >
+            Give feedback
+          </PopupItem>
+          <PopupItem>
+            <Link href="privacy" passHref>
+              <div>Privacy</div>
+            </Link>
+          </PopupItem>
+          <PopupItem onClick={onSignoutClicked}>Logout</PopupItem>
+        </>
+      )}
     </StyledPopup>
   );
 }

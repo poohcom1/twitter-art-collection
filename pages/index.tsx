@@ -139,6 +139,7 @@ export default function Index() {
             </TextDiv>
             <SampleImageDiv>
               <Image
+              style={{backgroundColor: "rgba(255, 255, 255, 0.5)"}}
                 src="/assets/sample_image.png"
                 alt="Sample image"
                 width={1901}

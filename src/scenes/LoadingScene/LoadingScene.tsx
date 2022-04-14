@@ -1,15 +1,6 @@
-import { ImSpinner8 as Spinner } from "react-icons/im";
-import styled, { keyframes } from "styled-components";
-
-const rotate = keyframes`
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
-`;
+import Image from "next/image";
+import { lightTheme } from "src/themes";
+import styled, { ThemeProvider } from "styled-components";
 
 const MainDiv = styled.div`
   position: absolute;
@@ -25,7 +16,7 @@ const MainDiv = styled.div`
   justify-content: center;
   align-items: center;
 
-  background-color: #f7f5fe;
+  background-color: ${(props) => props.theme.color.background};
 
   font-weight: 800;
 
@@ -33,20 +24,26 @@ const MainDiv = styled.div`
   pointer-events: none;
 `;
 
-const SpinnerDiv = styled.div`
-  animation: ${rotate} 1s linear infinite;
-
-  padding: 0;
-  display: flex;
+const Text = styled.h1`
+  margin-bottom: 5px;
+  z-index: 10;
 `;
 
 export default function LoadingScene({ display = true, text = "" }) {
   return (
-    <MainDiv style={{ opacity: display ? "100%" : "0" }}>
-      <h1>{text !== "" ? text : "Loading..."}</h1>
-      <SpinnerDiv>
-        <Spinner size={40} />
-      </SpinnerDiv>
-    </MainDiv>
+    <ThemeProvider theme={lightTheme}>
+      <MainDiv style={{ opacity: display ? "100%" : "0" }}>
+        <Text>{text !== "" ? text : "Please wait a moment..."}</Text>
+        <div className="center" style={{ width: "100vw", marginTop: "-15px" }}>
+          <Image
+            src="/assets/pulse-loading.svg"
+            alt="Loader"
+            layout="fixed"
+            width="120px"
+            height="120px"
+          />
+        </div>
+      </MainDiv>
+    </ThemeProvider>
   );
 }
