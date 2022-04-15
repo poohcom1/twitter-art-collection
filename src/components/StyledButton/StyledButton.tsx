@@ -19,7 +19,7 @@ const StyledButton = styled.button<ButtonProps>`
 
   color: ${(props) => props.textColor ?? props.theme.color.onSecondary};
   background-color: ${(props) => props.color ?? props.theme.color.secondary};
-  border-color: ${(props) => props.textColor ?? props.theme.color.secondary};
+  border-color: ${(props) => props.color ?? props.theme.color.secondary};
 
   &:hover {
     opacity: 70%;

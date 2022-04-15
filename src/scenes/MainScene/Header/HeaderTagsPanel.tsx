@@ -1,10 +1,9 @@
 import { useSession } from "next-auth/react";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useRef } from "react";
 import {
   AddTag,
   ConfirmationDialogue,
   StyledModel as StyledModal,
-  StyledPopup,
   StyledTab,
 } from "src/components";
 import { useStore, FilterType } from "src/stores/rootStore";
@@ -64,39 +63,48 @@ const TagsContainer = styled.div`
  * Create new tag component
  */
 function NewTag(props: { theme: DefaultTheme }) {
+  const addTagRef = useRef<HTMLInputElement>(null);
+
+  const onClick = useCallback(() => {
+    if (addTagRef.current !== document.activeElement) {
+      addTagRef.current?.select();
+    }
+  }, []);
+
   return (
-    <StyledPopup
-      trigger={useMemo(
-        () => (
-          <Tag
-            style={{ width: DEFAULT_TAG_WIDTH }}
-            color={props.theme.color.primary}
-            textColor={props.theme.color.onPrimary}
-          >
-            + New
-          </Tag>
-        ),
-        [props.theme.color.onPrimary, props.theme.color.primary]
-      )}
-      position="bottom left"
-      nested
+    <Tag
+      style={{ width: "90px" }}
+      color={props.theme.color.primary}
+      textColor={props.theme.color.onPrimary}
+      onClick={onClick}
     >
-      {(close: () => void) => (
-        <AddTag
-          onFinish={(error) => {
-            switch (error) {
-              case "EXISTING_TAG":
-                alert("Tag already exists!");
-                break;
-              case "INVALID_CHAR":
-                alert("Please only include alphanumeric character and dashes.");
-                break;
-            }
-            close();
-          }}
-        />
-      )}
-    </StyledPopup>
+      <AddTag
+        className="no-placeholder"
+        ref={addTagRef}
+        placeholder="Add tag"
+        style={{
+          backgroundColor: "transparent",
+          outline: "none",
+          border: "none",
+          color: "white",
+          fontWeight: "800",
+          width: "80px",
+          textAlign: "center",
+        }}
+        onFinish={(error) => {
+          switch (error) {
+            case "EXISTING_TAG":
+              alert("Tag already exists!");
+              break;
+            case "INVALID_CHAR":
+              alert("Please only include alphanumeric character and dashes.");
+              break;
+          }
+
+          addTagRef.current?.blur();
+        }}
+      />
+    </Tag>
   );
 }
 
@@ -142,8 +150,6 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
   return (
     <StyledTagsPanel>
       <StyledTagsPanel>
-        <NewTag theme={props.theme} />
-
         {/* Special filters Section */}
         <Tag
           style={{ width: DEFAULT_TAG_WIDTH }}
@@ -171,7 +177,9 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
 
       {/* Tags section */}
       <TagsContainer>
-        {tagList.map((tag, i) =>
+        <NewTag theme={props.theme} />
+
+        {tagList.reverse().map((tag, i) =>
           // Normal mode
           editMode === "add" ? (
             <Tag

@@ -9,7 +9,6 @@ interface BaseSchema<P> {
 type ImageSchema = BaseSchema<Platform>;
 
 // Tweet
-
 type TweetAst = Array<{ data: { id: string }; nodes: Node[] }>;
 
 interface Node {
@@ -54,6 +53,10 @@ interface TagSchema {
 
 type TagCollection = Map<string, TagSchema>;
 
+interface Settings {
+  showTagDeleteWarning?: boolean
+}
+
 interface UserSchema {
   uid: string;
   tags: TagCollection;
@@ -61,7 +64,6 @@ interface UserSchema {
 }
 
 // Request Body Types
-
 type PostTagBody = TagSchema;
 
 type PutTagBody = TagSchema;

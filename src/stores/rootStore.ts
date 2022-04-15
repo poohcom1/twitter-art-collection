@@ -169,6 +169,7 @@ export const useStore = create(
           return { ...state, tags, ...tagChangeObject };
         }),
       /* --------------------------------- Images --------------------------------- */
+
       addImage: (tag: TagSchema | string, image: ImageSchema): void =>
         set((state) => {
           const tags = state.tags;

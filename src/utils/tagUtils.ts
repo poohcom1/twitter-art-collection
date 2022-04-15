@@ -3,7 +3,8 @@ export function standardizeTagName(tagName: string) {
     return tagName.toLowerCase()
         .replace(" ", "-")
         .replace("_", "-")
-        .replace(/[^0-9a-z-]/gi, '');
+        .replace(/[^0-9a-z-]/gi, '')
+        .slice(0, 32);
 }
 
 export type TagErrors =

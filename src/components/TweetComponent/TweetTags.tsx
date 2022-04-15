@@ -5,6 +5,7 @@ import React, {
   useCallback,
   useState,
   useMemo,
+  useRef,
 } from "react";
 import {
   AiOutlinePlusCircle as PlusCircle,
@@ -315,6 +316,11 @@ const TweetTags = withTheme(function TweetTags(props: {
   // Add tag image list
   const addImage = useStore((state) => state.addImage);
 
+  const addTagRef = useRef<HTMLInputElement>(null);
+  const onNewTagOpen = useCallback(() => {
+    if (addTagRef.current) addTagRef.current.select();
+  }, []);
+
   const [search, setSearch] = useState("");
   const addTagList = useMemo(() => {
     if (search) {
@@ -340,11 +346,14 @@ const TweetTags = withTheme(function TweetTags(props: {
         }
         closeOnDocumentClick
         disabled={filterTagName === BLACKLIST_TAG}
+        onOpen={onNewTagOpen}
       >
         {(close: () => void) => (
           <>
             <PopupItem tabIndex={-1}>
               <AddTag
+                ref={addTagRef}
+                placeholder="Enter a tag name..."
                 onFinish={(error, text) => {
                   switch (error) {
                     case "EXISTING_TAG":
@@ -354,7 +363,7 @@ const TweetTags = withTheme(function TweetTags(props: {
 
                   close();
                 }}
-                onChange={setSearch}
+                onTextChanged={setSearch}
               />
             </PopupItem>
 

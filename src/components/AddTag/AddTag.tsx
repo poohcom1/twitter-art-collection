@@ -1,8 +1,9 @@
 import {
+  forwardRef,
+  HTMLProps,
   KeyboardEventHandler,
+  MutableRefObject,
   useCallback,
-  useEffect,
-  useRef,
   useState,
 } from "react";
 import { useStore } from "src/stores/rootStore";
@@ -11,30 +12,27 @@ import {
   TagErrors,
   validateTagName,
 } from "src/utils/tagUtils";
-import styled from "styled-components";
 
-const StyledInput = styled.input`
-  height: 30px;
-  outline: none;
-`;
-
-export default function AddTag(props: {
+interface AddTagProps {
   onFinish: (error: TagErrors, text: string) => void;
-  onChange?: (text: string) => void;
-}) {
+  onTextChanged?: (text: string) => void;
+}
+export default forwardRef<
+  HTMLInputElement,
+  AddTagProps & HTMLProps<HTMLInputElement>
+>(function AddTag({ onFinish, onTextChanged, ...props }, ref) {
   const tagList = useStore((state) => Array.from(state.tags.keys()));
   const addTag = useStore((state) => state.addTag);
 
-  const inputRef = useRef<HTMLInputElement>(null);
   const [tagName, setTagName] = useState("");
 
   const tagInputHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const text = standardizeTagName(e.target.value);
-      if (props.onChange) props.onChange(text);
+      if (onTextChanged) onTextChanged(text);
       setTagName(text);
     },
-    [props]
+    [onTextChanged]
   );
 
   const onKeyUpHandler: KeyboardEventHandler<HTMLInputElement> = useCallback(
@@ -45,7 +43,7 @@ export default function AddTag(props: {
           tagError = validateTagName(tagName, tagList);
 
           if (tagError) {
-            props.onFinish(tagError, tagName);
+            onFinish(tagError, tagName);
 
             return;
           }
@@ -59,24 +57,26 @@ export default function AddTag(props: {
         }
 
         setTagName("");
-        props.onFinish("", tagName);
+        onFinish("", tagName);
+      } else if (e.key === "Escape") {
+        (ref as MutableRefObject<HTMLInputElement>)?.current?.blur()
       }
     },
-    [addTag, props, tagList, tagName]
+    [addTag, onFinish, ref, tagList, tagName]
   );
-
-  useEffect(() => {
-    if (inputRef.current) inputRef.current.select();
-  }, []);
 
   return (
-    <StyledInput
-      ref={inputRef}
-      type="text"
-      value={tagName}
-      onChange={tagInputHandler}
-      onKeyUp={onKeyUpHandler}
-      placeholder="Enter a new tag name..."
-    />
+    <>
+      <input
+        {...props}
+        ref={ref}
+        type="text"
+        value={tagName}
+        onChange={tagInputHandler}
+        onKeyUp={onKeyUpHandler}
+        onBlur={() => setTagName("")}
+        style={{ height: "30px", width: "100%", outline: "none", ...props.style }}
+      />
+    </>
   );
-}
+});
