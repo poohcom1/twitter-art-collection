@@ -18,6 +18,7 @@ const configs = {
     },
 };
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 module.exports = process.env.ANALYZE === 'true' ? (require('@next/bundle-analyzer')({
     enabled: process.env.ANALYZE === 'true',
 })(configs)) : configs
