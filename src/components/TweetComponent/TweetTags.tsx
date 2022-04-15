@@ -18,13 +18,13 @@ import {
 } from "react-icons/go";
 import Popup from "reactjs-popup";
 import { useStore } from "src/stores/rootStore";
-import { arrayEqual, imageEqual } from "src/utils/objectUtils";
+import { arrayEqual, imageEqual } from "src/util/objectUtil";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
 import { useOverflowDetector } from "src/hooks/useOverflowDetector";
 import Image from "next/image";
 import AddTag from "../AddTag/AddTag";
-import { BLACKLIST_TAG } from "src/utils/constants";
+import { BLACKLIST_TAG } from "types/constants";
 
 const BUTTON_SIZE = 35;
 

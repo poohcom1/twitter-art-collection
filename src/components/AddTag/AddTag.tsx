@@ -11,7 +11,7 @@ import {
   standardizeTagName,
   TagErrors,
   validateTagName,
-} from "src/utils/tagUtils";
+} from "lib/tagValidation";
 
 interface AddTagProps {
   onFinish: (error: TagErrors, text: string) => void;

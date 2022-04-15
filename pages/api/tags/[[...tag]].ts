@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import UserModel from "models/User";
-import { methodHandler } from "lib/restAPI";
+import { methodHandler } from "lib/apiHelper";
 import { getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
 import { createUser } from "lib/backend";
-import { BLACKLIST_TAG } from "src/utils/constants";
+import { BLACKLIST_TAG } from "types/constants";
 
 export default methodHandler({
   GET: getTags,

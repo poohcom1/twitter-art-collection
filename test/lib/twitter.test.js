@@ -1,7 +1,8 @@
-import { mergeTweets } from "../../lib/twitter";
+import { mergeTweets, fetchAndMergeTweets } from "../../lib/twitter";
+import { MockTwitterApi } from "./twitterApiMocks";
 
 describe("twitter lib", () => {
-  describe(`${mergeTweets.name} unit test`, () => {
+  describe(mergeTweets.name, () => {
     it("should merge arrays with overlap without repeat", () => {
       const upstream = [1, 2, 3, 4, 5]
       const database = [4, 5, 6]
@@ -57,6 +58,43 @@ describe("twitter lib", () => {
       const merged = mergeTweets(upstream, database)
 
       expect(merged).toStrictEqual([1, 3, 6, 7, 8, 9, 10])
+    })
+  })
+
+  describe(fetchAndMergeTweets.name, () => {
+
+    it("should fetch and merge partially new tweets", async () => {
+      const databaseTweets = ['3', '4', '5', '6', '7', '8', '9', '10']
+      const upstream = ['1', '2', '3', '4', '5']
+
+      const twitterApi = new MockTwitterApi(upstream, 5)
+
+      const { tweetIds } = await fetchAndMergeTweets(twitterApi, "", databaseTweets)
+
+      expect(tweetIds).toStrictEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
+
+    })
+
+    it("should fetch upstream until tweets reached database", async () => {
+      const databaseTweets = ['8', '9', '10']
+      const upstream = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
+
+      const twitterApi = new MockTwitterApi(upstream, 5)
+
+      const { tweetIds } = await fetchAndMergeTweets(twitterApi, "", databaseTweets)
+
+      expect(tweetIds).toStrictEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'])
+    })
+    
+    it("should fetch all upstream if database is empty", async () => {
+      const databaseTweets = []
+      const upstream = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+
+      const twitterApi = new MockTwitterApi(upstream, 5)
+
+      const { tweetIds } = await fetchAndMergeTweets(twitterApi, "", databaseTweets)
+
+      expect(tweetIds).toStrictEqual(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'])
     })
   })
 });

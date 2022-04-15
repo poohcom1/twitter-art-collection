@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { useCallback, useMemo } from "react";
 import Link from "next/link";
 import { useStore } from "src/stores/rootStore";
-import { BLACKLIST_TAG } from "src/utils/constants";
+import { BLACKLIST_TAG } from "types/constants";
 
 const Avatar = styled.div`
   border-radius: 50%;

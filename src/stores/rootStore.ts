@@ -1,7 +1,7 @@
 import create from "zustand";
 import { combine } from "zustand/middleware";
-import { imageEqual } from "src/utils/objectUtils";
-import { BLACKLIST_TAG } from "src/utils/constants";
+import { imageEqual } from "src/util/objectUtil";
+import { BLACKLIST_TAG } from "types/constants";
 import { getUser, postUser } from "src/adapters/userAdapter";
 import { postTag, deleteTag, putTag } from "src/adapters/tagsAdapter";
 import { fetchTweetData } from "src/adapters/tweetAdapter";

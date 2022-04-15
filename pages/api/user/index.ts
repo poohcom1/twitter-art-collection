@@ -2,9 +2,9 @@ import getMongoConnection from "lib/mongodb";
 import { authOptions } from "lib/nextAuth";
 import {
   completeTweetFields,
+  fetchAndMergeTweets,
   filterTweets,
   getTwitterApi,
-  mergeTweets,
   tweetIdsToSchema,
   TWEET_OPTIONS,
 } from "lib/twitter";
@@ -12,7 +12,7 @@ import UserModel from "models/User";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { ApiResponseError } from "twitter-api-v2";
-import { methodHandler } from "lib/restAPI";
+import { methodHandler } from "lib/apiHelper";
 
 export default methodHandler({
   GET: getUser,
@@ -48,34 +48,9 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
       const databaseTweetIds = user.tweetIds;
 
       /* ------------------------------- Twitter API ------------------------------ */
-      /// Make API call
-      let payload = await twitterApi.v2.userLikedTweets(
-        session.user.id,
-        TWEET_OPTIONS
-      );
-
-      let newTweetIds = payload.data.data
-        .filter(filterTweets(payload.data))
-        .map((tweet) => tweet.id);
-
-      // Merge tweets
-      let tweetIds = mergeTweets(newTweetIds, databaseTweetIds);
-
-      while (!!payload && newTweetIds.length > 0 && tweetIds.length === newTweetIds.length + databaseTweetIds.length) {
-        payload = await twitterApi.v2.userLikedTweets(
-          session.user.id,
-          TWEET_OPTIONS
-        );
-
-        newTweetIds = payload.data.data
-          .filter(filterTweets(payload.data))
-          .map((tweet) => tweet.id);
-
-        tweetIds = mergeTweets(newTweetIds, databaseTweetIds);
-      }
-
+      const { tweetIds, results } = await fetchAndMergeTweets(twitterApi.v2, session.user.id, databaseTweetIds)
       // Update Database
-      if (newTweetIds.length > 0) {
+      if (databaseTweetIds.length !== tweetIds.length) {
         user.tweetIds = tweetIds
 
         await user.save()
@@ -89,7 +64,7 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
 
 
       /* ---------------------------- Tweet Expansions ---------------------------- */
-      completeTweetFields(tweets, payload.data);
+      completeTweetFields(tweets, results[0]);
 
       const responseObject: UserDataResponse = {
         tweets: tweets as TweetSchema[],

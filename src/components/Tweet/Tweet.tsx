@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useCallback } from "react";
-import { injectTweetLink } from "src/utils/tweetUtils";
+import { injectTweetLink } from "src/util/tweetUtil";
 
 export default function Tweet(props: { data: TweetExpansions }) {
   const { data } = props;

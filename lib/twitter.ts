@@ -5,6 +5,7 @@ import TwitterApi, {
   TweetV2LookupResult,
   TwitterApiReadOnly,
 } from "twitter-api-v2";
+import type TwitterApiv2ReadOnly from "twitter-api-v2/dist/v2/client.v2.read";
 
 let cachedClient: TwitterApi | null;
 let cachedApi: TwitterApiReadOnly | null = null;
@@ -144,12 +145,16 @@ export const TWEET_OPTIONS: Partial<Tweetv2FieldsParams> = {
 };
 
 
-export async function fetchAndMergeTweets(twitterApi: TwitterApiReadOnly, userId: string, databaseTweetIds: string[]) {
+export async function fetchAndMergeTweets(twitterApi: TwitterApiv2ReadOnly, userId: string, databaseTweetIds: string[]) {
   /// Make API call
-  let payload = await twitterApi.v2.userLikedTweets(
+
+  const payload = await twitterApi.userLikedTweets(
     userId,
     TWEET_OPTIONS
-  );
+  )
+
+  const lookupResults = [payload.data]
+
 
   let newTweetIds = payload.data.data
     .filter(filterTweets(payload.data))
@@ -158,18 +163,17 @@ export async function fetchAndMergeTweets(twitterApi: TwitterApiReadOnly, userId
   // Merge tweets
   let tweetIds = mergeTweets(newTweetIds, databaseTweetIds);
 
-  while (!!payload && newTweetIds.length > 0 && tweetIds.length === newTweetIds.length + databaseTweetIds.length) {
-    payload = await twitterApi.v2.userLikedTweets(
-      userId,
-      TWEET_OPTIONS
-    );
+  while (payload.data.data.length !== 0 && newTweetIds.length > 0 && tweetIds.length === newTweetIds.length + databaseTweetIds.length) {
+    await payload.fetchNext()
 
-    newTweetIds = payload.data.data
+    lookupResults.push(payload.data)
+
+    newTweetIds = newTweetIds.concat(payload.data.data
       .filter(filterTweets(payload.data))
-      .map((tweet) => tweet.id);
+      .map((tweet) => tweet.id));
 
     tweetIds = mergeTweets(newTweetIds, databaseTweetIds);
   }
 
-  return tweetIds
+  return { tweetIds, results: lookupResults }
 }

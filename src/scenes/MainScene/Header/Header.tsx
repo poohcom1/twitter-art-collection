@@ -4,7 +4,7 @@ import UserSection from "./HeaderUserPanel";
 import { BiTrash as TrashIcon } from "react-icons/bi";
 import { useStore } from "src/stores/rootStore";
 import { Spinner } from "src/components";
-import { BLACKLIST_TAG } from "src/utils/constants";
+import { BLACKLIST_TAG } from "types/constants";
 
 const HeaderDiv = styled.div`
   width: 100%;
