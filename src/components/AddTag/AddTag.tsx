@@ -1,13 +1,27 @@
-import { KeyboardEventHandler, useCallback, useRef, useState } from "react";
+import {
+  KeyboardEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { useStore } from "src/stores/rootStore";
-import { standardizeTagName, validateTagName } from "src/utils/tagUtils";
+import {
+  standardizeTagName,
+  TagErrors,
+  validateTagName,
+} from "src/utils/tagUtils";
 import styled from "styled-components";
 
 const StyledInput = styled.input`
   height: 30px;
+  outline: none;
 `;
 
-export default function AddTag(props: { onFinish: () => void }) {
+export default function AddTag(props: {
+  onFinish: (error: TagErrors, text: string) => void;
+  onChange?: (text: string) => void;
+}) {
   const tagList = useStore((state) => Array.from(state.tags.keys()));
   const addTag = useStore((state) => state.addTag);
 
@@ -16,19 +30,22 @@ export default function AddTag(props: { onFinish: () => void }) {
 
   const tagInputHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      setTagName(standardizeTagName(e.target.value));
+      const text = standardizeTagName(e.target.value);
+      if (props.onChange) props.onChange(text);
+      setTagName(text);
     },
-    []
+    [props]
   );
 
   const onKeyUpHandler: KeyboardEventHandler<HTMLInputElement> = useCallback(
     (e) => {
       if (e.key === "Enter") {
+        let tagError: TagErrors = "";
         if (tagName !== "") {
-          const tagError = validateTagName(tagName, tagList);
+          tagError = validateTagName(tagName, tagList);
 
           if (tagError) {
-            alert(tagError);
+            props.onFinish(tagError, tagName);
 
             return;
           }
@@ -42,11 +59,15 @@ export default function AddTag(props: { onFinish: () => void }) {
         }
 
         setTagName("");
-        props.onFinish();
+        props.onFinish("", tagName);
       }
     },
     [addTag, props, tagList, tagName]
   );
+
+  useEffect(() => {
+    if (inputRef.current) inputRef.current.select();
+  }, []);
 
   return (
     <StyledInput

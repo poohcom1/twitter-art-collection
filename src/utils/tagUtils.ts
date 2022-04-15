@@ -6,18 +6,25 @@ export function standardizeTagName(tagName: string) {
         .replace(/[^0-9a-z-]/gi, '');
 }
 
+export type TagErrors =
+    | "EMPTY_TAG"
+    | "INVALID_CHAR"
+    | "EXISTING_TAG"
+    | ""
+
+
 /**
  * Returns an error message if the tag is invalid. Otherwise, returns an empty string
  * @param tagName Name of tag to validate
  * @param tagList List of existing tags
- * @returns 
+ * @returns Error type. Empty string if no errors are found
  */
-export function validateTagName(tagName: string, tagList: string[]): string {
+export function validateTagName(tagName: string, tagList: string[]): TagErrors {
     if (tagName === "") {
-        return "Tag name must not be empty"
+        return "EMPTY_TAG"
     } else if (!tagName.match(/^[a-z0-9-]+$/)) {
-        return "Tag name must only contains letters and characters."
+        return "INVALID_CHAR"
     } else if (tagList.includes(tagName)) {
-        return "Tag already exists!"
+        return "EXISTING_TAG"
     } else { return "" }
 }

@@ -28,6 +28,9 @@ interface FilterTagAction extends FilterAction<"tag"> {
 }
 
 // Equality functions
+const isString = (data: unknown): data is string => {
+  return typeof data === 'string';
+};
 
 // Store
 export const useStore = create(
@@ -166,13 +169,29 @@ export const useStore = create(
           return { ...state, tags, ...tagChangeObject };
         }),
       /* --------------------------------- Images --------------------------------- */
-      addImage: (tag: TagSchema, image: ImageSchema): void =>
+      addImage: (tag: TagSchema | string, image: ImageSchema): void =>
         set((state) => {
           const tags = state.tags;
-          tag.images.push(image);
-          tags.set(tag.name, tag);
 
-          putTag(tag).then();
+
+          if (isString(tag)) {
+            const tagObject = tags.get(tag)
+
+            if (tagObject) {
+              tagObject.images.push(image);
+              tags.set(tagObject.name, tagObject);
+
+              putTag(tagObject).then();
+            } else {
+              console.error("Nonexistent tagname image add attempt")
+            }
+
+          } else {
+            tag.images.push(image);
+            tags.set(tag.name, tag);
+
+            putTag(tag).then();
+          }
 
           return { ...state, tags: tags };
         }),

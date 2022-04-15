@@ -30,13 +30,18 @@ const StyledPopup = styled(Popup)`
   }
 `;
 
-export const PopupItem = styled.div`
-  background-color: white;
+export const PopupItem = styled.button`
+  display: block;
+  background-color: transparent;
+
+  border: none;
+  outline: none;
+
   padding: 3px 10px;
   cursor: pointer;
   font-size: 17px;
 
-  &:hover {
+  &:hover, &:focus {
     background-color: lightgrey;
   }
 `;

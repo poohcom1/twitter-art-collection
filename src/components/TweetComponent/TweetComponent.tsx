@@ -31,7 +31,6 @@ function TweetComponent(props: {
         image={{
           id: props.id,
           platform: "twitter",
-          ast: props.tweet.ast,
         }}
         tweetRef={tweetRef}
         imageSrcs={props.tweet.data?.content.media?.map((m) => m.url) ?? []}

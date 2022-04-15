@@ -9,7 +9,7 @@ import TwitterApi, {
 let cachedClient: TwitterApi | null;
 let cachedApi: TwitterApiReadOnly | null = null;
 
-export function getTwitterClient() {
+function getTwitterClient() {
   if (cachedClient) {
     return cachedClient;
   }
@@ -80,23 +80,16 @@ export const filterTweets =
 
 export function tweetIdsToSchema(
   ids: string[],
-  ast?: TweetAst[]
 ): TweetSchema[] {
-  const schemas = [];
-
-  for (let i = 0; i < ids.length; i++) {
-    const schema: TweetSchema = {
-      id: ids[i],
-      platform: "twitter",
-      ast: ast ? ast[i] : null,
-    };
-
-    schemas.push(schema);
-  }
-
-  return schemas;
+  return ids.map(id => ({ id, platform: "twitter" }))
 }
 
+/**
+ * 
+ * @param tweets 
+ * @param tweetPayloadData 
+ * @returns 
+ */
 export function completeTweetFields(
   tweets: TweetSchema[],
   tweetPayloadData: TweetV2LookupResult
@@ -149,3 +142,34 @@ export const TWEET_OPTIONS: Partial<Tweetv2FieldsParams> = {
   expansions: ["attachments.media_keys", "author_id"],
   "media.fields": ["url", "width", "height"],
 };
+
+
+export async function fetchAndMergeTweets(twitterApi: TwitterApiReadOnly, userId: string, databaseTweetIds: string[]) {
+  /// Make API call
+  let payload = await twitterApi.v2.userLikedTweets(
+    userId,
+    TWEET_OPTIONS
+  );
+
+  let newTweetIds = payload.data.data
+    .filter(filterTweets(payload.data))
+    .map((tweet) => tweet.id);
+
+  // Merge tweets
+  let tweetIds = mergeTweets(newTweetIds, databaseTweetIds);
+
+  while (!!payload && newTweetIds.length > 0 && tweetIds.length === newTweetIds.length + databaseTweetIds.length) {
+    payload = await twitterApi.v2.userLikedTweets(
+      userId,
+      TWEET_OPTIONS
+    );
+
+    newTweetIds = payload.data.data
+      .filter(filterTweets(payload.data))
+      .map((tweet) => tweet.id);
+
+    tweetIds = mergeTweets(newTweetIds, databaseTweetIds);
+  }
+
+  return tweetIds
+}

@@ -81,7 +81,21 @@ function NewTag(props: { theme: DefaultTheme }) {
       position="bottom left"
       nested
     >
-      {(close: () => void) => <AddTag onFinish={close} />}
+      {(close: () => void) => (
+        <AddTag
+          onFinish={(error) => {
+            switch (error) {
+              case "EXISTING_TAG":
+                alert("Tag already exists!");
+                break;
+              case "INVALID_CHAR":
+                alert("Please only include alphanumeric character and dashes.");
+                break;
+            }
+            close();
+          }}
+        />
+      )}
     </StyledPopup>
   );
 }

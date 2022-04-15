@@ -1,5 +1,11 @@
 import { useSession } from "next-auth/react";
-import React, { RefObject, HTMLAttributes, useCallback, useState } from "react";
+import React, {
+  RefObject,
+  HTMLAttributes,
+  useCallback,
+  useState,
+  useMemo,
+} from "react";
 import {
   AiOutlinePlusCircle as PlusCircle,
   AiOutlineCloseCircle as CloseCircle,
@@ -100,7 +106,11 @@ const BlacklistButton = styled(PopupItem)`
 
 /* ------------------------------- Components ------------------------------- */
 
-function AddImagesButton(props: { image: ImageSchema; theme: DefaultTheme; forceDeleteMode: boolean }) {
+function AddImagesButton(props: {
+  image: ImageSchema;
+  theme: DefaultTheme;
+  forceDeleteMode: boolean;
+}) {
   const deleteMode =
     useStore(
       (state) => state.editMode === "delete" && state.filterType === "tag"
@@ -253,7 +263,6 @@ const TweetTags = withTheme(function TweetTags(props: {
   imageSrcs: string[];
 }) {
   const session = useSession();
-
   const editMode = useStore((state) => state.editMode);
 
   // Get filter
@@ -303,6 +312,18 @@ const TweetTags = withTheme(function TweetTags(props: {
   // Blacklist Image
   const blacklistImage = useStore((state) => state.blacklistImage);
 
+  // Add tag image list
+  const addImage = useStore((state) => state.addImage);
+
+  const [search, setSearch] = useState("");
+  const addTagList = useMemo(() => {
+    if (search) {
+      return notIncludedTags.filter((tag) => tag.name.includes(search));
+    } else {
+      return notIncludedTags;
+    }
+  }, [notIncludedTags, search]);
+
   return (
     <MainContainer>
       {/* Add image to tag section */}
@@ -322,11 +343,22 @@ const TweetTags = withTheme(function TweetTags(props: {
       >
         {(close: () => void) => (
           <>
-            <PopupItem>
-              <AddTag onFinish={close} />
+            <PopupItem tabIndex={-1}>
+              <AddTag
+                onFinish={(error, text) => {
+                  switch (error) {
+                    case "EXISTING_TAG":
+                      addImage(text, props.image);
+                      break;
+                  }
+
+                  close();
+                }}
+                onChange={setSearch}
+              />
             </PopupItem>
 
-            {notIncludedTags.map((tag) => (
+            {addTagList.map((tag) => (
               <AddImagesPopupListItem
                 key={tag.name}
                 keyNum={tag.name}
@@ -335,7 +367,7 @@ const TweetTags = withTheme(function TweetTags(props: {
                 close={close}
               />
             ))}
-
+            {/* Blacklist Section. Show if not in any tags */}
             {includedTags.length === 0 ? (
               <>
                 <div
