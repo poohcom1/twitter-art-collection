@@ -3,8 +3,7 @@ import UserModel from "models/User";
 import { methodHandler } from "lib/apiHelper";
 import { getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
-import { createUser } from "lib/backend";
-import { BLACKLIST_TAG } from "types/constants";
+import { validateTagName } from "lib/tagValidation";
 
 export default methodHandler({
   GET: getTags,
@@ -13,6 +12,9 @@ export default methodHandler({
   DELETE: deleteTag,
 });
 
+/**
+ * @deprecated All tags should be fetched from the user endpoint
+ */
 async function getTags(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession({ req, res }, authOptions);
 
@@ -21,17 +23,6 @@ async function getTags(req: NextApiRequest, res: NextApiResponse) {
       const user = await UserModel.findOne({ uid: session.user.id });
 
       if (user) {
-        res.status(200).send(user.tags);
-      } else {
-        const user = new UserModel({
-          uid: session.user.id,
-          tags: new Map(),
-        });
-
-        await user.save();
-
-        createUser(user).then().catch(console.error);
-
         res.status(200).send(user.tags);
       }
     } catch (e) {
@@ -48,7 +39,7 @@ async function postTag(req: NextApiRequest, res: NextApiResponse) {
 
   const tag: PostTagBody = req.body;
 
-  if (tag.name !== BLACKLIST_TAG && !tag.name.match(/^[a-z0-9-]+$/)) {
+  if (validateTagName(tag.name)) {
     console.error("[POST tag] Validation failed");
     return res.status(500).send("Server error");
   }

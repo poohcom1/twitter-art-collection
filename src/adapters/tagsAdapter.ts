@@ -9,6 +9,9 @@ function sanitizeTag(tag: TagSchema): TagSchema {
   return tag;
 }
 
+/**
+ * @deprecated All tags should be fetched from the user endpoint
+ */
 export async function getTags(): Promise<Result<TagCollection>> {
   const res = await fetch(`/api/tags/`, {
     method: "GET",
