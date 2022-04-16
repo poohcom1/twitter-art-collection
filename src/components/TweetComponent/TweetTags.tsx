@@ -101,8 +101,10 @@ const ModalClickableDiv = styled.div<{ show: number }>`
   align-items: center;
 `;
 
-const BlacklistButton = styled(PopupItem)`
+const BlacklistButton = styled.p`
   color: red;
+  margin: 0;
+  padding: 0;
 `;
 
 /* ------------------------------- Components ------------------------------- */
@@ -356,7 +358,7 @@ const TweetTags = withTheme(function TweetTags(props: {
                 ref={addTagRef}
                 placeholder="Enter a tag name..."
                 onFinish={(error, text) => {
-                  console.log("finish")
+                  console.log("finish");
                   switch (error) {
                     case "EXISTING_TAG":
                       addImage(text, props.image);
@@ -389,9 +391,9 @@ const TweetTags = withTheme(function TweetTags(props: {
                   }}
                 />
 
-                <BlacklistButton onClick={() => blacklistImage(props.image)}>
-                  Blacklist
-                </BlacklistButton>
+                <PopupItem onClick={() => blacklistImage(props.image)}>
+                  <BlacklistButton>Blacklist</BlacklistButton>
+                </PopupItem>
               </>
             ) : (
               <></>

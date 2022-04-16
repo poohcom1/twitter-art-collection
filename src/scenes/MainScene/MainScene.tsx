@@ -9,8 +9,14 @@ import { useRouter } from "next/router";
 
 // Styles
 const GlobalStyle = createGlobalStyle`
+  html {
+      width: 100vw;
+  }
+  
   body {
     background-color: ${(props) => props.theme.color.background};
+    width: 100vw;
+    overflow-x: hidden;
   }
 `;
 

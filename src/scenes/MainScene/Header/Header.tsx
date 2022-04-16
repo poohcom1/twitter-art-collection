@@ -7,8 +7,7 @@ import { Spinner } from "src/components";
 import { BLACKLIST_TAG } from "types/constants";
 
 const HeaderDiv = styled.div`
-  width: 100%;
-
+  width: 100vw;
   height: fit-content;
 
   position: fixed;

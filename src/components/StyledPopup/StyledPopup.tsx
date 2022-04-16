@@ -38,7 +38,6 @@ export const PopupItem = styled.button`
   width: 100%;
 
   border: none;
-  outline: none;
 
   border-radius: 5px;
 
@@ -50,9 +49,6 @@ export const PopupItem = styled.button`
     background-color: #00000019;
   }
 
-  &:focus {
-    background-color: #00000031;
-  }
 `;
 
 export default StyledPopup;

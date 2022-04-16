@@ -64,6 +64,7 @@ function UserAvatar(props: {
       {(close: () => void) => (
         <>
           {showBlacklist ? (
+            // FIXME Broswer accessibility outline not showing on open
             <PopupItem
               onClick={() => {
                 close();
