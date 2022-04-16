@@ -358,9 +358,11 @@ const TweetTags = withTheme(function TweetTags(props: {
                 ref={addTagRef}
                 placeholder="Enter a tag name..."
                 onFinish={(error, text) => {
-                  console.log("finish");
                   switch (error) {
                     case "EXISTING_TAG":
+                      addImage(text, props.image);
+                      break;
+                    case "":
                       addImage(text, props.image);
                       break;
                   }

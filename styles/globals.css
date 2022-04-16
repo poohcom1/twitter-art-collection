@@ -53,12 +53,12 @@ body {
 }
 
 .no-placeholder:focus::placeholder {
-  color: transparent
+  color: transparent;
 }
 
 a.invis-link {
   text-decoration: none;
-  color: inherit
+  color: inherit;
 }
 
 button.clear {
@@ -71,7 +71,6 @@ button.clear {
 .no-focus-outline:focus {
   outline: none;
 }
-
 
 /* Tweet */
 

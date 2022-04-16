@@ -1,7 +1,7 @@
-import { ChangeEvent, forwardRef, HTMLProps, useCallback, useRef } from "react";
+import { forwardRef, useRef, useState, HTMLProps, useCallback } from "react";
 import styled from "styled-components";
 
-const Container = styled.div`
+const Container = styled.div<{ dataValue: string }>`
   display: flex;
   position: relative;
   width: fit-content;
@@ -26,11 +26,6 @@ const Container = styled.div`
 
     color: ${(props) => props.theme.color.onPrimary};
   }
-
-  &::after {
-    content: attr(data-value) " ";
-    visibility: hidden;
-  }
 `;
 
 export default forwardRef<
@@ -39,20 +34,34 @@ export default forwardRef<
 >(function ExpandingInput(props, ref) {
   const parentRef = useRef<HTMLDivElement>(null);
 
-  const onChange = useCallback((e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.parentNode) {
-      (e.target.parentNode as HTMLElement).dataset.value =
-        e.target.value.replaceAll(" ", "_") + "_";
-    }
+  const [text, setText] = useState("");
+
+  const onChange = useCallback((text: string) => {
+    setText(text + "_");
   }, []);
 
   return (
     <Container
-      className="input-sizer"
       ref={parentRef}
       style={{ minWidth: props.minWidth }}
+      dataValue={text}
     >
-      <input type="text" onChange={onChange} {...props} ref={ref} />
+      <input
+        ref={ref}
+        type="text"
+        {...props}
+        onChange={(e) => {
+          if (props.onInput) props.onInput(e);
+          onChange(e.target.value);
+        }}
+        onBlur={(e) => {
+          if (props.onBlur) props.onBlur(e);
+          setText("")
+        }}
+      />
+      <div style={{ color: "transparent", opacity: "0%", userSelect: "none" }}>
+        {text}
+      </div>
     </Container>
   );
 });
