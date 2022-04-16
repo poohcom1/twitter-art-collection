@@ -6,6 +6,7 @@ import { lightTheme } from "src/themes";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
+import { CANONICAL_URL } from "types/constants";
 
 export default function Index() {
   const session = useSession();
@@ -23,7 +24,7 @@ export default function Index() {
         <title>Twitter Art Collection</title>
         <link
           rel="canonical"
-          href="https://twitter-art-collection.vercel.app/collection"
+          href={`${CANONICAL_URL}/collection`}
         />
       </Head>
       <ThemeProvider theme={lightTheme}>

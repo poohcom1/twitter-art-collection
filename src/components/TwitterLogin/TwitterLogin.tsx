@@ -15,7 +15,7 @@ const SignInButton = styled.div`
   border-width: 2px;
   border-color: transparent;
 
-  background-color: #ffffff11;
+  background-color: #ffffff2a;
 
   .container:before {
     box-shadow: inset 0 0 2000px rgba(255, 255, 255, 0.5);
@@ -24,7 +24,7 @@ const SignInButton = styled.div`
 
   &:hover {
     border-color: ${(props) => props.theme.color.onSecondary};
-    background-color: #ffffff34;
+    background-color: #ffffff60;
   }
 
   * {
@@ -40,14 +40,13 @@ export default function TwitterLogin() {
   if (session.status !== "authenticated") {
     return (
       <SignInButton onClick={() => signIn("twitter")}>
-        <div className="image-div">
-          <Image
-            src="/assets/twitter/twitter_social_blue.svg"
-            alt="Twitter Sign In"
-            width={50}
-            height={50}
-          />
-        </div>
+        <Image
+          src="/assets/twitter/twitter_social_blue.svg"
+          alt="Twitter Sign In"
+          width="50px"
+          height="50px"
+        />
+
         <h3>Sign in with Twitter</h3>
       </SignInButton>
     );

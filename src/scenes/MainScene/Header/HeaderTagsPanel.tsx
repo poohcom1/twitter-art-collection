@@ -83,7 +83,6 @@ function NewTag(props: { theme: DefaultTheme }) {
         color={props.theme.color.primary}
         textColor={props.theme.color.onPrimary}
         onClick={onClick}
-        style={{ display: "block" }}
       >
         <ExpandingInput
           ref={addTagRef}

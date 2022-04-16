@@ -30,9 +30,12 @@ const StyledPopup = styled(Popup)`
   }
 `;
 
-const POPUP_STYLE = `
+export const PopupItem = styled.button`
   display: block;
   background-color: transparent;
+
+  text-align: left;
+  width: 100%;
 
   border: none;
   outline: none;
@@ -50,10 +53,6 @@ const POPUP_STYLE = `
   &:focus {
     background-color: #00000031;
   }
-`;
-
-export const PopupItem = styled.button`
-  ${POPUP_STYLE}
 `;
 
 export default StyledPopup;

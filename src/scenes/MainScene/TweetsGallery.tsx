@@ -24,8 +24,8 @@ interface TweetsGalleryProps {
   images: TweetSchema[];
   fetchItems: () => Promise<void>;
   maxItems: number;
-  columnWidth: number;
-  columnGutter: number;
+  columnWidth?: number;
+  columnGutter?: number;
 }
 
 /**

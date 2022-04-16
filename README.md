@@ -1,5 +1,4 @@
 # Twitter Art Collection (WIP)
-[<img src="http://therealsujitk-vercel-badge.vercel.app/?app=twitter-art-collection&style=for-the-badge&logo=false"/>](https://twitter-art-collection.vercel.app/)
 
 ![Sample image](public/assets/sample_image.png)
 

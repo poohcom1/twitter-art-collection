@@ -92,21 +92,14 @@ export default function MainScene() {
     );
   }
 
-  if (!tweetsLoaded || newUser) {
-    return (
-      <AppDiv className="App">
-        <LoadingScene
-          display={true}
-          text={newUser ? "Creating new user..." : ""}
-        />
-      </AppDiv>
-    );
-  }
-
   return (
     <AppDiv className="App">
       <Header />
       <GlobalStyle />
+      <LoadingScene
+        display={!tweetsLoaded || newUser}
+        text={newUser ? "Creating new user..." : ""}
+      />
       <TweetsGallery
         images={filteredImages}
         fetchItems={loadMoreTweets}

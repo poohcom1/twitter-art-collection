@@ -2,12 +2,14 @@ import { ChangeEvent, forwardRef, HTMLProps, useCallback, useRef } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
-  display: inline-block;
+  display: flex;
   position: relative;
   width: fit-content;
   height: 100%;
   padding: 0;
   margin: 0;
+
+  align-items: center;
 
   input {
     text-align: center;
