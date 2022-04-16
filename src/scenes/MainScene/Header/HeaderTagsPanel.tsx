@@ -93,7 +93,7 @@ function NewTag(props: { theme: DefaultTheme }) {
             outline: "none",
             border: "none",
           }}
-          minWidth="5em"
+          defaultwidth="5em"
           onBlur={() => tagSetText("")}
           {...inputProps}
         />

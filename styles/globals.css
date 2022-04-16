@@ -78,6 +78,13 @@ button.clear {
   background-color: white;
   border-radius: 10px;
   padding: 5%;
+  border: 1px solid white;
+
+}
+
+.tweet.dark {
+  background-color: rgb(20, 20, 20);
+  border: 1px solid grey;
 }
 
 .tweet-header {
@@ -106,6 +113,11 @@ button.clear {
   margin: 0;
 }
 
+.tweet-header-name.dark {
+  color: white;
+  margin: 0;
+}
+
 .tweet-header-username {
   color: grey;
   margin: 0;
@@ -123,6 +135,13 @@ button.clear {
 
 .tweet-content-text {
   margin: 5px 0;
+  color: black;
+}
+
+.tweet-content-text,
+dark {
+  margin: 5px 0;
+  color: white;
 }
 
 .tweet-footer {

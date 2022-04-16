@@ -30,7 +30,7 @@ const Container = styled.div<{ dataValue: string }>`
 
 export default forwardRef<
   HTMLInputElement,
-  { minWidth: string } & HTMLProps<HTMLInputElement>
+  { defaultwidth: string } & HTMLProps<HTMLInputElement>
 >(function ExpandingInput(props, ref) {
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -43,7 +43,7 @@ export default forwardRef<
   return (
     <Container
       ref={parentRef}
-      style={{ minWidth: props.minWidth }}
+      style={{ minWidth: props.defaultwidth }}
       dataValue={text}
     >
       <input

@@ -1,10 +1,17 @@
 import create from "zustand";
 import { combine } from "zustand/middleware";
 import { imageEqual } from "src/util/objectUtil";
-import { BLACKLIST_TAG } from "types/constants";
+import {
+  BLACKLIST_TAG,
+  LOCAL_THEME_DARK,
+  LOCAL_THEME_KEY,
+  LOCAL_THEME_LIGHT,
+} from "types/constants";
 import { getUser, postUser } from "src/adapters/userAdapter";
 import { postTag, deleteTag, putTag } from "src/adapters/tagsAdapter";
 import { fetchTweetData } from "src/adapters/tweetAdapter";
+import { lightTheme } from "src/themes";
+import { DefaultTheme } from "styled-components";
 
 // Filters
 type ImagePredicate = <S extends ImageSchema>(
@@ -29,7 +36,7 @@ interface FilterTagAction extends FilterAction<"tag"> {
 
 // Equality functions
 const isString = (data: unknown): data is string => {
-  return typeof data === 'string';
+  return typeof data === "string";
 };
 
 // Store
@@ -48,6 +55,9 @@ export const useStore = create(
       newUser: false,
       // Twitter
       tweets: <TweetSchema[]>[],
+
+      // Settings
+      theme: lightTheme,
     },
     (set, get) => ({
       initTweetsAndTags: async (): Promise<null | string> => {
@@ -174,9 +184,8 @@ export const useStore = create(
         set((state) => {
           const tags = state.tags;
 
-
           if (isString(tag)) {
-            const tagObject = tags.get(tag)
+            const tagObject = tags.get(tag);
 
             if (tagObject) {
               tagObject.images.push(image);
@@ -184,9 +193,8 @@ export const useStore = create(
 
               putTag(tagObject).then();
             } else {
-              console.error("Nonexistent tagname image add attempt")
+              console.error("Nonexistent tagname image add attempt");
             }
-
           } else {
             tag.images.push(image);
             tags.set(tag.name, tag);
@@ -243,6 +251,18 @@ export const useStore = create(
       /* -------------------------------- EditMode -------------------------------- */
       toggleEditMode: () =>
         set({ editMode: get().editMode === "add" ? "delete" : "add" }),
+
+      /* ---------------------------------- etc. ---------------------------------- */
+      setTheme: (theme: DefaultTheme) => {
+        if (window) {
+          localStorage.setItem(
+            LOCAL_THEME_KEY,
+            theme === lightTheme ? LOCAL_THEME_LIGHT : LOCAL_THEME_DARK
+          );
+        }
+
+        set({ theme });
+      },
     })
   )
 );

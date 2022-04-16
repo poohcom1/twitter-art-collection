@@ -6,6 +6,7 @@ import { useSession } from "next-auth/react";
 import { isFilterType, useStore } from "src/stores/rootStore";
 import styled, { createGlobalStyle } from "styled-components";
 import { useRouter } from "next/router";
+import Overlay from "./Overlay";
 
 // Styles
 const GlobalStyle = createGlobalStyle`
@@ -102,6 +103,7 @@ export default function MainScene() {
     <AppDiv className="App">
       <Header />
       <GlobalStyle />
+      <Overlay />
       <LoadingScene
         display={!tweetsLoaded || newUser}
         text={newUser ? "Creating new user..." : ""}

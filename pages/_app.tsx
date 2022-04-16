@@ -1,8 +1,11 @@
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import Router from "next/router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LoadingScene } from "src/scenes";
+import { useStore } from "src/stores/rootStore";
+import { darkTheme, lightTheme } from "src/themes";
+import { LOCAL_THEME_KEY, LOCAL_THEME_LIGHT } from "types/constants";
 import "../styles/globals.css";
 
 // Suppress specific warnings in dev
@@ -41,6 +44,30 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   Router.events.on("routeChangeError", () => {
     setPageLoading(false);
   });
+
+  const setTheme = useStore((state) => state.setTheme);
+
+  // Theme detection
+  useEffect(() => {
+    if (!localStorage.getItem(LOCAL_THEME_KEY)) {
+      const preferDark = window.matchMedia(
+        "(prefers-color-scheme: dark)"
+      ).matches;
+
+      if (preferDark) {
+        setTheme(darkTheme);
+      } else {
+        setTheme(lightTheme);
+      }
+    } else {
+      setTheme(
+        localStorage.getItem(LOCAL_THEME_KEY) === LOCAL_THEME_LIGHT
+          ? lightTheme
+          : darkTheme
+      );
+    }
+  }, [setTheme]);
+
   return (
     <SessionProvider session={session}>
       {pageLoading ? (

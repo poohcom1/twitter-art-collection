@@ -5,6 +5,7 @@ import { BiTrash as TrashIcon } from "react-icons/bi";
 import { useStore } from "src/stores/rootStore";
 import { Spinner } from "src/components";
 import { BLACKLIST_TAG } from "types/constants";
+import { applyOpacity } from "src/util/themeUtil";
 
 const HeaderDiv = styled.div`
   width: 100vw;
@@ -12,12 +13,13 @@ const HeaderDiv = styled.div`
 
   position: fixed;
 
-  background-color: rgb(255, 255, 255, 0.85);
+  background-color: ${(props) => applyOpacity(props.theme.color.surface, 0.85)};
 
   box-shadow: 0 0 10px ${(props) => props.theme.color.shadow};
 
   @supports (backdrop-filter: blur(10px)) {
-    background-color: rgb(255, 255, 255, 0.4);
+    background-color: ${(props) =>
+      applyOpacity(props.theme.color.surface, 0.4)};
     backdrop-filter: blur(10px);
   }
 
@@ -89,7 +91,7 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
               color={
                 editMode === "delete"
                   ? props.theme.color.danger
-                  : props.theme.color.secondary
+                  : props.theme.color.onBackground
               }
               style={{ margin: "0" }}
               title="Delete tags"

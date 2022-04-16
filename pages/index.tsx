@@ -14,6 +14,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { LoadingScene } from "src/scenes";
 import { CANONICAL_URL } from "types/constants";
+import { useStore } from "src/stores/rootStore";
 
 const GlobalCSS = createGlobalStyle`
   body {
@@ -122,6 +123,8 @@ export default function Index() {
     }
   });
 
+  const theme = useStore((state) => state.theme);
+
   return (
     <>
       <Head>
@@ -133,7 +136,7 @@ export default function Index() {
         <link rel="canonical" href={CANONICAL_URL} />
       </Head>
       <LoadingScene display={session.status === "loading"} />
-      <ThemeProvider theme={lightTheme}>
+      <ThemeProvider theme={theme}>
         <GlobalCSS />
         <HeaderDiv>
           <a
@@ -147,7 +150,7 @@ export default function Index() {
         <MainDiv>
           <FlexDiv>
             <TextDiv>
-              <h1>A place to organized artworks from Twitter!</h1>
+              <h1>A place to organize artworks from Twitter!</h1>
               <p style={{ fontSize: "larger", marginBottom: "50px" }}>
                 Having trouble finding that one Tweet artwork? Organize your
                 liked Tweets into tags so you can come back for them later!

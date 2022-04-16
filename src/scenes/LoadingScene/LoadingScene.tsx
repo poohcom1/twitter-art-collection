@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { lightTheme } from "src/themes";
+import { useStore } from "src/stores/rootStore";
 import styled, { ThemeProvider } from "styled-components";
 
 const MainDiv = styled.div`
@@ -27,12 +27,14 @@ const MainDiv = styled.div`
 const Text = styled.h1`
   margin-bottom: 5px;
   z-index: 10;
-  color: black;
+  color: ${(props) => props.theme.color.onBackground};
 `;
 
 export default function LoadingScene({ display = true, text = "" }) {
+  const theme = useStore((state) => state.theme);
+
   return (
-    <ThemeProvider theme={lightTheme}>
+    <ThemeProvider theme={theme}>
       <MainDiv style={{ opacity: display ? "100%" : "0" }}>
         <Text>{text !== "" ? text : "Please wait a moment..."}</Text>
         <div className="center" style={{ width: "100vw", marginTop: "-15px" }}>

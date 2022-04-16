@@ -23,16 +23,14 @@ const StyledTab = styled.button<TabProps>`
 
   color: ${(props) => props.textColor ?? props.theme.color.onSecondary};
   background-color: ${(props) => props.color ?? props.theme.color.secondary};
-  border-color: ${(props) => props.color ?? props.theme.color.secondary};
+  border-color: ${(props) => props.color ?? props.theme.color.onSecondary};
 
   font: 1.1em;
   font-weight: 700;
   border-width: 2px;
   border-style: solid;
 
-  &:hover,
-  &:focus,
-  &:active {
+  &:hover {
     opacity: 70%;
   }
 

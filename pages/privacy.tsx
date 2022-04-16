@@ -2,17 +2,19 @@ import Head from "next/head";
 import Link from "next/link";
 import { GithubLink, HeaderDiv } from "pages";
 import { StyledButton } from "src/components";
-import { lightTheme } from "src/themes";
+import { useStore } from "src/stores/rootStore";
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 import { CANONICAL_URL } from "types/constants";
 
 const GlobalStyle = createGlobalStyle`
   body {
-    background-color: ${props => props.theme.color.background}
+    background-color: ${(props) => props.theme.color.background}
   }
-`
+`;
 
 export default function Privacy() {
+  const theme = useStore((state) => state.theme);
+
   return (
     <>
       <Head>
@@ -23,7 +25,7 @@ export default function Privacy() {
           href="https://twitter-art-collection.vercel.app/privacy"
         />
       </Head>
-      <ThemeProvider theme={lightTheme}>
+      <ThemeProvider theme={theme}>
         <GlobalStyle />
         <HeaderDiv style={{ backgroundColor: "black" }}>
           <a
@@ -32,7 +34,7 @@ export default function Privacy() {
           >
             <h2>Twitter Art Collection</h2>
           </a>
-          <GithubLink />
+          <GithubLink type="light" />
         </HeaderDiv>
         <div className="container" style={{ marginTop: "0", paddingTop: "0" }}>
           <h1 style={{ marginBottom: "0" }}>Privacy Policy</h1>

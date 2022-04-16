@@ -2,7 +2,7 @@ import Image from "next/image";
 import { useCallback } from "react";
 import { injectTweetLink } from "src/util/tweetUtil";
 
-export default function Tweet(props: { data: TweetExpansions }) {
+export default function Tweet(props: { data: TweetExpansions, darkMode?: boolean }) {
   const { data } = props;
 
   const onImageClick = useCallback(
@@ -13,7 +13,7 @@ export default function Tweet(props: { data: TweetExpansions }) {
   );
 
   return (
-    <div className="tweet">
+    <div className={`tweet ${props.darkMode ? "dark" : ""}`}>
       <div className="tweet-header">
         <a
           className="tweet-header-avatar"
@@ -36,7 +36,9 @@ export default function Tweet(props: { data: TweetExpansions }) {
           target="_blank"
           rel="noreferrer"
         >
-          <h3 className="tweet-header-name">{data.name}</h3>
+          <h3 className={`tweet-header-name ${props.darkMode ? "dark" : ""}`}>
+            {data.name}
+          </h3>
           <p className="tweet-header-username">@{data.username}</p>
         </a>
 
@@ -57,7 +59,7 @@ export default function Tweet(props: { data: TweetExpansions }) {
       </div>
 
       <div className="tweet-content">
-        <div className="tweet-content-text">
+        <div className={`tweet-content-text ${props.darkMode ? "dark" : ""}`}>
           {data.content.text ? injectTweetLink(data.content.text) : ""}
         </div>
         <div

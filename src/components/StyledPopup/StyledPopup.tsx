@@ -20,8 +20,9 @@ const StyledPopup = styled(Popup)`
   &-content {
     padding: 10px;
     background: white;
-    border-radius: 15px;
-    box-shadow: 4px 4px 15px;
+    color: black;
+    border-radius: 5px;
+    box-shadow: 0 0 5px ${(props) => props.theme.color.shadow};
     animation: anvil 0.15s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards;
   }
 
@@ -31,6 +32,8 @@ const StyledPopup = styled(Popup)`
 `;
 
 export const PopupItem = styled.button`
+  color: black;
+
   display: block;
   background-color: transparent;
 
@@ -49,6 +52,7 @@ export const PopupItem = styled.button`
     background-color: #00000019;
   }
 
+  font-weight: 590;
 `;
 
 export default StyledPopup;
