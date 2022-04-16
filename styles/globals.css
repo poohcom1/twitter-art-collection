@@ -61,6 +61,13 @@ a.invis-link {
   color: inherit
 }
 
+button.clear {
+  background-color: transparent;
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
 .no-focus-outline:focus {
   outline: none;
 }

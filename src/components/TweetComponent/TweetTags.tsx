@@ -347,6 +347,7 @@ const TweetTags = withTheme(function TweetTags(props: {
         closeOnDocumentClick
         disabled={filterTagName === BLACKLIST_TAG}
         onOpen={onNewTagOpen}
+        onClose={() => setSearch("")}
       >
         {(close: () => void) => (
           <>

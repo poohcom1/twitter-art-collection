@@ -46,14 +46,16 @@ function UserAvatar(props: {
       position={"bottom left"}
       trigger={useMemo(
         () => (
-          <Avatar>
-            <Image
-              src={props.image ?? ""}
-              alt={props.name ?? "usernames"}
-              height={48}
-              width={48}
-            />
-          </Avatar>
+          <button className="clear">
+            <Avatar>
+              <Image
+                src={props.image ?? ""}
+                alt={props.name ?? "usernames"}
+                height={48}
+                width={48}
+              />
+            </Avatar>
+          </button>
         ),
         [props.image, props.name]
       )}
@@ -63,7 +65,6 @@ function UserAvatar(props: {
         <>
           {showBlacklist ? (
             <PopupItem
-              autoFocus={false}
               onClick={() => {
                 close();
                 onBlacklistClicked();

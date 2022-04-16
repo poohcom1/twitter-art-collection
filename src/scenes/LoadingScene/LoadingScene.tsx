@@ -27,6 +27,7 @@ const MainDiv = styled.div`
 const Text = styled.h1`
   margin-bottom: 5px;
   z-index: 10;
+  color: black;
 `;
 
 export default function LoadingScene({ display = true, text = "" }) {
