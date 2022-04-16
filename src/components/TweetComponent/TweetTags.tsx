@@ -409,6 +409,11 @@ const TweetTags = withTheme(function TweetTags(props: {
           .filter((tag) => tag.name !== filterTagName)
           .map((tag) => (
             <Tab
+              title={
+                editMode !== "delete"
+                  ? ""
+                  : `Remove from "${tag.name}"`
+              }
               color={
                 editMode !== "delete" ? undefined : props.theme.color.danger
               }

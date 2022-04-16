@@ -6,7 +6,7 @@ export const darkTheme: DefaultTheme = {
     secondary: "black",
     accent: "white",
 
-    danger: "rgb(255, 100, 100)",
+    danger: "rgb(255, 60, 60)",
 
     background: "rgb(20, 20, 20)",
     surface: "black",

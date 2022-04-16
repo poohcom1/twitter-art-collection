@@ -18,7 +18,6 @@ import { useStore } from "src/stores/rootStore";
 
 const GlobalCSS = createGlobalStyle`
   body {
-
     background-image: linear-gradient(
       135deg,
       ${(props) => props.theme.color.primary} 15%,
@@ -81,30 +80,6 @@ const SampleImageDiv = styled.div`
   margin-top: 50px;
 `;
 
-export const GithubLink = withTheme(function GithubLink(props: {
-  theme: DefaultTheme;
-  type?: "dark" | "light";
-}) {
-  const darkImg = "/assets/github/GitHub-Mark-32px.png";
-  const lightImg = "/assets/github/GitHub-Mark-Light-32px.png";
-
-  let img = darkImg;
-
-  if (props.type) {
-    img = props.type === "dark" ? darkImg : lightImg;
-  } else {
-    img =
-      props.theme === lightTheme
-        ? "/assets/github/GitHub-Mark-32px.png"
-        : "/assets/github/GitHub-Mark-Light-32px.png";
-  }
-
-  return (
-    <GithubLinkA href="https://github.com/poohcom1/twitter-art-collection">
-      <Image src={img} alt="Github Link" width={32} height={32} />
-    </GithubLinkA>
-  );
-});
 
 const FooterDiv = styled.div`
   position: absolute;
@@ -176,6 +151,35 @@ const Badge = styled.a<{ badgeColor?: string }>`
   }
 `;
 
+const Card = styled.div`
+  background-color: #f5f5f58e;
+`
+
+export const GithubLink = withTheme(function GithubLink(props: {
+  theme: DefaultTheme;
+  type?: "dark" | "light";
+}) {
+  const darkImg = "/assets/github/GitHub-Mark-32px.png";
+  const lightImg = "/assets/github/GitHub-Mark-Light-32px.png";
+
+  let img = darkImg;
+
+  if (props.type) {
+    img = props.type === "dark" ? darkImg : lightImg;
+  } else {
+    img =
+      props.theme === lightTheme
+        ? "/assets/github/GitHub-Mark-32px.png"
+        : "/assets/github/GitHub-Mark-Light-32px.png";
+  }
+
+  return (
+    <GithubLinkA href="https://github.com/poohcom1/twitter-art-collection">
+      <Image src={img} alt="Github Link" width={32} height={32} />
+    </GithubLinkA>
+  );
+});
+
 export default function Index() {
   const session = useSession();
   const router = useRouter();
@@ -231,10 +235,12 @@ export default function Index() {
               />
             </SampleImageDiv>
           </FlexDiv>
-          <h3>Alright, let&apos;s do this!</h3>
+          <h3>Just sign in with Twitter!</h3>
           <TwitterLogin />
         </MainDiv>
         <FooterDiv>
+          <div style={{ display: "flex", flexWrap: "wrap" }}></div>
+
           <h2>Powered by</h2>
           <div style={{ display: "flex", flexWrap: "wrap" }}>
             <Badge

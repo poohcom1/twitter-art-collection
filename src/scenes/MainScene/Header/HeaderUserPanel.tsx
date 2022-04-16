@@ -47,12 +47,13 @@ function UserAvatar(props: {
       trigger={useMemo(
         () => (
           <button className="clear">
-            <Avatar>
+            <Avatar title="User settings">
               <Image
                 src={props.image ?? ""}
                 alt={props.name ?? "usernames"}
                 height={48}
                 width={48}
+                quality={100}
               />
             </Avatar>
           </button>

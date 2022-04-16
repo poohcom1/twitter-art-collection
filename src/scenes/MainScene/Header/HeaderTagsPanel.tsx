@@ -21,6 +21,7 @@ const Tag = styled(StyledTab)`
 
   cursor: pointer;
 
+
   & p {
     margin: auto;
     height: fit-content;
