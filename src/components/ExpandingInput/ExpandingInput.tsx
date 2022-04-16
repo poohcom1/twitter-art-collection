@@ -23,6 +23,8 @@ const Container = styled.div`
     margin: 0;
     appearance: none;
     overflow: visible;
+
+    color: ${(props) => props.theme.color.onPrimary};
   }
 
   &::after {
