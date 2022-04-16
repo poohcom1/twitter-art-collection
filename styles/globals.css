@@ -56,6 +56,16 @@ body {
   color: transparent
 }
 
+a.invis-link {
+  text-decoration: none;
+  color: inherit
+}
+
+.no-focus-outline:focus {
+  outline: none;
+}
+
+
 /* Tweet */
 
 .tweet {

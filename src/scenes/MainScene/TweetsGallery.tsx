@@ -13,23 +13,33 @@ import {
 } from "masonic";
 import { TweetComponent } from "../../components";
 
-const COLUMN_WIDTH = 400;
+const COLUMN_WIDTH = 300;
 const COLUMN_GUTTER = 30;
 
 const MainDiv = styled.div`
   padding: 120px 40px;
 `;
 
+interface TweetsGalleryProps {
+  images: TweetSchema[];
+  fetchItems: () => Promise<void>;
+  maxItems: number;
+  columnWidth: number;
+  columnGutter: number;
+}
+
 /**
  * Draw tweets to a masonry depending on the current filter
  * Will infinitely load tweets for "all" and "uncategorized" filters
  * Will immediately load tweets for "tag" filters into "extraTweets"
  */
-export default function TweetsGallery(props: {
-  images: TweetSchema[];
-  fetchItems: () => Promise<void>;
-  maxItems: number;
-}) {
+export default function TweetsGallery({
+  images,
+  fetchItems,
+  maxItems,
+  columnWidth = COLUMN_WIDTH,
+  columnGutter = COLUMN_GUTTER,
+}: TweetsGalleryProps) {
   const containerRef = React.useRef(null);
   const [windowWidth, height] = useWindowSize();
   const { offset, width } = useContainerPosition(containerRef, [
@@ -37,10 +47,9 @@ export default function TweetsGallery(props: {
     height,
   ]);
   const { scrollTop, isScrolling } = useScroller(offset);
-  const positioner = usePositioner(
-    { width, columnWidth: COLUMN_WIDTH, columnGutter: COLUMN_GUTTER },
-    [props.images.length]
-  );
+  const positioner = usePositioner({ width, columnWidth, columnGutter }, [
+    images.length,
+  ]);
 
   const resizeObserver = useResizeObserver(positioner);
 
@@ -49,7 +58,7 @@ export default function TweetsGallery(props: {
     _stopIndex: number,
     _currentItems: TweetSchema[]
   ) => {
-    await props.fetchItems();
+    await fetchItems();
   };
 
   const maybeLoadMore = useInfiniteLoader<
@@ -57,14 +66,14 @@ export default function TweetsGallery(props: {
     LoadMoreItemsCallback<TweetSchema>
   >(fetchMoreItems, {
     isItemLoaded: (index, items) => index < items.length && !!items[index],
-    totalItems: props.maxItems,
+    totalItems: maxItems,
   });
 
   useEffect(() => {
-    if (props.images.length === 0 && props.maxItems !== 0) {
-      props.fetchItems().then();
+    if (images.length === 0 && maxItems !== 0) {
+      fetchItems().then();
     }
-  }, [props]);
+  }, [fetchItems, images.length, maxItems]);
 
   return (
     <MainDiv>
@@ -78,10 +87,10 @@ export default function TweetsGallery(props: {
 
         onRender: maybeLoadMore,
 
-        items: props.images,
+        items: images,
         render: MasonryCard,
       })}
-      {props.images.length < props.maxItems ? (
+      {images.length < maxItems ? (
         <div className="center" style={{ marginTop: "32px" }}>
           <Image
             src="/assets/pulse-loading.svg"

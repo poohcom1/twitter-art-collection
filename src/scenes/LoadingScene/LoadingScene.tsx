@@ -37,7 +37,7 @@ export default function LoadingScene({ display = true, text = "" }) {
         <div className="center" style={{ width: "100vw", marginTop: "-15px" }}>
           <Image
             src="/assets/pulse-loading.svg"
-            alt="Loader"
+            alt=""
             layout="fixed"
             width="120px"
             height="120px"

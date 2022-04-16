@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useRef } from "react";
 import { ForwardedRef, forwardRef } from "react";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { StyledButton } from "..";
@@ -7,9 +7,10 @@ const DialogueDiv = styled.div`
   padding: 32px;
   color: ${(props) => props.theme.color.onSurface};
   background-color: ${(props) => props.theme.color.surface};
+  border-radius: 15px;
 `;
 
-const ButtonDiv = styled.div`
+const ButtonsDiv = styled.div`
   display: flex;
   justify-content: flex-end;
 `;
@@ -32,14 +33,18 @@ const ConfirmationDialogue = withTheme(
     props: ConfirmationDialogueProps & { theme: DefaultTheme },
     ref: ForwardedRef<HTMLDivElement>
   ) {
+    const confirmButtonRef = useRef<HTMLButtonElement>(null);
+
     return (
       <DialogueDiv ref={ref}>
         <h1>{props.title}</h1>
         <br />
         <p>{props.text}</p>
         <br />
-        <ButtonDiv>
+        <ButtonsDiv>
           <StyledButton
+            className="active"
+            ref={confirmButtonRef}
             color={props.acceptColor ?? props.theme.color.primary}
             onClick={useCallback(
               () => (props.onAccept ? props.onAccept() : {}),
@@ -54,7 +59,7 @@ const ConfirmationDialogue = withTheme(
           >
             {useMemo(() => props.cancelText ?? "Cancel", [props.cancelText])}
           </StyledButton>
-        </ButtonDiv>
+        </ButtonsDiv>
       </DialogueDiv>
     );
   })

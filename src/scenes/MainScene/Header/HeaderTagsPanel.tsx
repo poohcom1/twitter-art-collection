@@ -1,14 +1,15 @@
 import { useSession } from "next-auth/react";
 import React, { useCallback, useRef } from "react";
 import {
-  AddTag,
   ConfirmationDialogue,
+  ExpandingInput,
   StyledModel as StyledModal,
   StyledTab,
 } from "src/components";
 import { useStore, FilterType } from "src/stores/rootStore";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { AiOutlineCloseCircle as CloseCircle } from "react-icons/ai";
+import { useAddTag } from "src/hooks/useAddTag";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
@@ -71,40 +72,34 @@ function NewTag(props: { theme: DefaultTheme }) {
     }
   }, []);
 
-  return (
-    <Tag
-      style={{ width: "90px" }}
-      color={props.theme.color.primary}
-      textColor={props.theme.color.onPrimary}
-      onClick={onClick}
-    >
-      <AddTag
-        className="no-placeholder"
-        ref={addTagRef}
-        placeholder="Add tag"
-        style={{
-          backgroundColor: "transparent",
-          outline: "none",
-          border: "none",
-          color: "white",
-          fontWeight: "800",
-          width: "80px",
-          textAlign: "center",
-        }}
-        onFinish={(error) => {
-          switch (error) {
-            case "EXISTING_TAG":
-              alert("Tag already exists!");
-              break;
-            case "INVALID_CHAR":
-              alert("Please only include alphanumeric character and dashes.");
-              break;
-          }
+  const { inputProps, tagSetText } = useAddTag((_e) => {
+    addTagRef.current?.blur();
+  });
 
-          addTagRef.current?.blur();
-        }}
-      />
-    </Tag>
+  return (
+    <>
+      <Tag
+        tabIndex={-1}
+        color={props.theme.color.primary}
+        textColor={props.theme.color.onPrimary}
+        onClick={onClick}
+        style={{ display: "block" }}
+      >
+        <ExpandingInput
+          ref={addTagRef}
+          placeholder="Add Tag"
+          style={{
+            color: "white",
+            backgroundColor: "transparent",
+            outline: "none",
+            border: "none",
+          }}
+          minWidth="5em"
+          onBlur={() => tagSetText("")}
+          {...inputProps}
+        />
+      </Tag>
+    </>
   );
 }
 
@@ -223,8 +218,9 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
                       if (filterType === "tag" && filterTag === tag.name) {
                         setFilter("all");
                       }
-                      // Turn off edit mode when deleting tag
+
                       // TODO Make this an option?
+                      // Turn off edit mode when deleting tag
                       toggleEditMode();
                       close();
                     }

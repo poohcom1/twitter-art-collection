@@ -8,3 +8,4 @@ export { default as TwitterLogin } from "./TwitterLogin/TwitterLogin";
 export { default as ConfirmationDialogue } from "./ConfirmationDialogue/ConfirmationDialogue";
 export { default as AddTag } from "./AddTag/AddTag";
 export { default as Tweet } from "./Tweet/Tweet";
+export { default as ExpandingInput } from "./ExpandingInput/ExpandingInput";

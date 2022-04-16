@@ -3,9 +3,9 @@ import { signOut, useSession } from "next-auth/react";
 import { StyledPopup, PopupItem } from "src/components";
 import styled from "styled-components";
 import { useCallback, useMemo } from "react";
-import Link from "next/link";
 import { useStore } from "src/stores/rootStore";
 import { BLACKLIST_TAG } from "types/constants";
+import Link from "next/link";
 
 const Avatar = styled.div`
   border-radius: 50%;
@@ -63,6 +63,7 @@ function UserAvatar(props: {
         <>
           {showBlacklist ? (
             <PopupItem
+              autoFocus={false}
               onClick={() => {
                 close();
                 onBlacklistClicked();
@@ -73,19 +74,18 @@ function UserAvatar(props: {
           ) : (
             <></>
           )}
-          <PopupItem
-            onClick={() =>
-              (window.location.href =
-                "https://github.com/poohcom1/twitter-art-collection/issues/new")
-            }
+          <a
+            tabIndex={-1}
+            className="invis-link"
+            href="https://github.com/poohcom1/twitter-art-collection/issues/new"
+            target="_blank"
+            rel="noreferrer"
           >
-            Give feedback
-          </PopupItem>
-          <PopupItem>
-            <Link href="/privacy" passHref>
-              <div>Privacy</div>
-            </Link>
-          </PopupItem>
+            <PopupItem>Give feedback</PopupItem>
+          </a>
+          <Link href="/privacy" passHref>
+            <PopupItem>Privacy</PopupItem>
+          </Link>
           <PopupItem onClick={onSignoutClicked}>Logout</PopupItem>
         </>
       )}

@@ -17,11 +17,20 @@ const StyledButton = styled.button<ButtonProps>`
   padding: 16px;
   font-size: 1.1em;
 
+  height: 2.75em;
+
+  display: flex;
+  align-items: center;
+
   color: ${(props) => props.textColor ?? props.theme.color.onSecondary};
   background-color: ${(props) => props.color ?? props.theme.color.secondary};
   border-color: ${(props) => props.color ?? props.theme.color.secondary};
 
   &:hover {
+    opacity: 70%;
+  }
+
+  &:focus {
     opacity: 70%;
   }
 
