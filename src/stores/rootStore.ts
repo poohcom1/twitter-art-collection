@@ -20,7 +20,7 @@ type ImagePredicate = <S extends ImageSchema>(
   array?: ImageSchema[]
 ) => image is S;
 
-const FILTERS = ["all", "uncategorized", "tag"] as const;
+const FILTERS = ["all", "uncategorized", "tag", "multi"] as const;
 export type FilterType = typeof FILTERS[number];
 export function isFilterType(filter: string): filter is FilterType {
   return FILTERS.includes(filter as FilterType);
@@ -33,6 +33,16 @@ interface FilterAction<A extends FilterType> {
 interface FilterTagAction extends FilterAction<"tag"> {
   tag: TagSchema;
 }
+
+interface FilterMultipleTagAction extends FilterAction<"multi"> {
+  tags: TagSchema[];
+}
+
+type FilterActions =
+  | FilterAction<"all">
+  | FilterAction<"uncategorized">
+  | FilterTagAction
+  | FilterMultipleTagAction;
 
 // Equality functions
 const isString = (data: unknown): data is string => {
@@ -49,7 +59,7 @@ export const useStore = create(
         return true;
       }),
       filterType: <FilterType>"all",
-      filterTagName: "",
+      filterSelectTags: <string[]>[],
       editMode: <"add" | "delete">"add",
       // User
       newUser: false,
@@ -136,7 +146,7 @@ export const useStore = create(
 
         const blacklist = get().tags.get(BLACKLIST_TAG);
 
-        if (blacklist && get().filterTagName !== blacklist.name) {
+        if (blacklist && !get().filterSelectTags.includes(blacklist.name)) {
           tweets = tweets.filter(
             (tweet) =>
               !blacklist.images.find((image) => imageEqual(tweet, image))
@@ -167,7 +177,10 @@ export const useStore = create(
         set((state) => {
           // Switch to "all" if current tag is deleted
           let tagChangeObject = {};
-          if (state.filterTagName === tag.name) {
+          if (
+            state.filterSelectTags.length === 1 &&
+            state.filterSelectTags[0] === tag.name
+          ) {
             tagChangeObject = setFilter({ type: "all" }, state.tags);
           }
 
@@ -216,7 +229,7 @@ export const useStore = create(
         }),
       blacklistImage: (image: ImageSchema) => {
         set((state) => {
-          const tags = state.tags;
+          const tags = new Map(state.tags);
 
           if (!tags.has(BLACKLIST_TAG)) {
             const blacklistTag = { name: BLACKLIST_TAG, images: [image] };
@@ -226,6 +239,10 @@ export const useStore = create(
             postTag(blacklistTag);
           } else {
             const blacklistTag = tags.get(BLACKLIST_TAG);
+
+            if (blacklistTag?.images.find(im => imageEqual(im, image))) {
+              return
+            }
 
             blacklistTag?.images.push(image);
 
@@ -242,12 +259,8 @@ export const useStore = create(
        * @param action.type Action
        * @param action.tag Payload if action type is "tag"
        */
-      setFilter: (
-        action:
-          | FilterAction<"all">
-          | FilterAction<"uncategorized">
-          | FilterTagAction
-      ) => set((state) => ({ ...state, ...setFilter(action, state.tags) })),
+      setFilter: (action: FilterActions) =>
+        set((state) => ({ ...state, ...setFilter(action, state.tags) })),
       /* -------------------------------- EditMode -------------------------------- */
       toggleEditMode: () =>
         set({ editMode: get().editMode === "add" ? "delete" : "add" }),
@@ -274,14 +287,16 @@ export const useStore = create(
  * @returns
  */
 function setFilter(
-  action: FilterAction<"all"> | FilterAction<"uncategorized"> | FilterTagAction,
+  action: FilterActions,
   tags: TagCollection
 ): {
   imageFilter: ImagePredicate;
-  filterTagName: string;
+  filterSelectTags: string[];
   filterType: FilterType;
 } {
   let imageFilter = <ImagePredicate>((_image) => true);
+  let filterSelectTags: string[] = [];
+
   switch (action.type) {
     case "all":
       imageFilter = <ImagePredicate>((_image) => true);
@@ -298,15 +313,28 @@ function setFilter(
       });
       break;
     case "tag":
+      filterSelectTags = [action.tag.name];
       imageFilter = <ImagePredicate>((image) => {
         return !!action.tag.images.find((im) => imageEqual(im, image));
+      });
+      break;
+    case "multi":
+      filterSelectTags = action.tags.map((t) => t.name);
+      imageFilter = <ImagePredicate>((image) => {
+        for (const tag of action.tags) {
+          if (!tag.images.find((im) => imageEqual(im, image))) {
+            return false;
+          }
+        }
+
+        return true;
       });
       break;
   }
 
   return {
-    imageFilter: imageFilter,
-    filterTagName: (action as FilterTagAction).tag?.name ?? "",
     filterType: action.type,
+    imageFilter: imageFilter,
+    filterSelectTags,
   };
 }

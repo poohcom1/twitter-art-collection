@@ -67,20 +67,45 @@ export default function MainScene() {
   const setFilter = useStore((state) => state.setFilter);
 
   useEffect(() => {
-    const filter: string = router.query.filter as string;
-    const tag: string = router.query.tag as string;
+    const _filter = (router.query.filter as string) ?? "all";
+    const _tag = router.query.tag;
 
-    if (isFilterType(filter) && tags.has(tag)) {
-      setFilter({ type: filter, tag: tags.get(tag)! });
+    if (isFilterType(_filter) && _tag) {
+      switch (_filter) {
+        case "all":
+        case "uncategorized":
+          setFilter({ type: _filter });
+          break;
+        case "tag":
+          if (typeof _tag === "string") {
+            const tag = tags.get(_tag);
+
+            if (tag) setFilter({ type: "tag", tag });
+          } else {
+            const __tags = _tag.reduce((pre: TagSchema[], cur) => {
+              const tag = tags.get(cur);
+
+              if (tag) {
+                pre.push(tag);
+              }
+
+              return pre;
+            }, []);
+
+            setFilter({ type: "multi", tags: __tags });
+          }
+
+          break;
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tags]);
 
   // Filter image
   const filteredImages = useStore((state) => state.getFilteredTweets());
-  const allImages: TweetSchema[] = useStore((state) =>
-    state.getFilteredTweets(true)
-  );
+  const allImages = useStore((state) => state.getFilteredTweets(true));
+
+  console.log(allImages.length)
 
   const loadTweetData = useStore((state) => state.loadTweetData);
 
@@ -89,7 +114,7 @@ export default function MainScene() {
     const unfetchedImages = allImages.filter((im: TweetSchema) => !im.data);
     const imagesToFetch = unfetchedImages.slice(0, 100);
 
-    await loadTweetData(imagesToFetch.filter((im) => !im.loading));
+    await loadTweetData(imagesToFetch.filter((im: TweetSchema) => !im.loading));
   }, [allImages, loadTweetData]);
 
   if (tweetsError !== "") {

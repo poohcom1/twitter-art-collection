@@ -60,7 +60,7 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
   const editMode = useStore((state) => state.editMode);
   const toggleEditMode = useStore((state) => state.toggleEditMode);
 
-  const tagName = useStore((state) => state.filterTagName);
+  const blacklist = useStore((state) => state.filterSelectTags.length === 0 && state.filterSelectTags[0] === BLACKLIST_TAG);
 
   return (
     <HeaderDiv>
@@ -101,7 +101,7 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
           )}
         </div>
       </HeaderFlex>
-      {tagName === BLACKLIST_TAG ? (
+      {blacklist ? (
         <BlacklistHeader>
           <h3>Blacklist</h3>
         </BlacklistHeader>

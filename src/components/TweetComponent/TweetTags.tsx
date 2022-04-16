@@ -121,9 +121,11 @@ function AddImagesButton(props: {
 
   // Remove image from current tag
   const removeImageCallback = useStore((state) => () => {
-    const currentTag = state.tags.get(state.filterTagName);
-    if (currentTag) {
-      state.removeImage(currentTag, props.image);
+    if (state.filterSelectTags.length === 1) {
+      const currentTag = state.tags.get(state.filterSelectTags[0]);
+      if (currentTag) {
+        state.removeImage(currentTag, props.image);
+      }
     }
   });
 
@@ -131,8 +133,9 @@ function AddImagesButton(props: {
     <Tab
       color={!deleteMode ? undefined : props.theme.color.danger}
       title={!deleteMode ? "Add image to tag" : "Remove image from current tag"}
+      onClick={!deleteMode ? undefined : removeImageCallback}
     >
-      <StyledAddButton onClick={!deleteMode ? undefined : removeImageCallback}>
+      <StyledAddButton>
         {!deleteMode ? (
           <PlusCircle size={BUTTON_SIZE} />
         ) : (
@@ -269,7 +272,9 @@ const TweetTags = withTheme(function TweetTags(props: {
   const editMode = useStore((state) => state.editMode);
 
   // Get filter
-  const filterTagName = useStore((state) => state.filterTagName);
+  const filterTagName = useStore((state) =>
+    state.filterSelectTags.length === 1 ? state.filterSelectTags[0] : ""
+  );
 
   // Get filter actions
   const [removeImage, setFilter] = useStore((state) => [
@@ -409,11 +414,7 @@ const TweetTags = withTheme(function TweetTags(props: {
           .filter((tag) => tag.name !== filterTagName)
           .map((tag) => (
             <Tab
-              title={
-                editMode !== "delete"
-                  ? ""
-                  : `Remove from "${tag.name}"`
-              }
+              title={editMode !== "delete" ? "" : `Remove from "${tag.name}"`}
               color={
                 editMode !== "delete" ? undefined : props.theme.color.danger
               }

@@ -21,7 +21,6 @@ const Tag = styled(StyledTab)`
 
   cursor: pointer;
 
-
   & p {
     margin: auto;
     height: fit-content;
@@ -112,34 +111,74 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
   const editMode = useStore((state) => state.editMode);
   const toggleEditMode = useStore((state) => state.toggleEditMode);
 
-  const [filterType, filterTag] = useStore((state) => [
+  const [filterType, filterTags] = useStore((state) => [
     state.filterType,
-    state.filterTagName,
+    state.filterSelectTags,
   ]);
 
   const removeTag = useStore((state) => state.removeTag);
-  const setStateFilter = useStore((state) => state.setFilter);
 
   const session = useSession();
 
   // create filter reducers
-  const setFilter = useCallback(
-    (type: FilterType, tag?: TagSchema) => () => {
-      if (type === "all") {
-        setStateFilter({ type: "all" });
-      } else if (type === "uncategorized") {
-        setStateFilter({ type: "uncategorized" });
-      } else {
-        setStateFilter({ type: "tag", tag: tag! });
-      }
+  const setFilter = useStore(
+    useCallback(
+      (state) =>
+        (type: FilterType, tag?: TagSchema) =>
+        (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+          let urlAction = type;
+          let urlParam = "";
 
-      window.history.replaceState(
-        null,
-        "",
-        `?filter=${type}${type === "tag" ? "&tag=" + tag!.name : ""}`
-      );
-    },
-    [setStateFilter]
+          if (type === "all") {
+            state.setFilter({ type: "all" });
+          } else if (type === "uncategorized") {
+            state.setFilter({ type: "uncategorized" });
+          } else {
+            if (e.shiftKey) {
+              if (!tag) {
+                console.error("Tag param not given");
+                return;
+              }
+
+              let tagNames = state.filterSelectTags;
+
+              if (tagNames.includes(tag.name)) {
+                tagNames = tagNames.filter((t) => t !== tag?.name);
+              } else {
+                tagNames.push(tag.name);
+              }
+
+              if (tagNames.length === 0) {
+                urlAction = "all";
+                state.setFilter({ type: "all" });
+              } else {
+                const tags = tagNames.reduce((pre: TagSchema[], cur) => {
+                  const tag = state.tags.get(cur);
+
+                  if (tag) {
+                    pre.push(tag);
+                  }
+
+                  return pre;
+                }, []);
+
+                urlParam = tagNames.map(n => "&tag=" + n).join("");
+                state.setFilter({ type: "multi", tags });
+              }
+            } else {
+              urlParam = "&tag=" + tag!.name;
+              state.setFilter({ type: "tag", tag: tag! });
+            }
+          }
+
+          window.history.replaceState(
+            null,
+            "",
+            `?filter=${urlAction}${urlParam}`
+          );
+        },
+      []
+    )
   );
 
   return (
@@ -181,7 +220,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
               style={{ whiteSpace: "nowrap" }}
               key={i}
               onClick={setFilter("tag", tag)}
-              active={filterType === "tag" && filterTag === tag.name}
+              active={filterTags.includes(tag.name)}
             >
               {tag.name} - {tag.images.length}
             </Tag>
@@ -191,7 +230,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
               trigger={
                 <Tag
                   key={i}
-                  active={filterType === "tag" && filterTag === tag.name}
+                  active={filterType === "tag" && filterTags.includes(tag.name)}
                   color={props.theme.color.danger}
                 >
                   {tag.name}
@@ -215,7 +254,10 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
                   onAccept={() => {
                     if (session.data) {
                       removeTag(tag);
-                      if (filterType === "tag" && filterTag === tag.name) {
+                      if (
+                        filterType === "tag" &&
+                        filterTags.includes(tag.name)
+                      ) {
                         setFilter("all");
                       }
 

@@ -77,6 +77,11 @@ export default function TweetsGallery({
 
   return (
     <MainDiv>
+      {maxItems === 0 ? (
+        <h4 style={{ textAlign: "center" }}>Nothing to see here!</h4>
+      ) : (
+        <></>
+      )}
       {useMasonry({
         positioner,
         scrollTop,
