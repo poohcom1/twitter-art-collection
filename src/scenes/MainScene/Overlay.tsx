@@ -17,6 +17,10 @@ const OverlayContainer = styled.div`
 `;
 
 const OverlayItem = styled.button`
+  &:hover {
+    cursor: pointer;
+  }
+
   width: 60px;
   height: 60px;
   background-color: ${(props) => props.theme.color.surface};

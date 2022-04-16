@@ -3,7 +3,7 @@ import { DefaultTheme } from "styled-components";
 export const darkTheme: DefaultTheme = {
   color: {
     primary: "rgb(89, 56, 167)",
-    secondary: "transparent",
+    secondary: "black",
     accent: "white",
 
     danger: "rgb(255, 100, 100)",

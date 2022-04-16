@@ -25,7 +25,6 @@ import { useOverflowDetector } from "src/hooks/useOverflowDetector";
 import Image from "next/image";
 import AddTag from "../AddTag/AddTag";
 import { BLACKLIST_TAG } from "types/constants";
-import { applyOpacity } from "src/util/themeUtil";
 
 const BUTTON_SIZE = 35;
 
@@ -69,9 +68,7 @@ const Tab = styled(StyledTab)`
 
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
-  border-width: 1px;
-  border-bottom-width: 0;
-  border-color: ${(props) => applyOpacity(props.theme.color.onSecondary, 0.4)};
+  border-width: 0;
 `;
 
 // Preview image modal styles
@@ -442,7 +439,7 @@ const TweetTags = withTheme(function TweetTags(props: {
       <StyledModal
         trigger={
           <StyledMenuIcon title="View image">
-            <MenuIcon size={30} color={props.theme.color.onBackground}/>
+            <MenuIcon size={30} color={props.theme.color.onBackground} />
           </StyledMenuIcon>
         }
         modal
