@@ -18,6 +18,8 @@ const GlobalStyle = createGlobalStyle`
     background-color: ${(props) => props.theme.color.background};
     width: 100vw;
     overflow-x: hidden;
+
+    transition: background-color 0.1s;
   }
 `;
 

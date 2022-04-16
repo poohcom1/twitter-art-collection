@@ -18,12 +18,15 @@ import { useStore } from "src/stores/rootStore";
 
 const GlobalCSS = createGlobalStyle`
   body {
-    background: ${(props) => props.theme.color.primary};
-    background: linear-gradient(
+
+    background-image: linear-gradient(
       135deg,
       ${(props) => props.theme.color.primary} 15%,
       ${(props) => props.theme.color.surface} 145%
     );
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
 
     color: white;
 
@@ -107,7 +110,6 @@ const FooterDiv = styled.div`
   position: absolute;
   top: 100vh;
 
-  background-color: ${(props) => props.theme.color.primary};
   color: ${(props) => props.theme.color.onPrimary};
 
   width: 100%;

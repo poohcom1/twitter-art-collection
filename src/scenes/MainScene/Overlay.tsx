@@ -29,6 +29,7 @@ const OverlayItem = styled.button`
 
   box-shadow: 0 0 5px black;
 
+  transition: background-color 0.1s;
 `;
 
 function ThemeSwitchItem() {
