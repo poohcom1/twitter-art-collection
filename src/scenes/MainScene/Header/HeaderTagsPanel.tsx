@@ -10,6 +10,7 @@ import { useStore, FilterType } from "src/stores/rootStore";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { AiOutlineCloseCircle as CloseCircle } from "react-icons/ai";
 import { useAddTag } from "src/hooks/useAddTag";
+import { BLACKLIST_TAG } from "types/constants";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
@@ -134,7 +135,8 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
           } else if (type === "uncategorized") {
             state.setFilter({ type: "uncategorized" });
           } else {
-            if (e.shiftKey) {
+            // Multi tag
+            if (e.shiftKey && !state.filterSelectTags.includes(BLACKLIST_TAG)) {
               if (!tag) {
                 console.error("Tag param not given");
                 return;
