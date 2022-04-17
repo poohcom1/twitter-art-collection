@@ -1,7 +1,14 @@
-import { forwardRef, useRef, useState, HTMLProps, useCallback } from "react";
+import {
+  forwardRef,
+  useRef,
+  useState,
+  HTMLProps,
+  useCallback,
+  useEffect,
+} from "react";
 import styled from "styled-components";
 
-const Container = styled.div<{ dataValue: string }>`
+const Container = styled.div`
   display: flex;
   position: relative;
   width: fit-content;
@@ -40,11 +47,14 @@ export default forwardRef<
     setText(text + "_");
   }, []);
 
+  useEffect(() => {
+    onChange(props.value as string);
+  }, [onChange, props.value]);
+
   return (
     <Container
       ref={parentRef}
       style={{ minWidth: props.defaultwidth }}
-      dataValue={text}
     >
       <input
         ref={ref}
@@ -55,8 +65,9 @@ export default forwardRef<
           onChange(e.target.value);
         }}
         onBlur={(e) => {
-          if (props.onBlur) props.onBlur(e);
-          setText("");
+          if (props.onBlur) {
+            props.onBlur(e);
+          }
         }}
       />
       <div style={{ color: "transparent", opacity: "0%", userSelect: "none" }}>
