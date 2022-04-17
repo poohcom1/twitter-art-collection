@@ -1,14 +1,18 @@
 import { useSession } from "next-auth/react";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import {
   ConfirmationDialogue,
   ExpandingInput,
   StyledModel as StyledModal,
   StyledTab,
 } from "src/components";
+import { AiOutlineSearch as SearchIcon } from "react-icons/ai";
 import { useStore, FilterType } from "src/stores/rootStore";
 import styled, { DefaultTheme, withTheme } from "styled-components";
-import { AiOutlineCloseCircle as CloseCircle } from "react-icons/ai";
+import {
+  AiOutlineCloseCircle as CloseCircle,
+  AiOutlineClose as Cross,
+} from "react-icons/ai";
 import { useAddTag } from "src/hooks/useAddTag";
 import { BLACKLIST_TAG } from "types/constants";
 
@@ -60,6 +64,48 @@ const TagsContainer = styled.div`
     background: grey;
   }
 `;
+
+const SearchDiv = styled(Tag)`
+  min-width: 3em;
+  overflow: hidden;
+
+  padding: 0 0.275em;
+
+  justify-content: flex-start;
+
+  transition: width 0.1s;
+`;
+
+function BasicSearch() {
+  const [active, setActive] = useState(false);
+  const [searchText, setSearchText] = useState("");
+
+  return (
+    <SearchDiv onClick={active ? undefined : () => setActive(true)}>
+      <SearchIcon size={20} />
+      {active ? (
+        <>
+          <ExpandingInput
+            value={searchText}
+            onChange={(e) => {
+              setSearchText((e.target as HTMLInputElement).value);
+            }}
+            autoFocus
+            className="blank"
+            defaultwidth="10em"
+            style={{ textAlign: "left" }}
+            onBlur={() => {
+              if (!searchText) setActive(false);
+            }}
+          />
+          <Cross onClick={() => setActive(false)} />
+        </>
+      ) : (
+        <></>
+      )}
+    </SearchDiv>
+  );
+}
 
 /**
  * Create new tag component
@@ -126,7 +172,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
     useCallback(
       (state) =>
         (type: FilterType, tag?: TagSchema) =>
-        (e: {shiftKey: boolean}) => {
+        (e: { shiftKey: boolean }) => {
           let urlAction = type;
           let urlParam = "";
 
@@ -200,6 +246,8 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
         >
           Uncategorized
         </Tag>
+
+        <BasicSearch />
       </StyledTagsPanel>
 
       <div

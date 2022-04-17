@@ -45,11 +45,11 @@ function ThemeSwitchItem() {
   }, [setTheme, theme]);
 
   return (
-    <OverlayItem onClick={toggleTheme}>
+    <OverlayItem onClick={toggleTheme} style={{ backgroundColor: theme.color.onSurface }}>
       {theme === lightTheme ? (
-        <LightMode size={24} color={theme.color.onSurface} />
+        <LightMode size={24} color={theme.color.surface} />
       ) : (
-        <DarkMode size={24} color={theme.color.onSurface} />
+        <DarkMode size={24} color={theme.color.surface} />
       )}
     </OverlayItem>
   );

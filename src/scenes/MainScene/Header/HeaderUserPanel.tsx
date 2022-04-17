@@ -46,7 +46,7 @@ function UserAvatar(props: {
       position={"bottom left"}
       trigger={useMemo(
         () => (
-          <button className="clear">
+          <button className="blank">
             <Avatar title="User settings">
               <Image
                 src={props.image ?? ""}
@@ -79,7 +79,7 @@ function UserAvatar(props: {
           )}
           <a
             tabIndex={-1}
-            className="invis-link"
+            className="blank"
             href="https://github.com/poohcom1/twitter-art-collection/issues/new"
             target="_blank"
             rel="noreferrer"

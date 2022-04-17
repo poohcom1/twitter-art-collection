@@ -80,7 +80,6 @@ const SampleImageDiv = styled.div`
   margin-top: 50px;
 `;
 
-
 const FooterDiv = styled.div`
   position: absolute;
   top: 100vh;
@@ -153,7 +152,7 @@ const Badge = styled.a<{ badgeColor?: string }>`
 
 const Card = styled.div`
   background-color: #f5f5f58e;
-`
+`;
 
 export const GithubLink = withTheme(function GithubLink(props: {
   theme: DefaultTheme;
@@ -261,7 +260,7 @@ export default function Index() {
               <p style={{ color: "black" }}>Next.js</p>
             </Badge>
             <Badge
-              className="invis-link"
+              className="blank"
               href={"https://github.com/jaredLunde/masonic"}
               target="_blank"
             >
@@ -269,7 +268,7 @@ export default function Index() {
               <p>🧱 MASONIC</p>
             </Badge>
             <Badge
-              className="invis-link"
+              className="blank"
               href={"https://github.com/pmndrs/zustand"}
               badgeColor="rgb(25, 93, 64)"
               target="_blank"

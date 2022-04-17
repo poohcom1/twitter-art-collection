@@ -50,235 +50,236 @@ const isString = (data: unknown): data is string => {
 };
 
 // Store
-export const useStore = create(
-  combine(
-    {
-      tags: <TagCollection>new Map(),
-      tagsStatus: <"loading" | "loaded" | "error">"loading",
-      imageFilter: <ImagePredicate>((_image, _index, _array) => {
-        return true;
-      }),
-      filterType: <FilterType>"all",
-      filterSelectTags: <string[]>[],
-      editMode: <"add" | "delete">"add",
-      // User
-      newUser: false,
-      // Twitter
-      tweets: <TweetSchema[]>[],
+const initialState = {
+  tags: <TagCollection>new Map(),
+  tagsStatus: <"loading" | "loaded" | "error">"loading",
+  imageFilter: <ImagePredicate>((_image, _index, _array) => {
+    return true;
+  }),
+  filterType: <FilterType>"all",
+  filterSelectTags: <string[]>[],
+  editMode: <"add" | "delete">"add",
 
-      // Settings
-      theme: lightTheme,
-    },
-    (set, get) => ({
-      initTweetsAndTags: async (): Promise<null | string> => {
-        const userData = await getUser();
+  // Display
+  headerHeight: 0,
 
-        if (userData.error === null) {
-          if (userData.data.newUser) {
-            set({
-              newUser: true,
-            });
+  // User
+  newUser: false,
 
-            const newUserData = await postUser();
+  // Twitter
+  tweets: <TweetSchema[]>[],
 
-            if (newUserData.error === null) {
-              set({
-                tags: new Map(Object.entries(newUserData.data.tags)),
-                tweets: newUserData.data.tweets,
-                tagsStatus: "loaded",
-                newUser: false,
-              });
+  // Settings
+  theme: lightTheme,
+};
 
-              return null;
-            } else {
-              return newUserData.error;
-            }
-          } else {
-            set({
-              tags: new Map(Object.entries(userData.data.tags)),
-              tweets: userData.data.tweets,
-              tagsStatus: "loaded",
-            });
+const store = combine(initialState, (set, get) => ({
+  initTweetsAndTags: async (): Promise<null | string> => {
+    const userData = await getUser();
 
-            return null;
-          }
-        } else {
-          return userData.error;
-        }
-      },
+    if (userData.error === null) {
+      if (userData.data.newUser) {
+        set({
+          newUser: true,
+        });
 
-      loadTweetData: async (tweets: TweetSchema[]) => {
-        console.log(`Fetching ${tweets.length} tweets data`);
+        const newUserData = await postUser();
 
-        if (tweets.length === 0) return;
-
-        const tweetsToFetch = tweets.filter((tweet) => !tweet.loading);
-        tweetsToFetch.forEach((tweet) => (tweet.loading = true));
-
-        const tweetExpansionsData = await fetchTweetData(
-          tweetsToFetch.map((t) => t.id)
-        );
-
-        if (tweetExpansionsData.error === null) {
-          console.log(`Fetched ${tweetExpansionsData.data.length} tweets data`);
-
-          const newTweets = tweetExpansionsData.data;
-
-          const currentTweets = get().tweets;
-
-          newTweets.forEach((newTweet) => {
-            const match = currentTweets.find(
-              (currentTweet) => currentTweet.id === newTweet.id
-            );
-
-            if (match) {
-              match.loading = false;
-              match.data = newTweet.data;
-            }
+        if (newUserData.error === null) {
+          set({
+            tags: new Map(Object.entries(newUserData.data.tags)),
+            tweets: newUserData.data.tweets,
+            tagsStatus: "loaded",
+            newUser: false,
           });
 
-          set({ tweets: [...currentTweets] });
+          return null;
+        } else {
+          return newUserData.error;
         }
-      },
-
-      getFilteredTweets: (includePartialTweets = false) => {
-        let tweets = get().tweets;
-
-        const blacklist = get().tags.get(BLACKLIST_TAG);
-
-        if (blacklist && !get().filterSelectTags.includes(blacklist.name)) {
-          tweets = tweets.filter(
-            (tweet) =>
-              !blacklist.images.find((image) => imageEqual(tweet, image))
-          );
-        }
-
-        return tweets
-          .filter((im) => includePartialTweets || !!im.data)
-          .filter(get().imageFilter);
-      },
-
-      /* ---------------------------------- Tags ---------------------------------- */
-      getTagList: (): TagSchema[] => {
-        const tagList = Array.from(get().tags.values());
-
-        return tagList.filter((tag) => tag.name !== BLACKLIST_TAG);
-      },
-      addTag: (tag: TagSchema): void =>
-        set((state) => {
-          postTag(tag).then();
-
-          const tags = state.tags;
-          tags.set(tag.name, tag);
-
-          return { ...state, tags };
-        }),
-      removeTag: (tag: TagSchema): void =>
-        set((state) => {
-          // Switch to "all" if current tag is deleted
-          let tagChangeObject = {};
-          if (
-            state.filterSelectTags.length === 1 &&
-            state.filterSelectTags[0] === tag.name
-          ) {
-            tagChangeObject = setFilter({ type: "all" }, state.tags);
-          }
-
-          deleteTag(tag).then();
-
-          const tags = state.tags;
-          tags.delete(tag.name);
-
-          return { ...state, tags, ...tagChangeObject };
-        }),
-      /* --------------------------------- Images --------------------------------- */
-
-      addImage: (tag: TagSchema | string, image: ImageSchema): void =>
-        set((state) => {
-          const tags = state.tags;
-
-          if (isString(tag)) {
-            const tagObject = tags.get(tag);
-
-            if (tagObject) {
-              tagObject.images.push(image);
-              tags.set(tagObject.name, tagObject);
-
-              putTag(tagObject).then();
-            } else {
-              console.error("Nonexistent tagname image add attempt");
-            }
-          } else {
-            tag.images.push(image);
-            tags.set(tag.name, tag);
-
-            putTag(tag).then();
-          }
-
-          return { ...state, tags: tags };
-        }),
-      removeImage: (tag: TagSchema, image: ImageSchema): void =>
-        set((state) => {
-          const tags = state.tags;
-          tag.images = tag.images.filter((im) => !imageEqual(im, image));
-          tags.set(tag.name, tag);
-
-          putTag(tag).then();
-
-          return { ...state, tags: tags };
-        }),
-      blacklistImage: (image: ImageSchema) => {
-        set((state) => {
-          const tags = new Map(state.tags);
-
-          if (!tags.has(BLACKLIST_TAG)) {
-            const blacklistTag = { name: BLACKLIST_TAG, images: [image] };
-
-            tags.set(BLACKLIST_TAG, blacklistTag);
-
-            postTag(blacklistTag);
-          } else {
-            const blacklistTag = tags.get(BLACKLIST_TAG);
-
-            if (blacklistTag?.images.find(im => imageEqual(im, image))) {
-              return
-            }
-
-            blacklistTag?.images.push(image);
-
-            putTag(blacklistTag!);
-          }
-
-          return { ...state, tags };
+      } else {
+        set({
+          tags: new Map(Object.entries(userData.data.tags)),
+          tweets: userData.data.tweets,
+          tagsStatus: "loaded",
         });
-      },
 
-      /* --------------------------------- Filters -------------------------------- */
-      /**
-       * Dispatcher for filter
-       * @param action.type Action
-       * @param action.tag Payload if action type is "tag"
-       */
-      setFilter: (action: FilterActions) =>
-        set((state) => ({ ...state, ...setFilter(action, state.tags) })),
-      /* -------------------------------- EditMode -------------------------------- */
-      toggleEditMode: () =>
-        set({ editMode: get().editMode === "add" ? "delete" : "add" }),
+        return null;
+      }
+    } else {
+      return userData.error;
+    }
+  },
 
-      /* ---------------------------------- etc. ---------------------------------- */
-      setTheme: (theme: DefaultTheme) => {
-        if (window) {
-          localStorage.setItem(
-            LOCAL_THEME_KEY,
-            theme === lightTheme ? LOCAL_THEME_LIGHT : LOCAL_THEME_DARK
-          );
+  loadTweetData: async (tweets: TweetSchema[]) => {
+    console.log(`Fetching ${tweets.length} tweets data`);
+
+    if (tweets.length === 0) return;
+
+    const tweetsToFetch = tweets.filter((tweet) => !tweet.loading);
+    tweetsToFetch.forEach((tweet) => (tweet.loading = true));
+
+    const tweetExpansionsData = await fetchTweetData(
+      tweetsToFetch.map((t) => t.id)
+    );
+
+    if (tweetExpansionsData.error === null) {
+      console.log(`Fetched ${tweetExpansionsData.data.length} tweets data`);
+
+      const newTweets = tweetExpansionsData.data;
+
+      const currentTweets = get().tweets;
+
+      newTweets.forEach((newTweet) => {
+        const match = currentTweets.find(
+          (currentTweet) => currentTweet.id === newTweet.id
+        );
+
+        if (match) {
+          match.loading = false;
+          match.data = newTweet.data;
+        }
+      });
+
+      set({ tweets: [...currentTweets] });
+    }
+  },
+
+  getFilteredTweets: (includePartialTweets = false) => {
+    let tweets = get().tweets;
+
+    const blacklist = get().tags.get(BLACKLIST_TAG);
+
+    if (blacklist && !get().filterSelectTags.includes(blacklist.name)) {
+      tweets = tweets.filter(
+        (tweet) => !blacklist.images.find((image) => imageEqual(tweet, image))
+      );
+    }
+
+    return tweets
+      .filter((im) => includePartialTweets || !!im.data)
+      .filter(get().imageFilter);
+  },
+
+  /* ---------------------------------- Tags ---------------------------------- */
+  getTagList: (): TagSchema[] => {
+    const tagList = Array.from(get().tags.values());
+
+    return tagList.filter((tag) => tag.name !== BLACKLIST_TAG);
+  },
+  addTag: (tag: TagSchema): void =>
+    set((state) => {
+      postTag(tag).then();
+
+      const tags = state.tags;
+      tags.set(tag.name, tag);
+
+      return { ...state, tags };
+    }),
+  removeTag: (tag: TagSchema): void =>
+    set((state) => {
+      // Switch to "all" if current tag is deleted
+      let tagChangeObject = {};
+      if (
+        state.filterSelectTags.length === 1 &&
+        state.filterSelectTags[0] === tag.name
+      ) {
+        tagChangeObject = setFilter({ type: "all" }, state.tags);
+      }
+
+      deleteTag(tag).then();
+
+      const tags = state.tags;
+      tags.delete(tag.name);
+
+      return { ...state, tags, ...tagChangeObject };
+    }),
+    
+  /* --------------------------------- Images --------------------------------- */
+  addImage: (tag: TagSchema | string, image: ImageSchema): void =>
+    set((state) => {
+      const tags = state.tags;
+
+      if (isString(tag)) {
+        const tagObject = tags.get(tag);
+
+        if (tagObject) {
+          tagObject.images.push(image);
+          tags.set(tagObject.name, tagObject);
+
+          putTag(tagObject).then();
+        } else {
+          console.error("Nonexistent tagname image add attempt");
+        }
+      } else {
+        tag.images.push(image);
+        tags.set(tag.name, tag);
+
+        putTag(tag).then();
+      }
+
+      return { ...state, tags: tags };
+    }),
+  removeImage: (tag: TagSchema, image: ImageSchema): void =>
+    set((state) => {
+      const tags = state.tags;
+      tag.images = tag.images.filter((im) => !imageEqual(im, image));
+      tags.set(tag.name, tag);
+
+      putTag(tag).then();
+
+      return { ...state, tags: tags };
+    }),
+  blacklistImage: (image: ImageSchema) => {
+    set((state) => {
+      const tags = new Map(state.tags);
+
+      if (!tags.has(BLACKLIST_TAG)) {
+        const blacklistTag = { name: BLACKLIST_TAG, images: [image] };
+
+        tags.set(BLACKLIST_TAG, blacklistTag);
+
+        postTag(blacklistTag);
+      } else {
+        const blacklistTag = tags.get(BLACKLIST_TAG);
+
+        if (blacklistTag?.images.find((im) => imageEqual(im, image))) {
+          return;
         }
 
-        set({ theme });
-      },
-    })
-  )
-);
+        blacklistTag?.images.push(image);
+
+        putTag(blacklistTag!);
+      }
+
+      return { ...state, tags };
+    });
+  },
+
+  /* --------------------------------- Filters -------------------------------- */
+  /**
+   * Dispatcher for filter
+   * @param action.type Action
+   * @param action.tag Payload if action type is "tag"
+   */
+  setFilter: (action: FilterActions) =>
+    set((state) => ({ ...state, ...setFilter(action, state.tags) })),
+  /* -------------------------------- EditMode -------------------------------- */
+  toggleEditMode: () =>
+    set({ editMode: get().editMode === "add" ? "delete" : "add" }),
+
+  /* ---------------------------------- etc. ---------------------------------- */
+  setTheme: (theme: DefaultTheme) => {
+    if (window) {
+      localStorage.setItem(
+        LOCAL_THEME_KEY,
+        theme === lightTheme ? LOCAL_THEME_LIGHT : LOCAL_THEME_DARK
+      );
+    }
+
+    set({ theme });
+  },
+}));
 
 /**
  * Shared logic for setting tags filter state
@@ -289,11 +290,7 @@ export const useStore = create(
 function setFilter(
   action: FilterActions,
   tags: TagCollection
-): {
-  imageFilter: ImagePredicate;
-  filterSelectTags: string[];
-  filterType: FilterType;
-} {
+): Partial<typeof initialState> {
   let imageFilter = <ImagePredicate>((_image) => true);
   let filterSelectTags: string[] = [];
 
@@ -338,3 +335,5 @@ function setFilter(
     filterSelectTags,
   };
 }
+
+export const useStore = create(store);

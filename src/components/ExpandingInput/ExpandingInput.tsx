@@ -51,12 +51,12 @@ export default forwardRef<
         type="text"
         {...props}
         onChange={(e) => {
-          if (props.onInput) props.onInput(e);
+          if (props.onChange) props.onChange(e);
           onChange(e.target.value);
         }}
         onBlur={(e) => {
           if (props.onBlur) props.onBlur(e);
-          setText("")
+          setText("");
         }}
       />
       <div style={{ color: "transparent", opacity: "0%", userSelect: "none" }}>

@@ -78,7 +78,7 @@ export function useAddTag<T extends HTMLElement>(
     tagKeyHandler: onKeyUpHandler,
     inputProps: {
       value: tagName,
-      onInput: inputHandler,
+      onChange: inputHandler,
       onKeyUp: onKeyUpHandler,
     },
   };
