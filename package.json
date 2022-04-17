@@ -6,6 +6,7 @@
     "start": "next start",
     "build": "next build",
     "dev": "next dev",
+    "dev:preact": "cross-env PREACT=true next dev",
     "lint": "next lint",
     "type": "tsc",
     "type:watch": "tsc -w",

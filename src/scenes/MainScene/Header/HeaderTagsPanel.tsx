@@ -1,5 +1,5 @@
 import { useSession } from "next-auth/react";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ConfirmationDialogue,
   ExpandingInput,
@@ -24,12 +24,9 @@ const Tag = styled(StyledTab)`
 
   border-radius: 1.5em;
 
-  cursor: pointer;
-
   & p {
     margin: auto;
     height: fit-content;
-    cursor: pointer;
     user-select: none;
   }
 `;
@@ -77,28 +74,46 @@ const SearchDiv = styled(Tag)`
 `;
 
 function BasicSearch() {
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const [active, setActive] = useState(false);
   const [searchText, setSearchText] = useState("");
 
+  useEffect(() => {
+    if (active && inputRef.current) {
+      inputRef.current.select();
+    }
+  }, [active]);
+
   return (
-    <SearchDiv onClick={active ? undefined : () => setActive(true)}>
-      <SearchIcon size={20} />
+    <SearchDiv
+      onClick={active ? undefined : () => setActive(true)}
+      style={{ cursor: active ? "default" : "pointer" }}
+      tabIndex={active ? -1 : 0}
+    >
+      <SearchIcon tabIndex={-1} size={20} />
       {active ? (
         <>
           <ExpandingInput
+            ref={inputRef}
             value={searchText}
             onChange={(e) => {
               setSearchText((e.target as HTMLInputElement).value);
             }}
-            autoFocus
-            className="blank"
-            defaultwidth="10em"
-            style={{ textAlign: "left" }}
             onBlur={() => {
               if (!searchText) setActive(false);
             }}
+            className="blank"
+            defaultwidth="10em"
+            style={{ textAlign: "left" }}
           />
-          <Cross onClick={() => setActive(false)} />
+          <Cross
+            style={{ cursor: "pointer" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setActive(false);
+            }}
+          />
         </>
       ) : (
         <></>
@@ -246,21 +261,19 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
         >
           Uncategorized
         </Tag>
-
-        <BasicSearch />
       </StyledTagsPanel>
-
-      <div
-        style={{
-          minWidth: "1px",
-          height: "50px",
-          margin: "5px",
-          backgroundColor: "grey",
-        }}
-      />
 
       {/* Tags section */}
       <TagsContainer>
+        <BasicSearch />
+        <div
+          style={{
+            minWidth: "1px",
+            height: "50px",
+            margin: "0 5px",
+            backgroundColor: "grey",
+          }}
+        />
         <NewTag theme={props.theme} />
 
         {tagList.reverse().map((tag, i) =>
