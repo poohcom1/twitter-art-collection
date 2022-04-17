@@ -79,6 +79,20 @@ function BasicSearch() {
   const [active, setActive] = useState(false);
   const [searchText, setSearchText] = useState("");
 
+  const setSearch = useStore(
+    useCallback(
+      (state) => (text: string) => {
+        setSearchText(text);
+
+        // TODO Hack to improve responsiveness. useTransition should work better once its in preact
+        setTimeout(() => {
+          state.setSearchFilter(text);
+        }, 100);
+      },
+      []
+    )
+  );
+
   useEffect(() => {
     if (active && inputRef.current) {
       inputRef.current.select();
@@ -98,7 +112,7 @@ function BasicSearch() {
             ref={inputRef}
             value={searchText}
             onChange={(e) => {
-              setSearchText((e.target as HTMLInputElement).value);
+              setSearch((e.target as HTMLInputElement).value);
             }}
             onBlur={() => {
               if (!searchText) setActive(false);
@@ -112,6 +126,7 @@ function BasicSearch() {
             onClick={(e) => {
               e.stopPropagation();
               setActive(false);
+              setSearch("");
             }}
           />
         </>

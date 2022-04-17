@@ -1,6 +1,6 @@
 import create from "zustand";
 import { combine } from "zustand/middleware";
-import { imageEqual } from "src/util/objectUtil";
+import { imageEqual, isString } from "src/util/objectUtil";
 import {
   BLACKLIST_TAG,
   LOCAL_THEME_DARK,
@@ -13,47 +13,19 @@ import { fetchTweetData } from "src/adapters/tweetAdapter";
 import { lightTheme } from "src/themes";
 import { DefaultTheme } from "styled-components";
 
-// Filters
-type ImagePredicate = <S extends ImageSchema>(
-  image: ImageSchema,
-  index?: number,
-  array?: ImageSchema[]
-) => image is S;
+/**
+ * !IMPORTANT
+ * While the store is made with the intention that it could be expanded to work with non-tweet images,
+ * in its current state some refactoring will be required if that is needed.
+ */
 
-const FILTERS = ["all", "uncategorized", "tag", "multi"] as const;
-export type FilterType = typeof FILTERS[number];
-export function isFilterType(filter: string): filter is FilterType {
-  return FILTERS.includes(filter as FilterType);
-}
-
-interface FilterAction<A extends FilterType> {
-  type: A;
-}
-
-interface FilterTagAction extends FilterAction<"tag"> {
-  tag: TagSchema;
-}
-
-interface FilterMultipleTagAction extends FilterAction<"multi"> {
-  tags: TagSchema[];
-}
-
-type FilterActions =
-  | FilterAction<"all">
-  | FilterAction<"uncategorized">
-  | FilterTagAction
-  | FilterMultipleTagAction;
-
-// Equality functions
-const isString = (data: unknown): data is string => {
-  return typeof data === "string";
-};
-
-// Store
 const initialState = {
   tags: <TagCollection>new Map(),
   tagsStatus: <"loading" | "loaded" | "error">"loading",
   imageFilter: <ImagePredicate>((_image, _index, _array) => {
+    return true;
+  }),
+  searchFilter: <TweetPredicate>((_image, _index, _array) => {
     return true;
   }),
   filterType: <FilterType>"all",
@@ -158,7 +130,8 @@ const store = combine(initialState, (set, get) => ({
 
     return tweets
       .filter((im) => includePartialTweets || !!im.data)
-      .filter(get().imageFilter);
+      .filter(get().imageFilter)
+      .filter(get().searchFilter);
   },
 
   /* ---------------------------------- Tags ---------------------------------- */
@@ -194,7 +167,7 @@ const store = combine(initialState, (set, get) => ({
 
       return { ...state, tags, ...tagChangeObject };
     }),
-    
+
   /* --------------------------------- Images --------------------------------- */
   addImage: (tag: TagSchema | string, image: ImageSchema): void =>
     set((state) => {
@@ -264,6 +237,39 @@ const store = combine(initialState, (set, get) => ({
    */
   setFilter: (action: FilterActions) =>
     set((state) => ({ ...state, ...setFilter(action, state.tags) })),
+
+  setSearchFilter: (
+    search: string,
+    target?: TweetTextData
+  ) => {
+    let searchFilter = <TweetPredicate>((_tweet) => true);
+
+    if (search !== "") {
+      searchFilter = <TweetPredicate>((tweet) => {
+        if (!tweet.data) {
+          return false
+        }
+
+        let include = false
+
+        const texts = getTweetTexts(tweet)
+
+        for (const [key, text] of Object.entries(texts)) {
+          if (target && !target[key as keyof TweetTextData]) {
+            continue
+          }
+
+          if (text && text.toLowerCase().includes(search.toLowerCase().trim())) {
+            include = true;
+          }
+        }
+
+        return include;
+      });
+    }
+
+    set((state) => ({ ...state, searchFilter }));
+  },
   /* -------------------------------- EditMode -------------------------------- */
   toggleEditMode: () =>
     set({ editMode: get().editMode === "add" ? "delete" : "add" }),
@@ -280,6 +286,45 @@ const store = combine(initialState, (set, get) => ({
     set({ theme });
   },
 }));
+
+export const useStore = create(store);
+
+// Filters helpers
+type ImagePredicate = <S extends ImageSchema>(
+  image: S,
+  index?: number,
+  array?: S[]
+) => image is S;
+
+type TweetPredicate = <S extends TweetSchema>(
+  image: S,
+  index?: number,
+  array?: S[]
+) => image is S;
+
+const FILTERS = ["all", "uncategorized", "tag", "multi"] as const;
+export type FilterType = typeof FILTERS[number];
+export function isFilterType(filter: string): filter is FilterType {
+  return FILTERS.includes(filter as FilterType);
+}
+
+interface FilterAction<A extends FilterType> {
+  type: A;
+}
+
+interface FilterTagAction extends FilterAction<"tag"> {
+  tag: TagSchema;
+}
+
+interface FilterMultipleTagAction extends FilterAction<"multi"> {
+  tags: TagSchema[];
+}
+
+type FilterActions =
+  | FilterAction<"all">
+  | FilterAction<"uncategorized">
+  | FilterTagAction
+  | FilterMultipleTagAction;
 
 /**
  * Shared logic for setting tags filter state
@@ -336,4 +381,17 @@ function setFilter(
   };
 }
 
-export const useStore = create(store);
+// Search Filter helper
+interface TweetTextData {
+  text?: string;
+  name?: string;
+  username?: string;
+}
+
+function getTweetTexts(tweet: TweetSchema): TweetTextData {
+  return {
+    text: tweet.data?.content.text,
+    name: tweet.data?.name,
+    username: tweet.data?.username,
+  };
+}

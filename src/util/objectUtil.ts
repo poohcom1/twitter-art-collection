@@ -13,3 +13,8 @@ export function arrayEqual<P>(arr1: P[], arr2: P[]): boolean {
 
   return true;
 }
+
+
+export const isString = (data: unknown): data is string => {
+  return typeof data === "string";
+};
