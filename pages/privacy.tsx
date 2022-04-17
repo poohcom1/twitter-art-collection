@@ -8,7 +8,8 @@ import { CANONICAL_URL } from "types/constants";
 
 const GlobalStyle = createGlobalStyle`
   body {
-    background-color: ${(props) => props.theme.color.background}
+    background-color: ${(props) => props.theme.color.background};
+    color: ${(props) => props.theme.color.onBackground};
   }
 `;
 
