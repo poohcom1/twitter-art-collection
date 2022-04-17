@@ -272,9 +272,11 @@ const TweetTags = withTheme(function TweetTags(props: {
   const editMode = useStore((state) => state.editMode);
 
   // Get filter
-  const filterTagName = useStore((state) =>
-    state.filterSelectTags.length === 1 ? state.filterSelectTags[0] : ""
-  );
+
+  const [currentTag, selectedTags] = useStore((state) => [
+    state.filterSelectTags.length === 1 ? state.filterSelectTags[0] : "",
+    state.filterSelectTags,
+  ]);
 
   // Get filter actions
   const [removeImage, setFilter] = useStore((state) => [
@@ -347,12 +349,12 @@ const TweetTags = withTheme(function TweetTags(props: {
             <AddImagesButton
               image={props.image}
               theme={props.theme}
-              forceDeleteMode={filterTagName === BLACKLIST_TAG}
+              forceDeleteMode={currentTag === BLACKLIST_TAG}
             />
           </div>
         }
         closeOnDocumentClick
-        disabled={filterTagName === BLACKLIST_TAG}
+        disabled={currentTag === BLACKLIST_TAG}
         onOpen={onNewTagOpen}
         onClose={() => setSearch("")}
       >
@@ -411,7 +413,7 @@ const TweetTags = withTheme(function TweetTags(props: {
       {/* Included tags section */}
       <TabContainer ref={tagsContainerRef} overflowing={overflow}>
         {includedTags
-          .filter((tag) => tag.name !== filterTagName)
+          .filter((tag) => tag.name !== currentTag)
           .map((tag) => (
             <Tab
               title={editMode !== "delete" ? "" : `Remove from "${tag.name}"`}
@@ -419,7 +421,7 @@ const TweetTags = withTheme(function TweetTags(props: {
                 editMode !== "delete" ? undefined : props.theme.color.danger
               }
               key={tag.name}
-              active={filterTagName === tag.name && editMode !== "delete"} // Active overrides danger color, so don't show it
+              active={selectedTags.includes(tag.name) && editMode !== "delete"} // Active overrides danger color, so don't show it
               onClick={() => {
                 if (editMode !== "delete") {
                   setFilter({ type: "tag", tag: tag });

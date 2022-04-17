@@ -19,6 +19,7 @@ import { BLACKLIST_TAG } from "types/constants";
 const DEFAULT_TAG_WIDTH = "75px";
 
 const Tag = styled(StyledTab)`
+  margin: 5px;
   padding: 3px 10px;
   height: 3em;
 
@@ -66,7 +67,7 @@ const SearchDiv = styled(Tag)`
   min-width: 3em;
   overflow: hidden;
 
-  padding: 0 0.275em;
+  padding: 0 0.7em;
 
   justify-content: flex-start;
 
@@ -101,38 +102,66 @@ function BasicSearch() {
 
   return (
     <SearchDiv
-      onClick={active ? undefined : () => setActive(true)}
-      style={{ cursor: active ? "default" : "pointer" }}
+      onClick={active ? () => inputRef.current?.focus() : () => setActive(true)}
+      style={{
+        cursor: active ? "default" : "pointer",
+        transition: "color 0.1s",
+      }}
       tabIndex={active ? -1 : 0}
+      active={active}
     >
       <SearchIcon tabIndex={-1} size={20} />
-      {active ? (
-        <>
-          <ExpandingInput
-            ref={inputRef}
-            value={searchText}
-            onChange={(e) => {
-              setSearch((e.target as HTMLInputElement).value);
-            }}
-            onBlur={() => {
-              if (!searchText) setActive(false);
-            }}
-            className="blank"
-            defaultwidth="10em"
-            style={{ textAlign: "left" }}
-          />
-          <Cross
-            style={{ cursor: "pointer" }}
-            onClick={(e) => {
-              e.stopPropagation();
-              setActive(false);
-              setSearch("");
-            }}
-          />
-        </>
-      ) : (
-        <></>
-      )}
+      <ExpandingInput
+        ref={inputRef}
+        value={searchText}
+        onKeyUp={(e) => {
+          if (e.key === "Escape") {
+            setSearch("");
+            setActive(false);
+          }
+        }}
+        onChange={(e) => {
+          setSearch((e.target as HTMLInputElement).value);
+        }}
+        onBlur={() => {
+          if (!searchText) {
+            setActive(false);
+          }
+        }}
+        className="blank"
+        style={{ height: "100%" }}
+        containerStyle={{
+          minWidth: active ? "10em" : "0",
+          maxWidth: active ? "fit-content" : "0",
+          transition: "min-width 0.1s",
+          margin: "0",
+          padding: "0",
+        }}
+      />
+      <Cross
+        style={
+          active
+            ? {
+                cursor: "pointer",
+                width: "fit-content",
+                color: "inherit",
+                transition: "color 0.1s",
+              }
+            : {
+                cursor: "pointer",
+                width: "0",
+                color: "transparent",
+                transition: "color 0.1s",
+                margin: "0",
+                padding: "0",
+              }
+        }
+        onClick={(e) => {
+          e.stopPropagation();
+          setActive(false);
+          setSearch("");
+        }}
+      />
     </SearchDiv>
   );
 }
@@ -154,28 +183,28 @@ function NewTag(props: { theme: DefaultTheme }) {
   });
 
   return (
-    <>
-      <Tag
-        tabIndex={-1}
-        color={props.theme.color.primary}
-        textColor={props.theme.color.onPrimary}
-        onClick={onClick}
-      >
-        <ExpandingInput
-          ref={addTagRef}
-          placeholder="Add Tag"
-          style={{
-            color: "white",
-            backgroundColor: "transparent",
-            outline: "none",
-            border: "none",
-          }}
-          defaultwidth="5em"
-          onBlur={() => tagSetText("")}
-          {...inputProps}
-        />
-      </Tag>
-    </>
+    <Tag
+      tabIndex={-1}
+      color={props.theme.color.primary}
+      textColor={props.theme.color.onPrimary}
+      onClick={onClick}
+    >
+      <ExpandingInput
+        className="light-placeholder"
+        ref={addTagRef}
+        placeholder="Add Tag"
+        style={{
+          textAlign: "center",
+          color: "white",
+          backgroundColor: "transparent",
+          outline: "none",
+          border: "none",
+        }}
+        containerStyle={{ minWidth: "5em" }}
+        onBlur={() => tagSetText("")}
+        {...inputProps}
+      />
+    </Tag>
   );
 }
 

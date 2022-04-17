@@ -19,7 +19,7 @@ const Container = styled.div`
   align-items: center;
 
   input {
-    text-align: center;
+    text-align: left;
     position: absolute;
     top: 0;
     left: 0;
@@ -30,36 +30,35 @@ const Container = styled.div`
     margin: 0;
     appearance: none;
     overflow: visible;
-
-    color: ${(props) => props.theme.color.onPrimary};
   }
 `;
 
 export default forwardRef<
   HTMLInputElement,
-  { defaultwidth: string } & HTMLProps<HTMLInputElement>
+  {
+    containerStyle: React.CSSProperties | undefined;
+  } & HTMLProps<HTMLInputElement>
 >(function ExpandingInput(props, ref) {
   const parentRef = useRef<HTMLDivElement>(null);
 
   const [text, setText] = useState("");
 
   const onChange = useCallback((text: string) => {
-    setText(text + "_");
+    setText(text + (text === "" ? "" : "_"));
   }, []);
 
   useEffect(() => {
     onChange(props.value as string);
   }, [onChange, props.value]);
 
+  const { containerStyle, ...passProps } = props;
+
   return (
-    <Container
-      ref={parentRef}
-      style={{ minWidth: props.defaultwidth }}
-    >
+    <Container ref={parentRef} style={containerStyle}>
       <input
         ref={ref}
         type="text"
-        {...props}
+        {...passProps}
         onChange={(e) => {
           if (props.onChange) props.onChange(e);
           onChange(e.target.value);
@@ -70,7 +69,15 @@ export default forwardRef<
           }
         }}
       />
-      <div style={{ color: "transparent", opacity: "0%", userSelect: "none" }}>
+      <div
+        style={{
+          color: "transparent",
+          opacity: "0%",
+          userSelect: "none",
+          margin: 0,
+          padding: 0,
+        }}
+      >
         {text}
       </div>
     </Container>

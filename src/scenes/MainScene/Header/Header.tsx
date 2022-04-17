@@ -25,9 +25,7 @@ const HeaderDiv = styled.div`
 
   z-index: 10;
 
-  & * {
-    margin: 5px;
-  }
+  padding-top: 5px;
 `;
 
 const HeaderFlex = styled.div`
@@ -46,7 +44,6 @@ const BlacklistHeader = styled.div`
   background-color: ${(props) => props.theme.color.secondary};
   color: ${(props) => props.theme.color.onSecondary};
   margin: 0;
-  margin-top: -15px;
   padding: 0 40px;
 
   h3 {
@@ -60,7 +57,11 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
   const editMode = useStore((state) => state.editMode);
   const toggleEditMode = useStore((state) => state.toggleEditMode);
 
-  const blacklist = useStore((state) => state.filterSelectTags.length === 0 && state.filterSelectTags[0] === BLACKLIST_TAG);
+  const blacklist = useStore(
+    (state) =>
+      state.filterSelectTags.length === 1 &&
+      state.filterSelectTags[0] === BLACKLIST_TAG
+  );
 
   return (
     <HeaderDiv>
