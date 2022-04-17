@@ -51,8 +51,8 @@ export default function Tweet(props: { data: TweetExpansions, darkMode?: boolean
           <Image
             src={"/assets/twitter/twitter_logo_blue.svg"}
             alt="Twitter Logo"
-            height="42px"
-            width="42px"
+            height="30px"
+            width="30px"
             objectFit="contain"
           />
         </a>

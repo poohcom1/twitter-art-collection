@@ -30,24 +30,22 @@ export function useAddTag<T extends HTMLElement>(
 
   const submit = useCallback(() => {
     let tagError: TagErrors = "";
-    if (tagName !== "") {
-      tagError = validateTagName(tagName, tagList);
+    tagError = validateTagName(tagName, tagList);
 
-      if (tagError) {
-        if (onFinish) {
-          onFinish(tagError, tagName);
-        }
-
-        return;
+    if (tagError) {
+      if (onFinish) {
+        onFinish(tagError, tagName);
       }
 
-      const body: TagSchema = {
-        name: tagName,
-        images: [],
-      };
-
-      addTag(body);
+      return;
     }
+
+    const body: TagSchema = {
+      name: tagName,
+      images: [],
+    };
+
+    addTag(body);
 
     setTagName("");
     if (onFinish) {
@@ -81,7 +79,7 @@ export function useAddTag<T extends HTMLElement>(
     inputProps: {
       value: tagName,
       onInput: inputHandler,
-      onKeyUp: onKeyUpHandler
-    }
+      onKeyUp: onKeyUpHandler,
+    },
   };
 }

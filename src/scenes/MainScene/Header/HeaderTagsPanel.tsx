@@ -125,7 +125,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
     useCallback(
       (state) =>
         (type: FilterType, tag?: TagSchema) =>
-        (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        (e: {shiftKey: boolean}) => {
           let urlAction = type;
           let urlParam = "";
 
@@ -162,7 +162,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
                   return pre;
                 }, []);
 
-                urlParam = tagNames.map(n => "&tag=" + n).join("");
+                urlParam = tagNames.map((n) => "&tag=" + n).join("");
                 state.setFilter({ type: "multi", tags });
               }
             } else {

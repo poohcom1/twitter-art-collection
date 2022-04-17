@@ -16,6 +16,7 @@ const GlobalStyle = createGlobalStyle`
   
   body {
     background-color: ${(props) => props.theme.color.background};
+    color: ${(props) => props.theme.color.onBackground};
     width: 100vw;
     overflow-x: hidden;
 
@@ -104,8 +105,6 @@ export default function MainScene() {
   // Filter image
   const filteredImages = useStore((state) => state.getFilteredTweets());
   const allImages = useStore((state) => state.getFilteredTweets(true));
-
-  console.log(allImages.length)
 
   const loadTweetData = useStore((state) => state.loadTweetData);
 

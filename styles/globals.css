@@ -138,8 +138,7 @@ button.clear {
   color: black;
 }
 
-.tweet-content-text,
-dark {
+.tweet-content-text.dark {
   margin: 5px 0;
   color: white;
 }

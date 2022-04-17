@@ -28,11 +28,7 @@ interface TweetsGalleryProps {
   columnGutter?: number;
 }
 
-/**
- * Draw tweets to a masonry depending on the current filter
- * Will infinitely load tweets for "all" and "uncategorized" filters
- * Will immediately load tweets for "tag" filters into "extraTweets"
- */
+
 export default function TweetsGallery({
   images,
   fetchItems,
@@ -94,6 +90,7 @@ export default function TweetsGallery({
 
         items: images,
         render: MasonryCard,
+        tabIndex: -1
       })}
       {images.length < maxItems ? (
         <div className="center" style={{ marginTop: "32px" }}>

@@ -10,7 +10,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const tweetIds: string[] = req.body;
+  if (!req.query.ids) {
+    return res.send([])
+  }
+
+  const tweetIds: string[] = (req.query.ids as string).split(",");
 
   const twitterClient = await getTwitterApi();
 
