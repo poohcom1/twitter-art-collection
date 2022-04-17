@@ -240,7 +240,7 @@ export default function Index() {
         <FooterDiv>
           <div style={{ display: "flex", flexWrap: "wrap" }}></div>
 
-          <h2>Powered by</h2>
+          <h2>Created with the help of:</h2>
           <div style={{ display: "flex", flexWrap: "wrap" }}>
             <Badge
               href="https://github.com/vercel/next.js"
@@ -275,6 +275,15 @@ export default function Index() {
             >
               <p>Poimandres</p>
               <p>ZUSTAND</p>
+            </Badge>
+            <Badge
+              className="blank"
+              href={"https://github.com/yjose/reactjs-popup"}
+              badgeColor="rgb(162, 53, 162)"
+              target="_blank"
+            >
+              <p>yjose</p>
+              <p>🎀reactjs-popup</p>
             </Badge>
           </div>
         </FooterDiv>

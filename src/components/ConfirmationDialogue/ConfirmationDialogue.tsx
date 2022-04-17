@@ -5,8 +5,8 @@ import { StyledButton } from "..";
 
 const DialogueDiv = styled.div`
   padding: 32px;
-  color: ${(props) => props.theme.color.onSurface};
-  background-color: ${(props) => props.theme.color.surface};
+  color: black;
+  background-color: white;
   border-radius: 15px;
 `;
 
@@ -38,7 +38,6 @@ const ConfirmationDialogue = withTheme(
     return (
       <DialogueDiv ref={ref}>
         <h1>{props.title}</h1>
-        <br />
         <p>{props.text}</p>
         <br />
         <ButtonsDiv>
