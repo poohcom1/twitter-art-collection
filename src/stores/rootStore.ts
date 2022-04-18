@@ -51,10 +51,12 @@ const store = combine(initialState, (set, get) => ({
 
     if (userData.error === null) {
       if (userData.data.newUser) {
+        // New user
         set({
           newUser: true,
         });
 
+        // Create new user
         const newUserData = await postUser();
 
         if (newUserData.error === null) {
@@ -69,7 +71,9 @@ const store = combine(initialState, (set, get) => ({
         } else {
           return newUserData.error;
         }
+
       } else {
+        // Existing user
         set({
           tags: new Map(Object.entries(userData.data.tags)),
           tweets: userData.data.tweets,

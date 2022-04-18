@@ -16,7 +16,6 @@
   "dependencies": {
     "ioredis": "^5.0.4",
     "masonic": "^3.6.4",
-    "mongodb": "^4.4.0",
     "mongoose": "^6.2.2",
     "next": "^12.1.5",
     "next-auth": "^4.2.1",
@@ -50,6 +49,7 @@
     "eslint-config-prettier": "^8.4.0",
     "eslint-plugin-unused-imports": "^2.0.0",
     "jest": "^27.5.1",
+    "mongodb-memory-server": "^8.5.0",
     "prettier": "^2.5.1"
   },
   "browserslist": {

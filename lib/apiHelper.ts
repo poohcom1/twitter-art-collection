@@ -1,5 +1,5 @@
 import type { NextApiHandler, NextApiRequest, NextApiResponse } from "next";
-import getMongoConnection from "./mongodb";
+import { getMongoConnection } from "./mongodb";
 
 interface RESTMethods {
   GET?: NextApiHandler;
@@ -8,7 +8,7 @@ interface RESTMethods {
   DELETE?: NextApiHandler;
 }
 
-export function methodHandler(methods: RESTMethods): NextApiHandler {
+export function dbMethodHandler(methods: RESTMethods): NextApiHandler {
   return async (req: NextApiRequest, res: NextApiResponse) => {
     await getMongoConnection();
 

@@ -1,4 +1,3 @@
-import getMongoConnection from "lib/mongodb";
 import { authOptions } from "lib/nextAuth";
 import {
   completeTweetFields,
@@ -12,24 +11,23 @@ import UserModel from "models/User";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { ApiResponseError } from "twitter-api-v2";
-import { methodHandler } from "lib/apiHelper";
+import { dbMethodHandler } from "lib/apiHelper";
 
-export default methodHandler({
+export default dbMethodHandler({
   GET: getUser,
   POST: postUser,
 });
 
 async function getUser(req: NextApiRequest, res: NextApiResponse) {
-  const [twitterApi, session, _mongoConnection] = await Promise.all([
+  const [twitterApi, session] = await Promise.all([
     getTwitterApi(),
     getServerSession({ req, res }, authOptions),
-    getMongoConnection(),
   ]);
 
   try {
     if (session) {
       /* ------------------------------ User Database ----------------------------- */
-      const user = await UserModel.findOne({ uid: session!.user.id })
+      const user = await UserModel.findOne({ uid: session!.user.id });
 
       // New user
       if (!user) {
@@ -48,12 +46,16 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
       const databaseTweetIds = user.tweetIds;
 
       /* ------------------------------- Twitter API ------------------------------ */
-      const { tweetIds, results } = await fetchAndMergeTweets(twitterApi.v2, session.user.id, databaseTweetIds)
+      const { tweetIds, results } = await fetchAndMergeTweets(
+        twitterApi.v2,
+        session.user.id,
+        databaseTweetIds
+      );
       // Update Database
       if (databaseTweetIds.length !== tweetIds.length) {
-        user.tweetIds = tweetIds
+        user.tweetIds = tweetIds;
 
-        await user.save()
+        await user.save();
       }
 
       const tweets: TweetSchema[] = tweetIds.map((id) => ({
@@ -61,7 +63,6 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
         platform: "twitter",
         ast: null,
       }));
-
 
       /* ---------------------------- Tweet Expansions ---------------------------- */
       completeTweetFields(tweets, results[0]);
@@ -90,10 +91,9 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
 
 async function postUser(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const [twitterApi, session, _mongoConnection] = await Promise.all([
+    const [twitterApi, session] = await Promise.all([
       getTwitterApi(),
       getServerSession({ req, res }, authOptions),
-      getMongoConnection(),
     ]);
 
     if (!session) {
@@ -127,9 +127,9 @@ async function postUser(req: NextApiRequest, res: NextApiResponse) {
 
         console.log("[POST USER] User successfully created");
 
-        const tweets = tweetIdsToSchema(tweetIds)
+        const tweets = tweetIdsToSchema(tweetIds);
 
-        completeTweetFields(tweets, payload.data)
+        completeTweetFields(tweets, payload.data);
 
         const response: UserDataResponse = {
           tweets: tweets,

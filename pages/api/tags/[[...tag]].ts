@@ -1,11 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import UserModel from "models/User";
-import { methodHandler } from "lib/apiHelper";
+import { dbMethodHandler } from "lib/apiHelper";
 import { getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
 import { validateTagName } from "lib/tagValidation";
 
-export default methodHandler({
+export default dbMethodHandler({
   GET: getTags,
   POST: postTag,
   PUT: putTag,

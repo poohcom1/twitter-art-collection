@@ -4,7 +4,7 @@ import {
   findDeletedTweets,
   tweetIdsToSchema,
 } from "../../lib/twitter";
-import { MockTwitterApi } from "./twitterApiMocks";
+import { MockTwitterApi } from "./_twitterHelper";
 
 describe("twitter lib", () => {
   describe(mergeTweets.name, () => {

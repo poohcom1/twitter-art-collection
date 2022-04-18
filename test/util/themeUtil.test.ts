@@ -39,5 +39,9 @@ describe("themeUtil", () => {
     it("should ignore transparent colors", () => {
       expect(applyOpacity("transparent", 0.5)).toStrictEqual("transparent");
     });
+
+     it("should apply opacity to named colors", () => {
+       expect(applyOpacity("red", 0.5)).toStrictEqual("#ff000080");
+     });
   });
 });
