@@ -83,13 +83,13 @@ const store = combine(initialState, (set, get) => ({
     }
   },
 
-  loadTweetData: async (tweets: TweetSchema[]) => {
+  loadTweetData: async (tweets: TweetSchema[]): Promise<boolean> => {
     console.log(`Fetching ${tweets.length} tweets data`);
-
-    if (tweets.length === 0) return;
 
     const tweetsToFetch = tweets.filter((tweet) => !tweet.loading);
     tweetsToFetch.forEach((tweet) => (tweet.loading = true));
+
+    if (tweetsToFetch.length === 0) return false;
 
     const tweetExpansionsData = await fetchTweetData(
       tweetsToFetch.map((t) => t.id)
@@ -114,7 +114,11 @@ const store = combine(initialState, (set, get) => ({
       });
 
       set({ tweets: [...currentTweets] });
+
+      return false;
     }
+
+    return true;
   },
 
   getFilteredTweets: (includePartialTweets = false) => {
@@ -129,7 +133,7 @@ const store = combine(initialState, (set, get) => ({
     }
 
     return tweets
-      .filter((im) => includePartialTweets || !!im.data)
+      .filter((im) => !im.deleted && (includePartialTweets || !!im.data))
       .filter(get().imageFilter)
       .filter(get().searchFilter);
   },
@@ -238,28 +242,28 @@ const store = combine(initialState, (set, get) => ({
   setFilter: (action: FilterActions) =>
     set((state) => ({ ...state, ...setFilter(action, state.tags) })),
 
-  setSearchFilter: (
-    search: string,
-    target?: TweetTextData
-  ) => {
+  setSearchFilter: (search: string, target?: TweetTextData) => {
     let searchFilter = <TweetPredicate>((_tweet) => true);
 
     if (search !== "") {
       searchFilter = <TweetPredicate>((tweet) => {
         if (!tweet.data) {
-          return false
+          return false;
         }
 
-        let include = false
+        let include = false;
 
-        const texts = getTweetTexts(tweet)
+        const texts = getTweetTexts(tweet);
 
         for (const [key, text] of Object.entries(texts)) {
           if (target && !target[key as keyof TweetTextData]) {
-            continue
+            continue;
           }
 
-          if (text && text.toLowerCase().includes(search.toLowerCase().trim())) {
+          if (
+            text &&
+            text.toLowerCase().includes(search.toLowerCase().trim())
+          ) {
             include = true;
           }
         }

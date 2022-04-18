@@ -79,17 +79,15 @@ export const filterTweets =
     return false;
   };
 
-export function tweetIdsToSchema(
-  ids: string[],
-): TweetSchema[] {
-  return ids.map(id => ({ id, platform: "twitter" }))
+export function tweetIdsToSchema(ids: string[]): TweetSchema[] {
+  return ids.map((id) => ({ id, platform: "twitter" }));
 }
 
 /**
- * 
- * @param tweets 
- * @param tweetPayloadData 
- * @returns 
+ *
+ * @param tweets
+ * @param tweetPayloadData
+ * @returns
  */
 export function completeTweetFields(
   tweets: TweetSchema[],
@@ -100,13 +98,13 @@ export function completeTweetFields(
   }
 
   for (const tweetData of tweetPayloadData.data) {
+    const tweetSchema = tweets.find((tweet) => tweet.id === tweetData.id);
+
+    if (!tweetSchema || tweetSchema.data) continue;
+
     const user = tweetPayloadData.includes.users?.find(
       (user) => user.id === tweetData.author_id
     );
-
-    const tweetSchema = tweets.find((tweet) => tweet.id === tweetData.id);
-
-    if (!tweetSchema) continue;
 
     tweetSchema.data = {
       id: tweetData.id,
@@ -118,7 +116,9 @@ export function completeTweetFields(
       content: {
         text: tweetData.text,
         media: tweetData.attachments?.media_keys?.map((key) => {
-          const img = tweetPayloadData.includes!.media!.find((m) => m.media_key === key);
+          const img = tweetPayloadData.includes!.media!.find(
+            (m) => m.media_key === key
+          );
 
           return {
             url: img?.url ?? "",
@@ -144,17 +144,16 @@ export const TWEET_OPTIONS: Partial<Tweetv2FieldsParams> = {
   "media.fields": ["url", "width", "height"],
 };
 
-
-export async function fetchAndMergeTweets(twitterApi: TwitterApiv2ReadOnly, userId: string, databaseTweetIds: string[]) {
+export async function fetchAndMergeTweets(
+  twitterApi: TwitterApiv2ReadOnly,
+  userId: string,
+  databaseTweetIds: string[]
+) {
   /// Make API call
 
-  const payload = await twitterApi.userLikedTweets(
-    userId,
-    TWEET_OPTIONS
-  )
+  const payload = await twitterApi.userLikedTweets(userId, TWEET_OPTIONS);
 
-  const lookupResults = [payload.data]
-
+  const lookupResults = [payload.data];
 
   let newTweetIds = payload.data.data
     .filter(filterTweets(payload.data))
@@ -163,17 +162,37 @@ export async function fetchAndMergeTweets(twitterApi: TwitterApiv2ReadOnly, user
   // Merge tweets
   let tweetIds = mergeTweets(newTweetIds, databaseTweetIds);
 
-  while (payload.data.data.length !== 0 && newTweetIds.length > 0 && tweetIds.length === newTweetIds.length + databaseTweetIds.length) {
-    await payload.fetchNext()
+  while (
+    payload.data.data.length !== 0 &&
+    newTweetIds.length > 0 &&
+    tweetIds.length === newTweetIds.length + databaseTweetIds.length
+  ) {
+    await payload.fetchNext();
 
-    lookupResults.push(payload.data)
+    lookupResults.push(payload.data);
 
-    newTweetIds = newTweetIds.concat(payload.data.data
-      .filter(filterTweets(payload.data))
-      .map((tweet) => tweet.id));
+    newTweetIds = newTweetIds.concat(
+      payload.data.data
+        .filter(filterTweets(payload.data))
+        .map((tweet) => tweet.id)
+    );
 
     tweetIds = mergeTweets(newTweetIds, databaseTweetIds);
   }
 
-  return { tweetIds, results: lookupResults }
+  return { tweetIds, results: lookupResults };
+}
+
+export function findDeletedTweets(
+  databaseTweets: TweetSchema[],
+  apiFetchedTweet: TweetV2[] | undefined
+): TweetSchema[] {
+  if (!apiFetchedTweet) {
+    return databaseTweets;
+  } else {
+    return databaseTweets.filter(
+      (t_database) =>
+        !apiFetchedTweet.find((t_up) => t_up.id === t_database.id)
+    );
+  }
 }

@@ -23,6 +23,7 @@ interface TweetSchema extends BaseSchema<"twitter"> {
   data?: TweetExpansions;
 
   loading?: boolean;
+  deleted?: boolean;
 }
 
 interface TweetImage {
@@ -54,7 +55,7 @@ interface TagSchema {
 type TagCollection = Map<string, TagSchema>;
 
 interface Settings {
-  showTagDeleteWarning?: boolean
+  showTagDeleteWarning?: boolean;
 }
 
 interface UserSchema {
