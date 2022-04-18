@@ -30,6 +30,7 @@ const Container = styled.div`
     margin: 0;
     appearance: none;
     overflow: visible;
+    z-index: 1;
   }
 `;
 
@@ -76,6 +77,7 @@ export default forwardRef<
           userSelect: "none",
           margin: 0,
           padding: 0,
+          zIndex: 0
         }}
       >
         {text}
