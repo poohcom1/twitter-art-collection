@@ -9,6 +9,7 @@ There are a surprising amount of amazing art on Twitter, and once you accumulate
 This app is designed for those who have this issue, whether you're an art connoisseur who wants to view their collection or a Twitter artist who's looking to organize their references.
 
 ## Usage
+
 1. Sign into Twitter through the app to load your liked images.
 2. Click on "+ New" in the header to create a new Tag.
 3. Click the plus icon above each Tweet to add it to a Tag.
@@ -26,13 +27,16 @@ Twitter API access and a Mongo database is required.
 5. View the app on `http://localhost:3000`.
 
 #### Environment Variables
+
 Environment variables are required for authorizing various services used by the application. Locally, these are loaded from the `.env` file. When hosting online, environment variables are usually found in each app's setting page.
 
-| Name                  | Description                                                                           |
-| --------------------- | ------------------------------------------------------------------------------------- |
-| TWITTER_BEARER_TOKEN  | For Twitter api usage                                                                 |
-| TWITTER_API_KEY       | Twitter consumer key (for user authentication)                                        |
-| TWITTER_API_SECRET    | Twitter consumer secret (for user authentication)                                     |
-| NEXTAUTH_URL          | Base URL of website for redirecting (i.e. http://localhost:3000). See [next-auth.js.org/configuration/options](https://next-auth.js.org/configuration/options#nextauth_url) |
-| NEXTAUTH_SECRET       | Encryption key for authentication. Set it to a random string. See [next-auth.js.org/configuration/options](https://next-auth.js.org/configuration/options#nextauth_secret) |
-| MONGODB_URI           | URI for mongodb                                                                       |
+| Name                                     | Description                                                                                                                                                                 |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| TWITTER_AUTH_VER                         | The twitter auth version (1.0 or 2.0) to use. Set either                                                                                                                    |
+| TWITTER_BEARER_TOKEN                     | For Twitter api usage                                                                                                                                                       |
+| TWITTER_API_KEY/TWITTER_CLIENT_ID        | Twitter consumer key (for user authentication)                                                                                                                              |
+| TWITTER_API_SECRET/TWITTER_CLIENT_SECRET | Twitter consumer secret (for user authentication)                                                                                                                           |
+| NEXTAUTH_URL                             | Base URL of website for redirecting (i.e. http://localhost:3000). See [next-auth.js.org/configuration/options](https://next-auth.js.org/configuration/options#nextauth_url) |
+| NEXTAUTH_SECRET                          | Encryption key for authentication. Set it to a random string. See [next-auth.js.org/configuration/options](https://next-auth.js.org/configuration/options#nextauth_secret)  |
+| MONGODB_URI                              | URI for mongodb                                                                                                                                                             |
+| REDIS_URL                                | URL for redis                                                                                                                                                               |

@@ -7,7 +7,7 @@ import {
 import Redis from "ioredis";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
-import { getTweetCache, storeTweetCache } from "lib/redis";
+import { getRedis, getTweetCache, storeTweetCache } from "lib/redis";
 import { getMongoConnection, removeDeletedTweets } from "lib/mongodb";
 
 export default async function handler(
@@ -17,7 +17,7 @@ export default async function handler(
   if (!req.query.ids) {
     return res.send([]);
   }
-  const redis = new Redis()
+  const redis = getRedis();
 
   const tweetIds: string[] = (req.query.ids as string).split(",");
 

@@ -1,6 +1,14 @@
 import Redis from "ioredis";
 import { tweetIdsToSchema } from "./twitter";
 
+export function getRedis() {
+  if (process.env.REDIS_URL) {
+    return new Redis(process.env.REDIS_URL);
+  } else {
+    console.warn("Please add the redis url to the REDIS_URL env var");
+    return new Redis();
+  }
+}
 
 export async function getTweetCache(
   redis: Redis,
@@ -25,10 +33,7 @@ export async function getTweetCache(
 
 const TTL = 30 * 24 * 3600;
 
-export async function storeTweetCache(
-  redis: Redis,
-  tweets: TweetSchema[]
-) {
+export async function storeTweetCache(redis: Redis, tweets: TweetSchema[]) {
   const redisKeypairs: Record<string, string> = {};
 
   for (const tweet of tweets) {
