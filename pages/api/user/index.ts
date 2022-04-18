@@ -13,7 +13,6 @@ import { getServerSession } from "next-auth";
 import { ApiResponseError } from "twitter-api-v2";
 import { dbMethodHandler } from "lib/apiHelper";
 import { getRedis, storeTweetCache } from "lib/redis";
-import Redis from "ioredis";
 
 export default dbMethodHandler({
   GET: getUser,
