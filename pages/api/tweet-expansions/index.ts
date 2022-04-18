@@ -17,13 +17,7 @@ export default async function handler(
   if (!req.query.ids) {
     return res.send([]);
   }
-  const redis = process.env.REDIS_URL ? new Redis() : null;
-
-  if (!redis) {
-    console.warn(
-      `[${__filename}] Redis not configure! Please add redis url to the REDIS_URL env var`
-    );
-  }
+  const redis = new Redis()
 
   const tweetIds: string[] = (req.query.ids as string).split(",");
 
@@ -72,7 +66,7 @@ export default async function handler(
 
   await storeTweetCache(redis, tweets);
 
-  redis?.quit();
+  redis.quit();
 
   // End
   res.send(tweets);

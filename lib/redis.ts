@@ -1,16 +1,12 @@
 import Redis from "ioredis";
 import { tweetIdsToSchema } from "./twitter";
 
+
 export async function getTweetCache(
-  redis: Redis | null,
+  redis: Redis,
   tweetIds: string[]
 ): Promise<TweetSchema[]> {
   const tweets = tweetIdsToSchema(tweetIds);
-
-  if (!redis) {
-    return tweets;
-  }
-
   const tweetData = await redis.mget(tweetIds);
 
   for (let i = 0; i < tweetData.length; i++) {
@@ -27,14 +23,12 @@ export async function getTweetCache(
   return tweets;
 }
 
+const TTL = 30 * 24 * 3600;
+
 export async function storeTweetCache(
-  redis: Redis | null,
+  redis: Redis,
   tweets: TweetSchema[]
 ) {
-  if (!redis) {
-    return;
-  }
-
   const redisKeypairs: Record<string, string> = {};
 
   for (const tweet of tweets) {
@@ -43,5 +37,9 @@ export async function storeTweetCache(
     }
   }
 
-  await redis.mset(redisKeypairs);
+  const setCommands: [name: string, ...args: unknown[]][] = tweets.map(
+    (tweet) => ["set", tweet.id, JSON.stringify(tweet.data), "ex", TTL]
+  );
+
+  await redis.multi(setCommands).exec();
 }
