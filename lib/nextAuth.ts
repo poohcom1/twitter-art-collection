@@ -33,7 +33,7 @@ export const authOptions: NextAuthOptions = {
   ],
   pages: {
     signIn: "/",
-    error: "/",
+    error: "/error",
   },
   /**
    * For userId injection. Thanks to:

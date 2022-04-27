@@ -113,12 +113,14 @@ export default function MainScene() {
     const unfetchedImages = allImages.filter((im: TweetSchema) => !im.data);
     const imagesToFetch = unfetchedImages.slice(0, 100);
 
-    const err = await loadTweetData(imagesToFetch.filter((im: TweetSchema) => !im.loading));
+    const err = await loadTweetData(
+      imagesToFetch.filter((im: TweetSchema) => !im.loading)
+    );
 
     if (err) {
-      alert("Server error attempting to fetch more tweets! Please try again later");
+      router.push("/error");
     }
-  }, [allImages, loadTweetData]);
+  }, [allImages, loadTweetData, router]);
 
   if (tweetsError !== "") {
     return (

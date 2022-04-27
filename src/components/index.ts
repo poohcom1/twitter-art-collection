@@ -9,3 +9,4 @@ export { default as ConfirmationDialogue } from "./ConfirmationDialogue/Confirma
 export { default as AddTag } from "./AddTag/AddTag";
 export { default as Tweet } from "./Tweet/Tweet";
 export { default as ExpandingInput } from "./ExpandingInput/ExpandingInput";
+export { default as Banner } from "./Banner/Banner";

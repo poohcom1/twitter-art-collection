@@ -1,14 +1,8 @@
 import Head from "next/head";
-import styled, {
-  createGlobalStyle,
-  DefaultTheme,
-  ThemeProvider,
-  withTheme,
-} from "styled-components";
-import { lightTheme } from "src/themes";
+import styled, { createGlobalStyle, ThemeProvider } from "styled-components";
 import Image from "next/image";
 // Next SSR
-import { TwitterLogin } from "src/components";
+import { Banner, TwitterLogin } from "src/components";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -36,15 +30,6 @@ const GlobalCSS = createGlobalStyle`
   }
 `;
 
-export const HeaderDiv = styled.div`
-  color: white;
-
-  padding: 10px 30px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-`;
-
 export const MainDiv = styled.div`
   padding: 25px 25px;
   @media only screen and (min-width: 768px) {
@@ -64,11 +49,6 @@ const FlexDiv = styled.div`
 export const TextDiv = styled.div`
   padding: 15px;
   margin-right: 25px;
-`;
-
-const GithubLinkA = styled.a`
-  margin-left: auto;
-  text-decoration: none;
 `;
 
 const SampleImageDiv = styled.div`
@@ -150,35 +130,6 @@ const Badge = styled.a<{ badgeColor?: string }>`
   }
 `;
 
-const Card = styled.div`
-  background-color: #f5f5f58e;
-`;
-
-export const GithubLink = withTheme(function GithubLink(props: {
-  theme: DefaultTheme;
-  type?: "dark" | "light";
-}) {
-  const darkImg = "/assets/github/GitHub-Mark-32px.png";
-  const lightImg = "/assets/github/GitHub-Mark-Light-32px.png";
-
-  let img = darkImg;
-
-  if (props.type) {
-    img = props.type === "dark" ? darkImg : lightImg;
-  } else {
-    img =
-      props.theme === lightTheme
-        ? "/assets/github/GitHub-Mark-32px.png"
-        : "/assets/github/GitHub-Mark-Light-32px.png";
-  }
-
-  return (
-    <GithubLinkA href="https://github.com/poohcom1/twitter-art-collection">
-      <Image src={img} alt="Github Link" width={32} height={32} />
-    </GithubLinkA>
-  );
-});
-
 export default function Index() {
   const session = useSession();
   const router = useRouter();
@@ -204,15 +155,7 @@ export default function Index() {
       <LoadingScene display={session.status === "loading"} />
       <ThemeProvider theme={theme}>
         <GlobalCSS />
-        <HeaderDiv>
-          <a
-            style={{ color: "white", textDecoration: "none" }}
-            href={CANONICAL_URL}
-          >
-            <h2>Twitter Art Collection</h2>
-          </a>
-          <GithubLink />
-        </HeaderDiv>
+        <Banner />
         <MainDiv>
           <FlexDiv>
             <TextDiv>

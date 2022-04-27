@@ -1,10 +1,8 @@
 import Head from "next/head";
 import Link from "next/link";
-import { GithubLink, HeaderDiv } from "pages";
-import { StyledButton } from "src/components";
+import { Banner, StyledButton } from "src/components";
 import { useStore } from "src/stores/rootStore";
 import { createGlobalStyle, ThemeProvider } from "styled-components";
-import { CANONICAL_URL } from "types/constants";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -28,15 +26,7 @@ export default function Privacy() {
       </Head>
       <ThemeProvider theme={theme}>
         <GlobalStyle />
-        <HeaderDiv style={{ backgroundColor: "black" }}>
-          <a
-            style={{ color: "white", textDecoration: "none" }}
-            href={CANONICAL_URL}
-          >
-            <h2>Twitter Art Collection</h2>
-          </a>
-          <GithubLink type="light" />
-        </HeaderDiv>
+        <Banner style={{ backgroundColor: "black" }} logoType="light" />
         <div className="container" style={{ marginTop: "0", paddingTop: "0" }}>
           <h1 style={{ marginBottom: "0" }}>Privacy Policy</h1>
           <p style={{ color: "grey", marginTop: "0" }}>
