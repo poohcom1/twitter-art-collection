@@ -1,5 +1,25 @@
 const IMAGE_LINK_REGEX = /https:\/\/t.co\/[A-z0-9]*/;
 
+export function fillCachedTweets(
+  tweetMap: Map<string, TweetSchema>,
+  tweets: TweetSchema[]
+) {
+  for (const tweet of tweets) {
+    const match = tweetMap.get(tweet.id);
+
+    if (match) tweet.data = match.data;
+  }
+}
+
+export function cacheTweets(
+  tweetMap: Map<string, TweetSchema>,
+  tweets: TweetSchema[]
+) {
+  for (const tweet of tweets) {
+    tweetMap.set(tweet.id, tweet);
+  }
+}
+
 export function injectTweetLink(text: string) {
   const linkStripped = text.replace(IMAGE_LINK_REGEX, "");
 

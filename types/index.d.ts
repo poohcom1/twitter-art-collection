@@ -79,6 +79,17 @@ interface UserDataResponse {
   newUser?: boolean;
 }
 
+interface UserDataResponseV2 {
+  tweets: TweetSchema[];
+
+  newUser?: boolean;
+}
+
+interface TweetsResponse {
+  tweets: TweetSchema[];
+  nextToken?: string;
+}
+
 // Error handling
 
 type Result<T> =

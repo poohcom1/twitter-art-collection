@@ -83,6 +83,51 @@ export function tweetIdsToSchema(ids: string[]): TweetSchema[] {
   return ids.map((id) => ({ id, platform: "twitter" }));
 }
 
+export function createTweetObjects(tweetPayloadData: Tweetv2ListResult) {
+  if (!tweetPayloadData.includes) return [];
+
+  const tweetSchemas: TweetSchema[] = [];
+
+  const filteredTweetData = tweetPayloadData.data.filter(
+    filterTweets(tweetPayloadData)
+  );
+
+  for (const tweetData of filteredTweetData) {
+    const tweetSchema: TweetSchema = { id: tweetData.id, platform: "twitter" };
+
+    const user = tweetPayloadData.includes.users?.find(
+      (user) => user.id === tweetData.author_id
+    );
+
+    tweetSchema.data = {
+      id: tweetData.id,
+      url: `https://twitter.com/${user?.username}/status/${tweetData.id}`,
+      avatar: user?.profile_image_url,
+      name: user?.name,
+      username: user?.username,
+      date: tweetData.created_at,
+      content: {
+        text: tweetData.text,
+        media: tweetData.attachments?.media_keys?.map((key) => {
+          const img = tweetPayloadData.includes!.media!.find(
+            (m) => m.media_key === key
+          );
+
+          return {
+            url: img?.url ?? "",
+            width: img?.width ?? 0,
+            height: img?.height ?? 0,
+          };
+        }),
+      },
+    };
+
+    tweetSchemas.push(tweetSchema);
+  }
+
+  return tweetSchemas;
+}
+
 /**
  *
  * @param tweets
@@ -191,8 +236,7 @@ export function findDeletedTweets(
     return databaseTweets;
   } else {
     return databaseTweets.filter(
-      (t_database) =>
-        !apiFetchedTweet.find((t_up) => t_up.id === t_database.id)
+      (t_database) => !apiFetchedTweet.find((t_up) => t_up.id === t_database.id)
     );
   }
 }

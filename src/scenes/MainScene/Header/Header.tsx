@@ -59,8 +59,8 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
 
   const blacklist = useStore(
     (state) =>
-      state.filterSelectTags.length === 1 &&
-      state.filterSelectTags[0] === BLACKLIST_TAG
+      state.selectedLists.length === 1 &&
+      state.selectedLists[0] === BLACKLIST_TAG
   );
 
   return (

@@ -14,7 +14,31 @@ export function arrayEqual<P>(arr1: P[], arr2: P[]): boolean {
   return true;
 }
 
-
 export const isString = (data: unknown): data is string => {
   return typeof data === "string";
 };
+
+type KeysMatching<T, V> = {
+  [K in keyof T]-?: T[K] extends V ? K : never;
+}[keyof T];
+
+export function objectListToMap<
+  T extends object,
+  K extends KeysMatching<T, string>
+>(objects: T[], key: K) {
+  const map = new Map<string, T>();
+
+  for (const object of objects) {
+    map.set(object[key] as unknown as string, object);
+  }
+
+  return map;
+}
+
+export function mapKeys<K, T>(map: Map<K, T>): K[] {
+  return Array.from(map.keys());
+}
+
+export function mapValues<K, T>(map: Map<K, T>): T[] {
+  return Array.from(map.values());
+}

@@ -15,10 +15,16 @@ import { dbMethodHandler } from "lib/apiHelper";
 import { getRedis, storeTweetCache } from "lib/redis";
 
 export default dbMethodHandler({
-  GET: getUser,
+  GET: getUserV2,
   POST: postUser,
 });
 
+/**
+ * @deprecated
+ * @param req
+ * @param res
+ * @returns
+ */
 async function getUser(req: NextApiRequest, res: NextApiResponse) {
   const [twitterApi, session] = await Promise.all([
     getTwitterApi(),
@@ -94,6 +100,37 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
+async function getUserV2(req: NextApiRequest, res: NextApiResponse) {
+  const session = await getServerSession({ req, res }, authOptions);
+
+  try {
+    if (!session) {
+      res.status(500).send("Server auth Error");
+    }
+    /* ------------------------------ User Database ----------------------------- */
+    let user = await UserModel.findOne({ uid: session!.user.id });
+
+    // New user
+    if (!user) {
+      console.log("[GET USER] New user found.");
+
+      user = new UserModel({
+        uid: session!.user.id,
+        tags: new Map(),
+      });
+
+      await user.save();
+    }
+
+    return res.send({ tags: user.tags });
+  } catch (e) {
+    res.status(500).send("Server Error");
+  }
+}
+
+/**
+ * @deprecated
+ */
 async function postUser(req: NextApiRequest, res: NextApiResponse) {
   try {
     const [twitterApi, session] = await Promise.all([

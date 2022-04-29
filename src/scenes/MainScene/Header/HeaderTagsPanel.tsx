@@ -7,13 +7,20 @@ import {
   StyledTab,
 } from "src/components";
 import { AiOutlineSearch as SearchIcon } from "react-icons/ai";
-import { useStore, FilterType } from "src/stores/rootStore";
+import {
+  LIKED_TWEET_LIST,
+  SPECIAL_LIST_KEYS,
+  TIMELINE_TWEET_LIST,
+  useStore,
+} from "src/stores/rootStore";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import {
   AiOutlineCloseCircle as CloseCircle,
   AiOutlineClose as Cross,
 } from "react-icons/ai";
 import { useAddTag } from "src/hooks/useAddTag";
+import { isTagList } from "src/stores/ImageList";
+import { mapValues } from "src/util/objectUtil";
 import { BLACKLIST_TAG } from "types/constants";
 
 const DEFAULT_TAG_WIDTH = "75px";
@@ -131,7 +138,7 @@ function BasicSearch() {
         className="blank"
         style={{ height: "100%" }}
         containerStyle={{
-          minWidth: active ? "10em" : "0",
+          minWidth: active ? "13em" : "0",
           maxWidth: active ? "fit-content" : "0",
           transition: "min-width 0.1s",
           margin: "0",
@@ -213,80 +220,38 @@ function NewTag(props: { theme: DefaultTheme }) {
  */
 export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
   // Tag
-  const tagList = useStore((state) => state.getTagList());
   const editMode = useStore((state) => state.editMode);
   const toggleEditMode = useStore((state) => state.toggleEditMode);
 
-  const [filterType, filterTags] = useStore((state) => [
-    state.filterType,
-    state.filterSelectTags,
-  ]);
+  const tagList = useStore((state) =>
+    mapValues(state.tweetLists)
+      .filter(isTagList)
+      .map((l) => l.tag)
+      .filter((t) => t.name !== BLACKLIST_TAG)
+  );
+
+  const selectedLists = useStore((state) => state.selectedLists);
+  const setSelectedList = useStore(
+    (state) =>
+      (tag: string) =>
+      (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        if (e.shiftKey && !SPECIAL_LIST_KEYS.includes(tag)) {
+          if (!state.selectedLists.includes(tag)) {
+            const tagKeys = state.selectedLists.filter(
+              (t) => !SPECIAL_LIST_KEYS.includes(t)
+            );
+
+            state.setSelectedList([...tagKeys, tag]);
+          }
+        } else {
+          state.setSelectedList([tag]);
+        }
+      }
+  );
 
   const removeTag = useStore((state) => state.removeTag);
 
   const session = useSession();
-
-  // create filter reducers
-  const setFilter = useStore(
-    useCallback(
-      (state) =>
-        (type: FilterType, tag?: TagSchema) =>
-        (e: { shiftKey: boolean }) => {
-          let urlAction = type;
-          let urlParam = "";
-
-          if (type === "all") {
-            state.setFilter({ type: "all" });
-          } else if (type === "uncategorized") {
-            state.setFilter({ type: "uncategorized" });
-          } else {
-            // Multi tag
-            if (e.shiftKey && !state.filterSelectTags.includes(BLACKLIST_TAG)) {
-              if (!tag) {
-                console.error("Tag param not given");
-                return;
-              }
-
-              let tagNames = state.filterSelectTags;
-
-              if (tagNames.includes(tag.name)) {
-                tagNames = tagNames.filter((t) => t !== tag?.name);
-              } else {
-                tagNames.push(tag.name);
-              }
-
-              if (tagNames.length === 0) {
-                urlAction = "all";
-                state.setFilter({ type: "all" });
-              } else {
-                const tags = tagNames.reduce((pre: TagSchema[], cur) => {
-                  const tag = state.tags.get(cur);
-
-                  if (tag) {
-                    pre.push(tag);
-                  }
-
-                  return pre;
-                }, []);
-
-                urlParam = tagNames.map((n) => "&tag=" + n).join("");
-                state.setFilter({ type: "multi", tags });
-              }
-            } else {
-              urlParam = "&tag=" + tag!.name;
-              state.setFilter({ type: "tag", tag: tag! });
-            }
-          }
-
-          window.history.replaceState(
-            null,
-            "",
-            `?filter=${urlAction}${urlParam}`
-          );
-        },
-      []
-    )
-  );
 
   return (
     <StyledTagsPanel>
@@ -294,16 +259,17 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
         {/* Special filters Section */}
         <Tag
           style={{ width: DEFAULT_TAG_WIDTH }}
-          onClick={setFilter("all")}
-          active={filterType === "all"}
+          onClick={setSelectedList(TIMELINE_TWEET_LIST)}
+          active={selectedLists.includes(TIMELINE_TWEET_LIST)}
         >
-          All
+          Timeline
         </Tag>
         <Tag
-          onClick={setFilter("uncategorized")}
-          active={filterType === "uncategorized"}
+          style={{ width: DEFAULT_TAG_WIDTH }}
+          onClick={setSelectedList(LIKED_TWEET_LIST)}
+          active={selectedLists.includes(LIKED_TWEET_LIST)}
         >
-          Uncategorized
+          Likes
         </Tag>
       </StyledTagsPanel>
 
@@ -326,8 +292,8 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
             <Tag
               style={{ whiteSpace: "nowrap" }}
               key={i}
-              onClick={setFilter("tag", tag)}
-              active={filterTags.includes(tag.name)}
+              onClick={setSelectedList(tag.name)}
+              active={selectedLists.includes(tag.name)}
             >
               {tag.name} - {tag.images.length}
             </Tag>
@@ -337,7 +303,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
               trigger={
                 <Tag
                   key={i}
-                  active={filterType === "tag" && filterTags.includes(tag.name)}
+                  active={selectedLists.includes(tag.name)}
                   color={props.theme.color.danger}
                 >
                   {tag.name}
@@ -361,11 +327,8 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
                   onAccept={() => {
                     if (session.data) {
                       removeTag(tag);
-                      if (
-                        filterType === "tag" &&
-                        filterTags.includes(tag.name)
-                      ) {
-                        setFilter("all");
+                      if (selectedLists.includes(tag.name)) {
+                        setSelectedList(LIKED_TWEET_LIST);
                       }
 
                       // TODO Make this an option?

@@ -7,11 +7,12 @@ import {
   LOCAL_THEME_KEY,
   LOCAL_THEME_LIGHT,
 } from "types/constants";
-import { getUser, postUser } from "src/adapters/userAdapter";
+import { getUser } from "src/adapters/userAdapter";
 import { postTag, deleteTag, putTag } from "src/adapters/tagsAdapter";
-import { fetchTweetData } from "src/adapters/tweetAdapter";
+import { fetchLikedTweets, fetchFeedTweets } from "src/adapters/tweetAdapter";
 import { lightTheme } from "src/themes";
 import { DefaultTheme } from "styled-components";
+import { ImageList, TagList, TweetList } from "./ImageList";
 
 /**
  * !IMPORTANT
@@ -19,18 +20,24 @@ import { DefaultTheme } from "styled-components";
  * in its current state some refactoring will be required if that is needed.
  */
 
+export const LIKED_TWEET_LIST = "__likes";
+export const TIMELINE_TWEET_LIST = "__timeline";
+
+export const SPECIAL_LIST_KEYS = [LIKED_TWEET_LIST, TIMELINE_TWEET_LIST];
+
+export const NO_FILTER = <T>(_image: T, _index: number, _array: T[]) => true;
+
 const initialState = {
+  selectedLists: [LIKED_TWEET_LIST],
+  tweetLists: <Map<string, ImageList>>new Map(),
+
+  searchFilter: <TweetPredicate>NO_FILTER,
+
+  editMode: <"add" | "delete">"add",
+
+  // Tags
   tags: <TagCollection>new Map(),
   tagsStatus: <"loading" | "loaded" | "error">"loading",
-  imageFilter: <ImagePredicate>((_image, _index, _array) => {
-    return true;
-  }),
-  searchFilter: <TweetPredicate>((_image, _index, _array) => {
-    return true;
-  }),
-  filterType: <FilterType>"all",
-  filterSelectTags: <string[]>[],
-  editMode: <"add" | "delete">"add",
 
   // Display
   headerHeight: 0,
@@ -39,107 +46,88 @@ const initialState = {
   newUser: false,
 
   // Twitter
-  tweets: <TweetSchema[]>[],
+
+  tweetMap: <Map<string, TweetSchema>>new Map(),
 
   // Settings
   theme: lightTheme,
 };
 
 const store = combine(initialState, (set, get) => ({
-  initTweetsAndTags: async (): Promise<null | string> => {
+  initTweetsAndTags: async (): Promise<Result<null>> => {
     const userData = await getUser();
 
     if (userData.error === null) {
-      if (userData.data.newUser) {
-        // New user
-        set({
-          newUser: true,
-        });
+      const tweetLists = get().tweetLists;
 
-        // Create new user
-        const newUserData = await postUser();
+      const likedTweetList = new TweetList(fetchLikedTweets);
+      const timelineTweetList = new TweetList(fetchFeedTweets);
 
-        if (newUserData.error === null) {
-          set({
-            tags: new Map(Object.entries(newUserData.data.tags)),
-            tweets: newUserData.data.tweets,
-            tagsStatus: "loaded",
-            newUser: false,
-          });
+      // Generate special lists
+      tweetLists.set(TIMELINE_TWEET_LIST, timelineTweetList);
+      tweetLists.set(LIKED_TWEET_LIST, likedTweetList);
 
-          return null;
-        } else {
-          return newUserData.error;
-        }
+      // Generate tag lists
+      const tags = new Map(Object.entries(userData.data.tags));
 
-      } else {
-        // Existing user
-        set({
-          tags: new Map(Object.entries(userData.data.tags)),
-          tweets: userData.data.tweets,
-          tagsStatus: "loaded",
-        });
-
-        return null;
-      }
-    } else {
-      return userData.error;
-    }
-  },
-
-  loadTweetData: async (tweets: TweetSchema[]): Promise<boolean> => {
-    console.log(`Fetching ${tweets.length} tweets data`);
-
-    const tweetsToFetch = tweets.filter((tweet) => !tweet.loading);
-    tweetsToFetch.forEach((tweet) => (tweet.loading = true));
-
-    if (tweetsToFetch.length === 0) return false;
-
-    const tweetExpansionsData = await fetchTweetData(
-      tweetsToFetch.map((t) => t.id)
-    );
-
-    if (tweetExpansionsData.error === null) {
-      console.log(`Fetched ${tweetExpansionsData.data.length} tweets data`);
-
-      const newTweets = tweetExpansionsData.data;
-
-      const currentTweets = get().tweets;
-
-      newTweets.forEach((newTweet) => {
-        const match = currentTweets.find(
-          (currentTweet) => currentTweet.id === newTweet.id
-        );
-
-        if (match) {
-          match.loading = false;
-          match.data = newTweet.data;
-        }
+      Array.from(tags.values()).forEach((tag) => {
+        tweetLists.set(tag.name, new TagList(get().tweetMap, tag));
       });
 
-      set({ tweets: [...currentTweets] });
+      set({
+        tags: tags,
+        tagsStatus: "loaded",
+        tweetLists: tweetLists,
+      });
 
-      return false;
+      return { data: null, error: null };
+    } else {
+      return { data: null, error: "Failed to fetch user" };
     }
-
-    return true;
   },
+  /* ---------------------------------- Lists --------------------------------- */
 
-  getFilteredTweets: (includePartialTweets = false) => {
-    let tweets = get().tweets;
+  getTweets: () => {
+    const selectedLists = get().selectedLists;
+    const tweetLists = get().tweetLists;
+
+    let tweets: TweetSchema[] = tweetLists.get(selectedLists[0])?.tweets ?? [];
+
+    for (let i = 1; i < selectedLists.length; i++) {
+      tweets = tweets.filter((t1) =>
+        tweetLists
+          .get(selectedLists[i])
+          ?.tweets.find((t2) => imageEqual(t1, t2))
+      );
+    }
 
     const blacklist = get().tags.get(BLACKLIST_TAG);
 
-    if (blacklist && !get().filterSelectTags.includes(blacklist.name)) {
+    if (blacklist && !get().selectedLists.includes(blacklist.name)) {
       tweets = tweets.filter(
         (tweet) => !blacklist.images.find((image) => imageEqual(tweet, image))
       );
     }
 
-    return tweets
-      .filter((im) => !im.deleted && (includePartialTweets || !!im.data))
-      .filter(get().imageFilter)
-      .filter(get().searchFilter);
+    return tweets.filter(get().searchFilter);
+  },
+  setSelectedList: (list: string[]) => {
+    set({ selectedLists: list });
+  },
+  fetchMoreTweets: async () => {
+    if (get().selectedLists.length === 1 && get().searchFilter === NO_FILTER) {
+      const tweetList = get().tweetLists.get(get().selectedLists[0]);
+
+      if (tweetList) {
+        if (tweetList.fetchState === "fetched") {
+          await tweetList._fetchMoreTweets();
+
+          set({ tweetLists: new Map(get().tweetLists) });
+        }
+      } else {
+        console.warn("[fetchMoreTweets] Unknown tweet list fetch attempt");
+      }
+    }
   },
 
   /* ---------------------------------- Tags ---------------------------------- */
@@ -155,25 +143,29 @@ const store = combine(initialState, (set, get) => ({
       const tags = state.tags;
       tags.set(tag.name, tag);
 
-      return { ...state, tags };
+      return {
+        ...state,
+        tags,
+        tweetLists: new Map(
+          get().tweetLists.set(tag.name, new TagList(get().tweetMap, tag))
+        ),
+      };
     }),
   removeTag: (tag: TagSchema): void =>
     set((state) => {
-      // Switch to "all" if current tag is deleted
-      let tagChangeObject = {};
-      if (
-        state.filterSelectTags.length === 1 &&
-        state.filterSelectTags[0] === tag.name
-      ) {
-        tagChangeObject = setFilter({ type: "all" }, state.tags);
-      }
-
+      // TODO Switch to "all" if current tag is deleted
       deleteTag(tag).then();
 
       const tags = state.tags;
       tags.delete(tag.name);
 
-      return { ...state, tags, ...tagChangeObject };
+      get().tweetLists.delete(tag.name);
+
+      return {
+        ...state,
+        tags,
+        tweetLists: new Map(get().tweetLists),
+      };
     }),
 
   /* --------------------------------- Images --------------------------------- */
@@ -181,25 +173,33 @@ const store = combine(initialState, (set, get) => ({
     set((state) => {
       const tags = state.tags;
 
+      let tagObject: TagSchema | undefined;
+
       if (isString(tag)) {
-        const tagObject = tags.get(tag);
-
-        if (tagObject) {
-          tagObject.images.push(image);
-          tags.set(tagObject.name, tagObject);
-
-          putTag(tagObject).then();
-        } else {
-          console.error("Nonexistent tagname image add attempt");
-        }
+        tagObject = tags.get(tag);
       } else {
-        tag.images.push(image);
-        tags.set(tag.name, tag);
-
-        putTag(tag).then();
+        tagObject = tag;
       }
 
-      return { ...state, tags: tags };
+      if (tagObject) {
+        tagObject.images.push(image);
+        tags.set(tagObject.name, tagObject);
+
+        putTag(tagObject).then();
+
+        return {
+          ...state,
+          tags: tags,
+          tweetLists: new Map(
+            get().tweetLists.set(
+              tagObject.name,
+              new TagList(get().tweetMap, tagObject)
+            )
+          ),
+        };
+      } else {
+        console.error("Nonexistent tagname image add attempt");
+      }
     }),
   removeImage: (tag: TagSchema, image: ImageSchema): void =>
     set((state) => {
@@ -209,20 +209,28 @@ const store = combine(initialState, (set, get) => ({
 
       putTag(tag).then();
 
-      return { ...state, tags: tags };
+      return {
+        ...state,
+        tags: tags,
+        tweetLists: new Map(
+          get().tweetLists.set(tag.name, new TagList(get().tweetMap, tag))
+        ),
+      };
     }),
   blacklistImage: (image: ImageSchema) => {
     set((state) => {
       const tags = new Map(state.tags);
 
+      let blacklistTag: TagSchema;
+
       if (!tags.has(BLACKLIST_TAG)) {
-        const blacklistTag = { name: BLACKLIST_TAG, images: [image] };
+        blacklistTag = { name: BLACKLIST_TAG, images: [image] };
 
         tags.set(BLACKLIST_TAG, blacklistTag);
 
         postTag(blacklistTag);
       } else {
-        const blacklistTag = tags.get(BLACKLIST_TAG);
+        blacklistTag = tags.get(BLACKLIST_TAG)!;
 
         if (blacklistTag?.images.find((im) => imageEqual(im, image))) {
           return;
@@ -233,21 +241,23 @@ const store = combine(initialState, (set, get) => ({
         putTag(blacklistTag!);
       }
 
-      return { ...state, tags };
+      return {
+        ...state,
+        tags,
+        tweetLists: new Map(
+          get().tweetLists.set(
+            BLACKLIST_TAG,
+            new TagList(get().tweetMap, blacklistTag)
+          )
+        ),
+      };
     });
   },
 
   /* --------------------------------- Filters -------------------------------- */
-  /**
-   * Dispatcher for filter
-   * @param action.type Action
-   * @param action.tag Payload if action type is "tag"
-   */
-  setFilter: (action: FilterActions) =>
-    set((state) => ({ ...state, ...setFilter(action, state.tags) })),
 
   setSearchFilter: (search: string, target?: TweetTextData) => {
-    let searchFilter = <TweetPredicate>((_tweet) => true);
+    let searchFilter = <TweetPredicate>NO_FILTER;
 
     if (search !== "") {
       searchFilter = <TweetPredicate>((tweet) => {
@@ -297,6 +307,8 @@ const store = combine(initialState, (set, get) => ({
 
 export const useStore = create(store);
 
+// Init helpers
+
 // Filters helpers
 type ImagePredicate = <S extends ImageSchema>(
   image: S,
@@ -335,15 +347,13 @@ type FilterActions =
   | FilterMultipleTagAction;
 
 /**
- * Shared logic for setting tags filter state
+ * @deprecated Shared logic for setting tags filter state
  * @param action Filter dispatch action
  * @param tags Tag list
  * @returns
  */
-function setFilter(
-  action: FilterActions,
-  tags: TagCollection
-): Partial<typeof initialState> {
+// eslint-disable-next-line unused-imports/no-unused-vars
+function setFilter(action: FilterActions, tags: TagCollection) {
   let imageFilter = <ImagePredicate>((_image) => true);
   let filterSelectTags: string[] = [];
 

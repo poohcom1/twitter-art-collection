@@ -34,11 +34,7 @@ function UserAvatar(props: {
     window.history.replaceState(null, "", `?filter=tag&tag=__blacklist`);
 
     const blacklistTag = state.tags.get(BLACKLIST_TAG);
-    if (blacklistTag)
-      state.setFilter({
-        type: "tag",
-        tag: blacklistTag,
-      });
+    if (blacklistTag) state.setSelectedList([blacklistTag.name]);
   });
 
   return (

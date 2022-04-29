@@ -28,7 +28,6 @@ interface TweetsGalleryProps {
   columnGutter?: number;
 }
 
-
 export default function TweetsGallery({
   images,
   fetchItems,
@@ -63,6 +62,7 @@ export default function TweetsGallery({
   >(fetchMoreItems, {
     isItemLoaded: (index, items) => index < items.length && !!items[index],
     totalItems: maxItems,
+    threshold: 32,
   });
 
   useEffect(() => {
@@ -90,7 +90,7 @@ export default function TweetsGallery({
 
         items: images,
         render: MasonryCard,
-        tabIndex: -1
+        tabIndex: -1,
       })}
       {images.length < maxItems ? (
         <div className="center" style={{ marginTop: "32px" }}>

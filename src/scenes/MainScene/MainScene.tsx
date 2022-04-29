@@ -1,12 +1,12 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "./Header/Header";
 import { LoadingScene } from "..";
 import TweetsGallery from "./TweetsGallery";
 import { useSession } from "next-auth/react";
-import { isFilterType, useStore } from "src/stores/rootStore";
+import { useStore } from "src/stores/rootStore";
 import styled, { createGlobalStyle } from "styled-components";
-import { useRouter } from "next/router";
 import Overlay from "./Overlay";
+import { FetchState } from "src/stores/ImageList";
 
 // Styles
 const GlobalStyle = createGlobalStyle`
@@ -32,6 +32,17 @@ const AppDiv = styled.div`
 export default function MainScene() {
   const session = useSession();
 
+  // Data
+  const tweets = useStore((state) => state.getTweets());
+
+  const fetchTweets = useStore((state) => state.fetchMoreTweets);
+
+  const fetchState = useStore((state) => {
+    const tweetList = state.tweetLists.get(state.selectedLists[0]);
+    if (tweetList) return tweetList.fetchState;
+    else return "all_fetched" as FetchState;
+  });
+
   // Loading
   const [tweetsLoaded, setTweetsLoaded] = useState(false);
   const [tweetsError, setTweetsError] = useState("");
@@ -39,88 +50,43 @@ export default function MainScene() {
   const initTweetsAndTags = useStore((state) => state.initTweetsAndTags);
 
   useEffect(() => {
-    if (session.status === "authenticated") {
+    if (
+      session.status === "authenticated" &&
+      !tweetsLoaded &&
+      tweetsError === ""
+    ) {
       initTweetsAndTags()
-        .then((err) => {
-          setTweetsLoaded(true);
-
-          if (err) {
-            setTweetsError(err);
+        .then((res) => {
+          if (res.error) {
+            setTweetsError(res.error);
+          } else {
+            fetchTweets().then(() => {
+              setTweetsLoaded(true);
+            });
           }
         })
-        .catch(alert);
+        .catch((e) => {
+          setTweetsError(e);
+        });
     }
-  }, [initTweetsAndTags, session.status]);
+  }, [
+    fetchTweets,
+    initTweetsAndTags,
+    session.status,
+    tweetsError,
+    tweetsLoaded,
+  ]);
 
   // Filtering and rendering
-  const imageFilter = useStore((state) => state.imageFilter);
-
   const newUser = useStore((state) => state.newUser);
+
+  const selectedList = useStore((state) => state.selectedLists);
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [imageFilter]);
+  }, [selectedList]);
 
-  // URL query
-  const router = useRouter();
-
-  const tags = useStore((state) => state.tags);
-  const setFilter = useStore((state) => state.setFilter);
-
-  useEffect(() => {
-    const _filter = (router.query.filter as string) ?? "all";
-    const _tag = router.query.tag;
-
-    if (isFilterType(_filter) && _tag) {
-      switch (_filter) {
-        case "all":
-        case "uncategorized":
-          setFilter({ type: _filter });
-          break;
-        case "tag":
-          if (typeof _tag === "string") {
-            const tag = tags.get(_tag);
-
-            if (tag) setFilter({ type: "tag", tag });
-          } else {
-            const __tags = _tag.reduce((pre: TagSchema[], cur) => {
-              const tag = tags.get(cur);
-
-              if (tag) {
-                pre.push(tag);
-              }
-
-              return pre;
-            }, []);
-
-            setFilter({ type: "multi", tags: __tags });
-          }
-
-          break;
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tags]);
-
-  // Filter image
-  const filteredImages = useStore((state) => state.getFilteredTweets());
-  const allImages = useStore((state) => state.getFilteredTweets(true));
-
-  const loadTweetData = useStore((state) => state.loadTweetData);
-
-  // Load more tweets
-  const loadMoreTweets = useCallback(async () => {
-    const unfetchedImages = allImages.filter((im: TweetSchema) => !im.data);
-    const imagesToFetch = unfetchedImages.slice(0, 100);
-
-    const err = await loadTweetData(
-      imagesToFetch.filter((im: TweetSchema) => !im.loading)
-    );
-
-    if (err) {
-      router.push("/error");
-    }
-  }, [allImages, loadTweetData, router]);
+  // TODO URL query
 
   if (tweetsError !== "") {
     return (
@@ -130,7 +96,6 @@ export default function MainScene() {
       </AppDiv>
     );
   }
-
   return (
     <AppDiv className="App">
       <Header />
@@ -141,9 +106,9 @@ export default function MainScene() {
         text={newUser ? "Creating new user..." : ""}
       />
       <TweetsGallery
-        images={filteredImages}
-        fetchItems={loadMoreTweets}
-        maxItems={allImages.length}
+        images={tweets}
+        fetchItems={fetchTweets}
+        maxItems={fetchState === "all_fetched" ? tweets.length : 9e9}
       />
     </AppDiv>
   );

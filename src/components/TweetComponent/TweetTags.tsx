@@ -25,6 +25,7 @@ import { useOverflowDetector } from "src/hooks/useOverflowDetector";
 import Image from "next/image";
 import AddTag from "../AddTag/AddTag";
 import { BLACKLIST_TAG } from "types/constants";
+import { ImageList, isTagList } from "src/stores/ImageList";
 
 const BUTTON_SIZE = 35;
 
@@ -116,13 +117,18 @@ function AddImagesButton(props: {
 }) {
   const deleteMode =
     useStore(
-      (state) => state.editMode === "delete" && state.filterType === "tag"
+      (state) =>
+        state.editMode === "delete" &&
+        state.selectedLists.length === 1 &&
+        isTagList(
+          state.tweetLists.get(state.selectedLists[0]) ?? ({} as ImageList)
+        )
     ) || props.forceDeleteMode;
 
   // Remove image from current tag
   const removeImageCallback = useStore((state) => () => {
-    if (state.filterSelectTags.length === 1) {
-      const currentTag = state.tags.get(state.filterSelectTags[0]);
+    if (state.selectedLists.length === 1) {
+      const currentTag = state.tags.get(state.selectedLists[0]);
       if (currentTag) {
         state.removeImage(currentTag, props.image);
       }
@@ -274,14 +280,14 @@ const TweetTags = withTheme(function TweetTags(props: {
   // Get filter
 
   const [currentTag, selectedTags] = useStore((state) => [
-    state.filterSelectTags.length === 1 ? state.filterSelectTags[0] : "",
-    state.filterSelectTags,
+    state.selectedLists.length === 1 ? state.selectedLists[0] : "",
+    state.selectedLists,
   ]);
 
   // Get filter actions
   const [removeImage, setFilter] = useStore((state) => [
     state.removeImage,
-    state.setFilter,
+    (tag: string) => state.setSelectedList([tag]),
   ]);
 
   // Get tags for image
@@ -424,7 +430,7 @@ const TweetTags = withTheme(function TweetTags(props: {
               active={selectedTags.includes(tag.name) && editMode !== "delete"} // Active overrides danger color, so don't show it
               onClick={() => {
                 if (editMode !== "delete") {
-                  setFilter({ type: "tag", tag: tag });
+                  setFilter(tag.name);
                 } else if (session.data) {
                   removeImage(tag, props.image);
                 }
