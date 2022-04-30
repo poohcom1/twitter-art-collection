@@ -1,9 +1,10 @@
 import styled from "styled-components";
 import React, { useEffect } from "react";
 import Image from "next/image";
-import { useWindowSize } from "@react-hook/window-size";
 import {
   LoadMoreItemsCallback,
+  Masonry,
+  MasonryProps,
   useContainerPosition,
   useInfiniteLoader,
   useMasonry,
@@ -11,6 +12,7 @@ import {
   useResizeObserver,
   useScroller,
 } from "masonic";
+import { useWindowSize } from "@react-hook/window-size";
 import { TweetComponent } from "../../components";
 
 const COLUMN_WIDTH = 300;
@@ -26,35 +28,29 @@ interface TweetsGalleryProps {
   maxItems: number;
   columnWidth?: number;
   columnGutter?: number;
+
+  masonryKey: string;
 }
 
 export default function TweetsGallery({
   images,
   fetchItems,
+  masonryKey,
   maxItems,
   columnWidth = COLUMN_WIDTH,
   columnGutter = COLUMN_GUTTER,
 }: TweetsGalleryProps) {
-  const containerRef = React.useRef(null);
-  const [windowWidth, height] = useWindowSize();
-  const { offset, width } = useContainerPosition(containerRef, [
-    windowWidth,
-    height,
-  ]);
-  const { scrollTop, isScrolling } = useScroller(offset);
-  const positioner = usePositioner({ width, columnWidth, columnGutter }, [
-    images.length,
-  ]);
-
-  const resizeObserver = useResizeObserver(positioner);
+  useEffect(() => {
+    if (images.length === 0 && maxItems !== 0) {
+      fetchItems().then();
+    }
+  }, [fetchItems, images.length, maxItems]);
 
   const fetchMoreItems = async (
     _startIndex: number,
     _stopIndex: number,
     _currentItems: TweetSchema[]
-  ) => {
-    await fetchItems();
-  };
+  ) => await fetchItems();
 
   const maybeLoadMore = useInfiniteLoader<
     TweetSchema,
@@ -62,14 +58,8 @@ export default function TweetsGallery({
   >(fetchMoreItems, {
     isItemLoaded: (index, items) => index < items.length && !!items[index],
     totalItems: maxItems,
-    threshold: 32,
+    threshold: 16,
   });
-
-  useEffect(() => {
-    if (images.length === 0 && maxItems !== 0) {
-      fetchItems().then();
-    }
-  }, [fetchItems, images.length, maxItems]);
 
   return (
     <MainDiv>
@@ -78,20 +68,14 @@ export default function TweetsGallery({
       ) : (
         <></>
       )}
-      {useMasonry({
-        positioner,
-        scrollTop,
-        isScrolling,
-        height,
-        containerRef,
-        resizeObserver,
-
-        onRender: maybeLoadMore,
-
-        items: images,
-        render: MasonryCard,
-        tabIndex: -1,
-      })}
+      <Masonry
+        items={images}
+        onRender={maybeLoadMore}
+        render={MasonryCard}
+        key={masonryKey}
+        columnWidth={columnWidth}
+        columnGutter={columnGutter}
+      />
       {images.length < maxItems ? (
         <div className="center" style={{ marginTop: "32px" }}>
           <Image
@@ -107,6 +91,34 @@ export default function TweetsGallery({
       )}
     </MainDiv>
   );
+}
+
+function ShrinkingMasonry(props: MasonryProps<TweetSchema>) {
+  const { columnWidth, columnGutter, items: images } = props;
+
+  const containerRef = React.useRef(null);
+  const [windowWidth, height] = useWindowSize();
+  const { offset, width } = useContainerPosition(containerRef, [
+    windowWidth,
+    height,
+  ]);
+  const { scrollTop, isScrolling } = useScroller(offset);
+  const positioner = usePositioner({ width, columnWidth, columnGutter }, [
+    images.length,
+  ]);
+
+  const resizeObserver = useResizeObserver(positioner);
+
+  return useMasonry({
+    positioner,
+    scrollTop,
+    isScrolling,
+    height,
+    containerRef,
+    resizeObserver,
+    tabIndex: -1,
+    ...props,
+  });
 }
 
 const MasonryCard = (props: {

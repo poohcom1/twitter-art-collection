@@ -25,13 +25,11 @@ export const TIMELINE_TWEET_LIST = "__timeline";
 
 export const SPECIAL_LIST_KEYS = [LIKED_TWEET_LIST, TIMELINE_TWEET_LIST];
 
-export const NO_FILTER = <T>(_image: T, _index: number, _array: T[]) => true;
-
 const initialState = {
   selectedLists: [LIKED_TWEET_LIST],
   tweetLists: <Map<string, ImageList>>new Map(),
 
-  searchFilter: <TweetPredicate>NO_FILTER,
+  searchTerm: "",
 
   editMode: <"add" | "delete">"add",
 
@@ -109,13 +107,13 @@ const store = combine(initialState, (set, get) => ({
       );
     }
 
-    return tweets.filter(get().searchFilter);
+    return tweets;
   },
   setSelectedList: (list: string[]) => {
     set({ selectedLists: list });
   },
   fetchMoreTweets: async () => {
-    if (get().selectedLists.length === 1 && get().searchFilter === NO_FILTER) {
+    if (get().selectedLists.length === 1 && get().searchTerm === "") {
       const tweetList = get().tweetLists.get(get().selectedLists[0]);
 
       if (tweetList) {
@@ -255,38 +253,31 @@ const store = combine(initialState, (set, get) => ({
   },
 
   /* --------------------------------- Filters -------------------------------- */
+  searchFilter: <TweetPredicate>((tweet) => {
+    if (!get().searchTerm) return true;
 
-  setSearchFilter: (search: string, target?: TweetTextData) => {
-    let searchFilter = <TweetPredicate>NO_FILTER;
-
-    if (search !== "") {
-      searchFilter = <TweetPredicate>((tweet) => {
-        if (!tweet.data) {
-          return false;
-        }
-
-        let include = false;
-
-        const texts = getTweetTexts(tweet);
-
-        for (const [key, text] of Object.entries(texts)) {
-          if (target && !target[key as keyof TweetTextData]) {
-            continue;
-          }
-
-          if (
-            text &&
-            text.toLowerCase().includes(search.toLowerCase().trim())
-          ) {
-            include = true;
-          }
-        }
-
-        return include;
-      });
+    if (!tweet.data) {
+      return false;
     }
 
-    set((state) => ({ ...state, searchFilter }));
+    let include = false;
+
+    const texts = getTweetTexts(tweet);
+
+    for (const [_key, text] of Object.entries(texts)) {
+      if (
+        text &&
+        text.toLowerCase().includes(get().searchTerm.toLowerCase().trim())
+      ) {
+        include = true;
+      }
+    }
+
+    return include;
+  }),
+
+  setSearchFilter: (search: string) => {
+    set({ searchTerm: search });
   },
   /* -------------------------------- EditMode -------------------------------- */
   toggleEditMode: () =>

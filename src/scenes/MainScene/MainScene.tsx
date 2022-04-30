@@ -33,7 +33,9 @@ export default function MainScene() {
   const session = useSession();
 
   // Data
-  const tweets = useStore((state) => state.getTweets());
+  const tweets = useStore((state) =>
+    state.getTweets().filter(state.searchFilter)
+  );
 
   const fetchTweets = useStore((state) => state.fetchMoreTweets);
 
@@ -42,6 +44,8 @@ export default function MainScene() {
     if (tweetList) return tweetList.fetchState;
     else return "all_fetched" as FetchState;
   });
+
+  const searchTerm = useStore((state) => state.searchTerm);
 
   // Loading
   const [tweetsLoaded, setTweetsLoaded] = useState(false);
@@ -106,9 +110,14 @@ export default function MainScene() {
         text={newUser ? "Creating new user..." : ""}
       />
       <TweetsGallery
+        masonryKey={selectedList.join(",") + "-" + searchTerm}
         images={tweets}
         fetchItems={fetchTweets}
-        maxItems={fetchState === "all_fetched" ? tweets.length : 9e9}
+        maxItems={
+          fetchState === "all_fetched" || searchTerm !== ""
+            ? tweets.length
+            : 9e9
+        }
       />
     </AppDiv>
   );
