@@ -14,7 +14,7 @@ const tagSchema = new Schema<TagSchema>({
     index: true,
   },
   images: {
-    type: [imageSchema],
+    type: [String],
   },
 });
 

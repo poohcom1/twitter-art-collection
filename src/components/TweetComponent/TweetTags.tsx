@@ -18,7 +18,7 @@ import {
 } from "react-icons/go";
 import Popup from "reactjs-popup";
 import { useStore } from "src/stores/rootStore";
-import { arrayEqual, imageEqual } from "src/util/objectUtil";
+import { arrayEqual } from "src/util/objectUtil";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
 import { useOverflowDetector } from "src/hooks/useOverflowDetector";
@@ -297,10 +297,10 @@ const TweetTags = withTheme(function TweetTags(props: {
         const tags = state.getTagList();
 
         const includedTags = tags.filter((tag) =>
-          tag.images.find((im) => imageEqual(im, props.image))
+          tag.images.find((im) => im === props.image.id)
         );
         const notIncludedTags = tags.filter(
-          (tag) => !tag.images.find((im) => imageEqual(im, props.image))
+          (tag) => !tag.images.find((im) => im === props.image.id)
         );
 
         return [includedTags, notIncludedTags];

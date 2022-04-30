@@ -300,9 +300,9 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
           ) : (
             // Delete mode
             <StyledModal
+              key={i}
               trigger={
                 <Tag
-                  key={i}
                   active={selectedLists.includes(tag.name)}
                   color={props.theme.color.danger}
                 >

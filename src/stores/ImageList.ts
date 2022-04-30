@@ -81,7 +81,7 @@ export class TagList implements ImageList {
     this.tag = tag;
     this.fetchCount = fetchCount;
 
-    this._tweets = tag.images;
+    this._tweets = tag.images.map((id) => ({ id, platform: "twitter" }));
   }
 
   _fetchMoreTweets = async () => {

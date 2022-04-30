@@ -3,17 +3,16 @@ import React, { useEffect } from "react";
 import Image from "next/image";
 import {
   LoadMoreItemsCallback,
-  Masonry,
   MasonryProps,
   useContainerPosition,
   useInfiniteLoader,
   useMasonry,
-  usePositioner,
   useResizeObserver,
   useScroller,
 } from "masonic";
 import { useWindowSize } from "@react-hook/window-size";
-import { TweetComponent } from "../../components";
+import { TweetComponent } from "../../../components";
+import useShrinkingPositioner from "./useShrinkingPositioner";
 
 const COLUMN_WIDTH = 300;
 const COLUMN_GUTTER = 30;
@@ -68,7 +67,7 @@ export default function TweetsGallery({
       ) : (
         <></>
       )}
-      <Masonry
+      <ShrinkingMasonry
         items={images}
         onRender={maybeLoadMore}
         render={MasonryCard}
@@ -103,9 +102,10 @@ function ShrinkingMasonry(props: MasonryProps<TweetSchema>) {
     height,
   ]);
   const { scrollTop, isScrolling } = useScroller(offset);
-  const positioner = usePositioner({ width, columnWidth, columnGutter }, [
-    images.length,
-  ]);
+  const positioner = useShrinkingPositioner(
+    { width, columnWidth, columnGutter },
+    images
+  );
 
   const resizeObserver = useResizeObserver(positioner);
 

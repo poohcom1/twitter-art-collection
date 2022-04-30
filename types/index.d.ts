@@ -49,7 +49,7 @@ interface TweetExpansions {
 // Data types
 interface TagSchema {
   name: string;
-  images: ImageSchema[];
+  images: string[];
 }
 
 type TagCollection = Map<string, TagSchema>;

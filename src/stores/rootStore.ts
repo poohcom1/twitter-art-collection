@@ -103,7 +103,7 @@ const store = combine(initialState, (set, get) => ({
 
     if (blacklist && !get().selectedLists.includes(blacklist.name)) {
       tweets = tweets.filter(
-        (tweet) => !blacklist.images.find((image) => imageEqual(tweet, image))
+        (tweet) => !blacklist.images.find((image) => tweet.id === image)
       );
     }
 
@@ -180,7 +180,7 @@ const store = combine(initialState, (set, get) => ({
       }
 
       if (tagObject) {
-        tagObject.images.push(image);
+        tagObject.images.push(image.id);
         tags.set(tagObject.name, tagObject);
 
         putTag(tagObject).then();
@@ -202,7 +202,7 @@ const store = combine(initialState, (set, get) => ({
   removeImage: (tag: TagSchema, image: ImageSchema): void =>
     set((state) => {
       const tags = state.tags;
-      tag.images = tag.images.filter((im) => !imageEqual(im, image));
+      tag.images = tag.images.filter((im) => im !== image.id);
       tags.set(tag.name, tag);
 
       putTag(tag).then();
@@ -222,7 +222,7 @@ const store = combine(initialState, (set, get) => ({
       let blacklistTag: TagSchema;
 
       if (!tags.has(BLACKLIST_TAG)) {
-        blacklistTag = { name: BLACKLIST_TAG, images: [image] };
+        blacklistTag = { name: BLACKLIST_TAG, images: [image.id] };
 
         tags.set(BLACKLIST_TAG, blacklistTag);
 
@@ -230,11 +230,11 @@ const store = combine(initialState, (set, get) => ({
       } else {
         blacklistTag = tags.get(BLACKLIST_TAG)!;
 
-        if (blacklistTag?.images.find((im) => imageEqual(im, image))) {
+        if (blacklistTag?.images.find((im) => im === image.id)) {
           return;
         }
 
-        blacklistTag?.images.push(image);
+        blacklistTag?.images.push(image.id);
 
         putTag(blacklistTag!);
       }
@@ -358,7 +358,7 @@ function setFilter(action: FilterActions, tags: TagCollection) {
         for (let i = 0; i < tagList.length; i++) {
           const tag = tagList[i];
 
-          if (tag.images.find((im) => imageEqual(im, image))) return false;
+          if (tag.images.find((im) => im === image.id)) return false;
         }
         return true;
       });
@@ -366,14 +366,14 @@ function setFilter(action: FilterActions, tags: TagCollection) {
     case "tag":
       filterSelectTags = [action.tag.name];
       imageFilter = <ImagePredicate>((image) => {
-        return !!action.tag.images.find((im) => imageEqual(im, image));
+        return !!action.tag.images.find((im) => im === image.id);
       });
       break;
     case "multi":
       filterSelectTags = action.tags.map((t) => t.name);
       imageFilter = <ImagePredicate>((image) => {
         for (const tag of action.tags) {
-          if (!tag.images.find((im) => imageEqual(im, image))) {
+          if (!tag.images.find((im) => im === image.id)) {
             return false;
           }
         }

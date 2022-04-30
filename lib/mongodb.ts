@@ -29,9 +29,7 @@ export async function removeDeletedTweets(
     user.tweetIds = user.tweetIds.filter((id) => !deletedTweetIds.includes(id));
 
     user.tags.forEach((tag) => {
-      tag.images = tag.images.filter(
-        (tweet) => !deletedTweetIds.includes(tweet.id)
-      );
+      tag.images = tag.images.filter((id) => !deletedTweetIds.includes(id));
     });
 
     await UserModel.updateOne({ uid: user.uid }, user);

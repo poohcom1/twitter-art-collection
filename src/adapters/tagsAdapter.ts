@@ -1,14 +1,5 @@
 import { jsonOrError } from "./adapter";
 
-function sanitizeTag(tag: TagSchema): TagSchema {
-  tag.images = tag.images.map((image) => ({
-    id: image.id,
-    platform: image.platform,
-  }));
-
-  return tag;
-}
-
 /**
  * @deprecated All tags should be fetched from the user endpoint
  */
@@ -27,7 +18,7 @@ export async function postTag(tag: TagSchema): Promise<Response> {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(sanitizeTag(tag)),
+    body: JSON.stringify(tag),
   });
 }
 
@@ -37,7 +28,7 @@ export async function putTag(tag: TagSchema): Promise<Response> {
     headers: {
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(sanitizeTag(tag)),
+    body: JSON.stringify(tag),
   });
 }
 
