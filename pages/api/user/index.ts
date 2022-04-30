@@ -12,7 +12,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { ApiResponseError } from "twitter-api-v2";
 import { dbMethodHandler } from "lib/apiHelper";
-import { getRedis, storeTweetCache } from "lib/redis";
+import { getRedis, storeTweetCache, useRedis } from "lib/redis";
 
 export default dbMethodHandler({
   GET: getUserV2,
@@ -74,9 +74,7 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
       /* ---------------------------- Tweet Expansions ---------------------------- */
       completeTweetFields(tweets, results[0]);
 
-      const redis = getRedis();
-      storeTweetCache(redis, tweets);
-      redis.quit();
+      await useRedis(storeTweetCache(tweets));
 
       const responseObject: UserDataResponse = {
         tweets: tweets as TweetSchema[],
@@ -173,9 +171,7 @@ async function postUser(req: NextApiRequest, res: NextApiResponse) {
 
         completeTweetFields(tweets, payload.data);
 
-        const redis = getRedis();
-        storeTweetCache(redis, tweets);
-        redis.quit();
+        await useRedis(storeTweetCache(tweets));
 
         const response: UserDataResponse = {
           tweets: tweets,

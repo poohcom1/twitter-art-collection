@@ -1,4 +1,5 @@
 import { authOptions } from "lib/nextAuth";
+import { storeTweetCache, useRedis } from "lib/redis";
 import { createTweetObjects, getTwitterApi, TWEET_OPTIONS } from "lib/twitter";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
@@ -21,12 +22,13 @@ export default async function handler(
   const payload = await twitterApi.v2.userLikedTweets(session.user.id, {
     ...TWEET_OPTIONS,
     pagination_token,
-    max_results: 50,
   });
 
   const token = payload.data.meta.next_token;
 
   const tweets = createTweetObjects(payload.data);
+
+  await useRedis(storeTweetCache(tweets));
 
   const response: TweetsResponse = {
     nextToken: token,

@@ -18,5 +18,15 @@
       }
     ],
     "@typescript-eslint/no-non-null-assertion": "off"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["pages/api/**/*.ts", "lib/**/*.ts"],
+      "excludedFiles": ["*.tsx"],
+      "rules": {
+        "react-hooks/rules-of-hooks": "off",
+        "unused-imports/no-unused-vars": "off"
+      }
+    }
+  ]
 }
