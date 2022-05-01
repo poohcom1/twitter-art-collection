@@ -18,7 +18,6 @@ import {
 } from "react-icons/go";
 import Popup from "reactjs-popup";
 import { useStore } from "src/stores/rootStore";
-import { arrayEqual } from "src/util/objectUtil";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 import { PopupItem, StyledPopup, StyledTab } from "..";
 import { useOverflowDetector } from "src/hooks/useOverflowDetector";
@@ -53,19 +52,13 @@ const TabContainer = styled.div<TabContainerProps & { overflow?: boolean }>`
       : ""}
 `;
 
-const StyledAddButton = styled.div`
-  padding: 0;
-  margin: 0;
-  height: ${BUTTON_SIZE}px;
-  width: ${BUTTON_SIZE}px;
-`;
-
 /**
  * Tab with lower border radius removed
  */
 const Tab = styled(StyledTab)`
   padding: 5px 10px;
   margin: 0 5px;
+  margin-top: 2px;
 
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -109,48 +102,6 @@ const BlacklistButton = styled.p`
 `;
 
 /* ------------------------------- Components ------------------------------- */
-
-function AddImagesButton(props: {
-  image: ImageSchema;
-  theme: DefaultTheme;
-  forceDeleteMode: boolean;
-}) {
-  const deleteMode =
-    useStore(
-      (state) =>
-        state.editMode === "delete" &&
-        state.selectedLists.length === 1 &&
-        isTagList(
-          state.tweetLists.get(state.selectedLists[0]) ?? ({} as ImageList)
-        )
-    ) || props.forceDeleteMode;
-
-  // Remove image from current tag
-  const removeImageCallback = useStore((state) => () => {
-    if (state.selectedLists.length === 1) {
-      const currentTag = state.tags.get(state.selectedLists[0]);
-      if (currentTag) {
-        state.removeImage(currentTag, props.image);
-      }
-    }
-  });
-
-  return (
-    <Tab
-      color={!deleteMode ? undefined : props.theme.color.danger}
-      title={!deleteMode ? "Add image to tag" : "Remove image from current tag"}
-      onClick={!deleteMode ? undefined : removeImageCallback}
-    >
-      <StyledAddButton>
-        {!deleteMode ? (
-          <PlusCircle size={BUTTON_SIZE} />
-        ) : (
-          <CloseCircle size={BUTTON_SIZE} />
-        )}
-      </StyledAddButton>
-    </Tab>
-  );
-}
 
 /**
  * Add image component
@@ -274,7 +225,6 @@ const TweetTags = withTheme(function TweetTags(props: {
   tweetRef: RefObject<HTMLDivElement>;
   imageSrcs: string[];
 }) {
-  const session = useSession();
   const editMode = useStore((state) => state.editMode);
 
   // Get filter
@@ -306,20 +256,15 @@ const TweetTags = withTheme(function TweetTags(props: {
         return [includedTags, notIncludedTags];
       },
       [props.image]
-    ),
-    (prevState, nextState) => {
-      // Ignore inner image changes
-      return (
-        arrayEqual(
-          prevState[1].map((tag) => tag.name),
-          nextState[1].map((tag) => tag.name)
-        ) &&
-        arrayEqual(
-          prevState[0].map((tag) => tag.name),
-          nextState[0].map((tag) => tag.name)
-        )
-      );
-    }
+    )
+    // ,
+    // (p, n) => {
+    //   // Ignore inner image changes
+    //   return (
+    //     arrayEqual(p[1].map((t) => t.name), n[1].map((t) => t.name)) &&
+    //     arrayEqual(p[0].map((t) => t.name), n[0].map((t) => t.name))
+    //   );
+    // }
   );
 
   // Overflow detection
@@ -332,9 +277,29 @@ const TweetTags = withTheme(function TweetTags(props: {
   const addImage = useStore((state) => state.addImage);
 
   const addTagRef = useRef<HTMLInputElement>(null);
+
+  const deleteMode = useStore(
+    (state) =>
+      state.selectedLists.includes(BLACKLIST_TAG) ||
+      (state.editMode === "delete" &&
+        state.selectedLists.length === 1 &&
+        isTagList(
+          state.tweetLists.get(state.selectedLists[0]) ?? ({} as ImageList)
+        ))
+  );
+
+  // Add new tag OR delete current tag
   const onNewTagOpen = useCallback(() => {
-    if (addTagRef.current) addTagRef.current.select();
+    if (addTagRef.current) {
+      addTagRef.current.select();
+    }
   }, []);
+
+  const onDeleteTag = useCallback(() => {
+    if (currentTag) {
+      removeImage(currentTag, props.image);
+    }
+  }, [currentTag, props.image, removeImage]);
 
   const [search, setSearch] = useState("");
   const addTagList = useMemo(() => {
@@ -348,74 +313,86 @@ const TweetTags = withTheme(function TweetTags(props: {
   return (
     <MainContainer>
       {/* Add image to tag section */}
-      <StyledPopup
-        position={["bottom center", "bottom left", "bottom right"]}
-        trigger={
-          <div>
-            <AddImagesButton
-              image={props.image}
-              theme={props.theme}
-              forceDeleteMode={currentTag === BLACKLIST_TAG}
-            />
-          </div>
-        }
-        closeOnDocumentClick
-        disabled={currentTag === BLACKLIST_TAG}
-        onOpen={onNewTagOpen}
-        onClose={() => setSearch("")}
-      >
-        {(close: () => void) => (
-          <>
-            <PopupItem tabIndex={-1}>
-              <AddTag
-                ref={addTagRef}
-                placeholder="Enter a tag name..."
-                onFinish={(error, text) => {
-                  switch (error) {
-                    case "EXISTING_TAG":
-                      addImage(text, props.image);
-                      break;
-                    case "":
-                      addImage(text, props.image);
-                      break;
-                  }
 
-                  close();
-                }}
-                onTextChanged={setSearch}
-              />
-            </PopupItem>
+      {!deleteMode ? (
+        <StyledPopup
+          position={["bottom center", "bottom left", "bottom right"]}
+          trigger={
+            <Tab
+              title={"Add image to tag"}
+              data-cy="tweet__add-tag"
+              tabIndex={-1}
+            >
+              <PlusCircle size={BUTTON_SIZE} />
+            </Tab>
+          }
+          closeOnDocumentClick
+          onOpen={onNewTagOpen}
+          onClose={() => setSearch("")}
+        >
+          {(close: () => void) => (
+            <>
+              <PopupItem tabIndex={-1}>
+                <AddTag
+                  ref={addTagRef}
+                  placeholder="Enter a tag name..."
+                  onFinish={(error, text) => {
+                    switch (error) {
+                      case "EXISTING_TAG":
+                        addImage(text, props.image);
+                        break;
+                      case "":
+                        addImage(text, props.image);
+                        break;
+                    }
 
-            {addTagList.map((tag) => (
-              <AddImagesPopupListItem
-                key={tag.name}
-                keyNum={tag.name}
-                tag={tag}
-                image={props.image}
-                close={close}
-              />
-            ))}
-            {/* Blacklist Section. Show if not in any tags */}
-            {includedTags.length === 0 ? (
-              <>
-                <div
-                  style={{
-                    height: "1px",
-                    margin: "5px",
-                    backgroundColor: "grey",
+                    close();
                   }}
+                  onTextChanged={setSearch}
                 />
+              </PopupItem>
 
-                <PopupItem onClick={() => blacklistImage(props.image)}>
-                  <BlacklistButton>Blacklist</BlacklistButton>
-                </PopupItem>
-              </>
-            ) : (
-              <></>
-            )}
-          </>
-        )}
-      </StyledPopup>
+              {addTagList.map((tag) => (
+                <AddImagesPopupListItem
+                  key={tag.name}
+                  keyNum={tag.name}
+                  tag={tag}
+                  image={props.image}
+                  close={close}
+                />
+              ))}
+              {/* Blacklist Section. Show if not in any tags */}
+              {includedTags.length === 0 ? (
+                <>
+                  <div
+                    style={{
+                      height: "1px",
+                      margin: "5px",
+                      backgroundColor: "grey",
+                    }}
+                  />
+
+                  <PopupItem onClick={() => blacklistImage(props.image)}>
+                    <BlacklistButton>Blacklist</BlacklistButton>
+                  </PopupItem>
+                </>
+              ) : (
+                <></>
+              )}
+            </>
+          )}
+        </StyledPopup>
+      ) : (
+        <Tab
+          color={props.theme.color.danger}
+          title={"Remove image from tag"}
+          data-cy="tweet__remove-tag"
+          onClick={onDeleteTag}
+          tabIndex={-1}
+        >
+          <CloseCircle size={BUTTON_SIZE} />
+        </Tab>
+      )}
       {/* Included tags section */}
       <TabContainer ref={tagsContainerRef} overflowing={overflow}>
         {includedTags
@@ -431,10 +408,12 @@ const TweetTags = withTheme(function TweetTags(props: {
               onClick={() => {
                 if (editMode !== "delete") {
                   setFilter(tag.name);
-                } else if (session.data) {
+                } else {
                   removeImage(tag, props.image);
                 }
               }}
+              data-cy="tweet__tag"
+              tabIndex={-1}
             >
               {tag.name}
               {editMode === "delete" ? (

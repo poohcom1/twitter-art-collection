@@ -9,16 +9,17 @@ import {
   useMasonry,
   useResizeObserver,
   useScroller,
+  useScrollToIndex,
 } from "masonic";
 import { useWindowSize } from "@react-hook/window-size";
 import { TweetComponent } from "../../../components";
 import useShrinkingPositioner from "./useShrinkingPositioner";
 
-const COLUMN_WIDTH = 300;
-const COLUMN_GUTTER = 30;
+const COLUMN_WIDTH = 250;
+const COLUMN_GUTTER = 20;
 
 const MainDiv = styled.div`
-  padding: 120px 40px;
+  padding: 120px 40px 0 40px;
 `;
 
 interface TweetsGalleryProps {
@@ -108,6 +109,13 @@ function ShrinkingMasonry(props: MasonryProps<TweetSchema>) {
   );
 
   const resizeObserver = useResizeObserver(positioner);
+  const scrollToIndex = useScrollToIndex(positioner, {});
+
+  React.useEffect(() => {
+    if (props.scrollToIndex) {
+      scrollToIndex(props.scrollToIndex as number);
+    }
+  }, [props.scrollToIndex, scrollToIndex]);
 
   return useMasonry({
     positioner,
@@ -116,6 +124,7 @@ function ShrinkingMasonry(props: MasonryProps<TweetSchema>) {
     height,
     containerRef,
     resizeObserver,
+    scrollToIndex,
     tabIndex: -1,
     ...props,
   });
@@ -131,7 +140,7 @@ const MasonryCard = (props: {
       id={props.data.id}
       tweet={props.data}
       key={props.data.id}
-      order={props.index}
+      index={props.index}
     />
   );
 };

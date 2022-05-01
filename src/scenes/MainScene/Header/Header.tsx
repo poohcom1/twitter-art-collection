@@ -85,6 +85,7 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
           onClick={() => {
             toggleEditMode();
           }}
+          data-cy="trash-icon"
         >
           {Array.from(tags.values()).length > 0 ? (
             <StyledTrashIcon

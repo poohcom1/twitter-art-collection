@@ -159,11 +159,13 @@ button.blank {
 .tweet-footer {
   margin-top: 15px;
   display: flex;
+  font-size: 0.8em;
 }
 
 .tweet-footer-date {
   color: grey;
   margin-left: auto;
+  text-align: right;
 }
 
 .tweet-content-media {

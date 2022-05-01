@@ -53,6 +53,7 @@ export function injectTweetLink(text: string) {
             }
             target="_blank"
             rel="noreferrer"
+            tabIndex={-1}
           >
             {token}
           </a>

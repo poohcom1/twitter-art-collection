@@ -29,18 +29,18 @@ export default function useShrinkingPositioner(
   if (positionerRef.current === undefined)
     positionerRef.current = initPositioner();
 
-  const prevItems = React.useRef(items.length);
+  const prevLength = React.useRef(items.length);
   const opts = [width, columnWidth, columnGutter, rowGutter, columnCount];
   const prevOpts = React.useRef(opts);
   const optsChanged = !opts.every((item, i) => prevOpts.current[i] === item);
 
-  // Create a new positioner when the dependencies or sizes change
-  // Thanks to https://github.com/khmm12 for pointing this out
-  // https://github.com/jaredLunde/masonic/pull/41
-  if (optsChanged || items.length < prevItems.current) {
+  // Only recreated positioner when item size decreased
+  if (optsChanged || items.length < prevLength.current) {
+    console.log(items.length, " ", prevLength.current);
+
     const prevPositioner = positionerRef.current;
     const positioner = initPositioner();
-    prevItems.current = items.length;
+    prevLength.current = items.length;
     prevOpts.current = opts;
 
     if (optsChanged) {
@@ -52,6 +52,11 @@ export default function useShrinkingPositioner(
     }
 
     positionerRef.current = positioner;
+  }
+
+  // Update item length
+  if (items.length !== prevLength.current) {
+    prevLength.current = items.length;
   }
 
   return positionerRef.current;

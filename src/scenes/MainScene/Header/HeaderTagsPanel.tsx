@@ -195,6 +195,7 @@ function NewTag(props: { theme: DefaultTheme }) {
       color={props.theme.color.primary}
       textColor={props.theme.color.onPrimary}
       onClick={onClick}
+      data-cy="header__add-tag"
     >
       <ExpandingInput
         className="light-placeholder"
@@ -294,6 +295,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
               key={i}
               onClick={setSelectedList(tag.name)}
               active={selectedLists.includes(tag.name)}
+              data-cy="tag"
             >
               {tag.name} - {tag.images.length}
             </Tag>

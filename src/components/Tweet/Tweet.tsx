@@ -2,7 +2,10 @@ import Image from "next/image";
 import { useCallback } from "react";
 import { injectTweetLink } from "src/util/tweetUtil";
 
-export default function Tweet(props: { data: TweetExpansions, darkMode?: boolean }) {
+export default function Tweet(props: {
+  data: TweetExpansions;
+  darkMode?: boolean;
+}) {
   const { data } = props;
 
   const onImageClick = useCallback(
@@ -21,6 +24,7 @@ export default function Tweet(props: { data: TweetExpansions, darkMode?: boolean
           href={`https://twitter.com/${data.username}`}
           target="_blank"
           rel="noreferrer"
+          tabIndex={-1}
         >
           <Image
             className="tweet-header-avatar-img"
@@ -35,6 +39,7 @@ export default function Tweet(props: { data: TweetExpansions, darkMode?: boolean
           href={`https://twitter.com/${data.username}`}
           target="_blank"
           rel="noreferrer"
+          tabIndex={-1}
         >
           <h3 className={`tweet-header-name ${props.darkMode ? "dark" : ""}`}>
             {data.name}
@@ -47,6 +52,7 @@ export default function Tweet(props: { data: TweetExpansions, darkMode?: boolean
           href={data.url}
           target="_blank"
           rel="noreferrer"
+          tabIndex={-1}
         >
           <Image
             src={"/assets/twitter/twitter_logo_blue.svg"}
@@ -84,7 +90,7 @@ export default function Tweet(props: { data: TweetExpansions, darkMode?: boolean
       </div>
 
       <div className="tweet-footer">
-        <a href={data.url} target="_blank" rel="noreferrer">
+        <a href={data.url} target="_blank" rel="noreferrer" tabIndex={-1}>
           View on twitter
         </a>
 

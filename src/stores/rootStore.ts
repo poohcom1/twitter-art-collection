@@ -1,6 +1,6 @@
 import create from "zustand";
 import { combine } from "zustand/middleware";
-import { imageEqual, isString } from "src/util/objectUtil";
+import { imageEqual, isString, mapKeys } from "src/util/objectUtil";
 import {
   BLACKLIST_TAG,
   LOCAL_THEME_DARK,
@@ -12,7 +12,8 @@ import { postTag, deleteTag, putTag } from "src/adapters/tagsAdapter";
 import { fetchLikedTweets, fetchFeedTweets } from "src/adapters/tweetAdapter";
 import { lightTheme } from "src/themes";
 import { DefaultTheme } from "styled-components";
-import { ImageList, TagList, TweetList } from "./ImageList";
+import { ImageList, isTagList, TagList, TweetList } from "./ImageList";
+import { cacheTweets } from "src/util/tweetUtil";
 
 /**
  * !IMPORTANT
@@ -72,10 +73,16 @@ const store = combine(initialState, (set, get) => ({
         tweetLists.set(tag.name, new TagList(get().tweetMap, tag));
       });
 
+      get().tags = tags;
+      get().tweetLists = tweetLists;
+
       set({
-        tags: tags,
         tagsStatus: "loaded",
-        tweetLists: tweetLists,
+        ...updateTagLists({
+          tags,
+          tweetLists,
+          tweetMap: get().tweetMap,
+        }),
       });
 
       return { data: null, error: null };
@@ -118,7 +125,9 @@ const store = combine(initialState, (set, get) => ({
 
       if (tweetList) {
         if (tweetList.fetchState === "fetched") {
-          await tweetList._fetchMoreTweets();
+          const newTweets = await tweetList._fetchMoreTweets();
+
+          cacheTweets(get().tweetMap, newTweets);
 
           set({ tweetLists: new Map(get().tweetLists) });
         }
@@ -143,10 +152,7 @@ const store = combine(initialState, (set, get) => ({
 
       return {
         ...state,
-        tags,
-        tweetLists: new Map(
-          get().tweetLists.set(tag.name, new TagList(get().tweetMap, tag))
-        ),
+        ...updateTagLists(get()),
       };
     }),
   removeTag: (tag: TagSchema): void =>
@@ -157,12 +163,12 @@ const store = combine(initialState, (set, get) => ({
       const tags = state.tags;
       tags.delete(tag.name);
 
-      get().tweetLists.delete(tag.name);
+      const tweetLists = get().tweetLists;
+      tweetLists.delete(tag.name);
 
       return {
         ...state,
-        tags,
-        tweetLists: new Map(get().tweetLists),
+        ...updateTagLists(get()),
       };
     }),
 
@@ -187,33 +193,35 @@ const store = combine(initialState, (set, get) => ({
 
         return {
           ...state,
-          tags: tags,
-          tweetLists: new Map(
-            get().tweetLists.set(
-              tagObject.name,
-              new TagList(get().tweetMap, tagObject)
-            )
-          ),
+          ...updateTagLists(get()),
         };
       } else {
         console.error("Nonexistent tagname image add attempt");
       }
     }),
-  removeImage: (tag: TagSchema, image: ImageSchema): void =>
+  removeImage: (tag: string | TagSchema, image: ImageSchema): void =>
     set((state) => {
       const tags = state.tags;
-      tag.images = tag.images.filter((im) => im !== image.id);
-      tags.set(tag.name, tag);
 
-      putTag(tag).then();
+      let tagObject: TagSchema | undefined;
 
-      return {
-        ...state,
-        tags: tags,
-        tweetLists: new Map(
-          get().tweetLists.set(tag.name, new TagList(get().tweetMap, tag))
-        ),
-      };
+      if (isString(tag)) {
+        tagObject = tags.get(tag);
+      } else {
+        tagObject = tag;
+      }
+
+      if (tagObject) {
+        tagObject.images = tagObject.images.filter((im) => im !== image.id);
+        tags.set(tagObject.name, tagObject);
+
+        putTag(tagObject).then();
+
+        return {
+          ...state,
+          ...updateTagLists(get()),
+        };
+      }
     }),
   blacklistImage: (image: ImageSchema) => {
     set((state) => {
@@ -241,13 +249,7 @@ const store = combine(initialState, (set, get) => ({
 
       return {
         ...state,
-        tags,
-        tweetLists: new Map(
-          get().tweetLists.set(
-            BLACKLIST_TAG,
-            new TagList(get().tweetMap, blacklistTag)
-          )
-        ),
+        ...updateTagLists(get()),
       };
     });
   },
@@ -299,6 +301,27 @@ const store = combine(initialState, (set, get) => ({
 export const useStore = create(store);
 
 // Init helpers
+
+// Image List helpers
+
+function updateTagLists(
+  state: Pick<typeof initialState, "tags" | "tweetLists" | "tweetMap">
+): Pick<typeof initialState, "tags" | "tweetLists"> {
+  mapKeys(state.tags).forEach((tagName) => {
+    const tag = state.tags.get(tagName);
+    const tagList = state.tweetLists.get(tagName);
+
+    if (tag) {
+      if (tagList && isTagList(tagList)) {
+        tagList.updateTag(tag);
+      } else {
+        state.tweetLists.set(tag.name, new TagList(state.tweetMap, tag));
+      }
+    }
+  });
+
+  return { tags: new Map(state.tags), tweetLists: new Map(state.tweetLists) };
+}
 
 // Filters helpers
 type ImagePredicate = <S extends ImageSchema>(

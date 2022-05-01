@@ -17,19 +17,25 @@ const fadeIn = keyframes`
 
 const TweetDiv = styled.div`
   /* animation: ${fadeIn} 0.2s linear; */
+  outline-color: blue;
+  outline-width: 2px;
+
+  &:focus {
+    outline-style: solid;
+  }
+  border-radius: 10px;
 `;
 
 function TweetComponent(props: {
   id: string;
   tweet: TweetSchema;
-  index?: number;
-  order: number;
+  index: number;
 }) {
   const tweetRef = useRef<HTMLDivElement>(null);
   const theme = useStore((state) => state.theme);
 
   return (
-    <TweetDiv>
+    <TweetDiv data-cy="tweet" tabIndex={props.index + 1}>
       <TweetTags
         image={{
           id: props.id,

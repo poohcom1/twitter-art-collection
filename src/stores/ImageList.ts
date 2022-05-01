@@ -3,7 +3,7 @@ import {
   PaginatedTweetAdapter,
 } from "src/adapters/tweetAdapter";
 import { imageEqual } from "src/util/objectUtil";
-import { cacheTweets, fillCachedTweets } from "src/util/tweetUtil";
+import { fillCachedTweets } from "src/util/tweetUtil";
 
 /**
  * These classes represent a Tab on the UI ("Timeline", "Liked", "{tag}", etc.)
@@ -18,7 +18,7 @@ export interface ImageList {
   /**
    * Should only be used inside rootStore to ensure that changes are propagated
    */
-  _fetchMoreTweets: () => Promise<void>;
+  _fetchMoreTweets: () => Promise<TweetSchema[]>;
 
   fetchState: FetchState;
 }
@@ -49,24 +49,32 @@ export class TweetList implements ImageList {
         this.token = "";
         this.fetchState = "all_fetched";
       }
+
+      return res.data.tweets;
     } else {
       alert(res.error);
       this.fetchState = "error";
     }
+
+    return [];
   };
 }
 
 export class TagList implements ImageList {
   public fetchState: FetchState = "fetched";
 
-  public tag: TagSchema;
   public fetchCount: number;
 
   /**
    * All tweets, including unloaded ones
    */
   private _tweets: TweetSchema[];
+  private _tag: TagSchema;
   private tweetsMap: Map<string, TweetSchema>;
+
+  get tag() {
+    return this._tag;
+  }
 
   get tweets() {
     return this._tweets.filter((t) => !!t.data);
@@ -78,10 +86,27 @@ export class TagList implements ImageList {
     fetchCount = 100
   ) {
     this.tweetsMap = tweetsMap;
-    this.tag = tag;
+    this._tag = tag;
     this.fetchCount = fetchCount;
 
     this._tweets = tag.images.map((id) => ({ id, platform: "twitter" }));
+  }
+
+  updateTag(tag: TagSchema) {
+    this._tag = tag;
+
+    this._tweets = tag.images.map((id) => ({
+      id,
+      platform: "twitter",
+      data: this._tweets.find((t) => t.id === id)?.data,
+    }));
+
+    if (
+      this.fetchState === "all_fetched" &&
+      this._tweets.filter((t) => !t.data).length !== 0
+    ) {
+      this.fetchState = "fetched";
+    }
   }
 
   _fetchMoreTweets = async () => {
@@ -94,6 +119,8 @@ export class TagList implements ImageList {
       .slice(0, this.fetchCount)
       .map((t) => t.id);
 
+    const fetchedTweets: TweetSchema[] = [];
+
     if (imagesToFetch.length > 0) {
       const res = await fetchTweetData(imagesToFetch);
 
@@ -103,10 +130,10 @@ export class TagList implements ImageList {
 
           if (tweet) {
             tweet.data = t.data;
+
+            fetchedTweets.push(tweet);
           }
         });
-
-        cacheTweets(this.tweetsMap, res.data);
       } else {
         this.fetchState = "error";
       }
@@ -117,6 +144,7 @@ export class TagList implements ImageList {
     } else {
       this.fetchState = "fetched";
     }
+    return fetchedTweets;
   };
 }
 

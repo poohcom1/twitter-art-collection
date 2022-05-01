@@ -90,6 +90,25 @@ export default function MainScene() {
     window.scrollTo(0, 0);
   }, [selectedList]);
 
+  // Key controls
+  const [editMode, toggledEditMode] = useStore((state) => [
+    state.editMode,
+    state.toggleEditMode,
+  ]);
+
+  useEffect(() => {
+    const escape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && editMode === "delete") {
+        toggledEditMode();
+      }
+    };
+    document.addEventListener("keyup", escape);
+
+    return () => {
+      document.removeEventListener("keyup", escape);
+    };
+  }, [editMode, toggledEditMode]);
+
   // TODO URL query
 
   if (tweetsError !== "") {
