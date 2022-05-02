@@ -78,7 +78,7 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
         {/* Trash Icon */}
         <div
           id="headerDeleteMode"
-          className="center"
+          className="center header__deleteMode"
           style={{
             marginLeft: "auto",
             justifySelf: "flex-end",
@@ -86,7 +86,6 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
           onClick={() => {
             toggleEditMode();
           }}
-          data-test="trash-icon"
         >
           {Array.from(tags.values()).length > 0 ? (
             <StyledTrashIcon

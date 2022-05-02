@@ -36,8 +36,6 @@ export default function useShrinkingPositioner(
 
   // Only recreated positioner when item size decreased
   if (optsChanged || items.length < prevLength.current) {
-    console.log(items.length, " ", prevLength.current);
-
     const prevPositioner = positionerRef.current;
     const positioner = initPositioner();
     prevLength.current = items.length;

@@ -42,7 +42,7 @@ export default function TweetsGallery({
 }: TweetsGalleryProps) {
   useEffect(() => {
     if (images.length === 0 && maxItems !== 0) {
-      fetchItems().then();
+      fetchItems().then().catch(alert);
     }
   }, [fetchItems, images.length, maxItems]);
 

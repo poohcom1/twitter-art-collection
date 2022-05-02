@@ -79,6 +79,9 @@
     "moduleDirectories": [
       "node_modules",
       "."
+    ],
+    "modulePathIgnorePatterns": [
+      "./test-e2e/*"
     ]
   }
 }

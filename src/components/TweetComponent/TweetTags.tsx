@@ -319,8 +319,8 @@ const TweetTags = withTheme(function TweetTags(props: {
           position={["bottom center", "bottom left", "bottom right"]}
           trigger={
             <Tab
+              className="tweetComp__tagEdit tweetComp__addImage"
               title={"Add image to tag"}
-              data-test="tweet__add-tag"
               tabIndex={-1}
             >
               <PlusCircle size={BUTTON_SIZE} />
@@ -360,7 +360,6 @@ const TweetTags = withTheme(function TweetTags(props: {
                   tag={tag}
                   image={props.image}
                   close={close}
-                  data-test="tweetTags__addImage"
                 />
               ))}
               {/* Blacklist Section. Show if not in any tags */}
@@ -375,7 +374,7 @@ const TweetTags = withTheme(function TweetTags(props: {
                   />
 
                   <PopupItem
-                    className="blacklist"
+                    className="tweetComp__blacklist"
                     onClick={() => blacklistImage(props.image)}
                   >
                     <BlacklistButton>Blacklist</BlacklistButton>
@@ -389,9 +388,9 @@ const TweetTags = withTheme(function TweetTags(props: {
         </StyledPopup>
       ) : (
         <Tab
+          className="tweetComp__tagEdit tweetComp__removeImage"
           color={props.theme.color.danger}
           title={"Remove image from tag"}
-          data-test="tweet__remove-tag"
           onClick={onDeleteTag}
           tabIndex={-1}
         >
@@ -417,7 +416,6 @@ const TweetTags = withTheme(function TweetTags(props: {
                   removeImage(tag, props.image);
                 }
               }}
-              data-test="tweet__tag"
               tabIndex={-1}
             >
               {tag.name}

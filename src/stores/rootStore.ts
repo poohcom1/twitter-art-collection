@@ -145,30 +145,30 @@ const store = combine(initialState, (set, get) => ({
   },
   addTag: (tag: TagSchema): void =>
     set((state) => {
-      postTag(tag).then();
+      postTag(tag).then().catch(alert);
 
       const tags = state.tags;
       tags.set(tag.name, tag);
 
       return {
         ...state,
-        ...updateTagLists(get()),
+        ...updateTagLists(state),
       };
     }),
   removeTag: (tag: TagSchema): void =>
     set((state) => {
       // TODO Switch to "all" if current tag is deleted
-      deleteTag(tag).then();
+      deleteTag(tag).then().catch(alert);
 
       const tags = state.tags;
       tags.delete(tag.name);
 
-      const tweetLists = get().tweetLists;
+      const tweetLists = state.tweetLists;
       tweetLists.delete(tag.name);
 
       return {
         ...state,
-        ...updateTagLists(get()),
+        ...updateTagLists(state),
       };
     }),
 
@@ -189,11 +189,11 @@ const store = combine(initialState, (set, get) => ({
         tagObject.images.push(image.id);
         tags.set(tagObject.name, tagObject);
 
-        putTag(tagObject).then();
+        putTag(tagObject).then().catch(alert);
 
         return {
           ...state,
-          ...updateTagLists(get()),
+          ...updateTagLists(state),
         };
       } else {
         console.error("Nonexistent tagname image add attempt");
@@ -215,41 +215,39 @@ const store = combine(initialState, (set, get) => ({
         tagObject.images = tagObject.images.filter((im) => im !== image.id);
         tags.set(tagObject.name, tagObject);
 
-        putTag(tagObject).then();
+        putTag(tagObject).then().catch(alert);
 
         return {
           ...state,
-          ...updateTagLists(get()),
+          ...updateTagLists(state),
         };
       }
     }),
   blacklistImage: (image: ImageSchema) => {
     set((state) => {
-      const tags = new Map(state.tags);
+      const tags = state.tags;
 
-      let blacklistTag: TagSchema;
+      const blacklistTag = tags.get(BLACKLIST_TAG);
 
-      if (!tags.has(BLACKLIST_TAG)) {
-        blacklistTag = { name: BLACKLIST_TAG, images: [image.id] };
+      if (!blacklistTag) {
+        const newBlacklistTag = { name: BLACKLIST_TAG, images: [image.id] };
 
-        tags.set(BLACKLIST_TAG, blacklistTag);
+        tags.set(BLACKLIST_TAG, newBlacklistTag);
 
-        postTag(blacklistTag);
+        postTag(newBlacklistTag).then().catch(alert);
       } else {
-        blacklistTag = tags.get(BLACKLIST_TAG)!;
-
-        if (blacklistTag?.images.find((im) => im === image.id)) {
+        if (blacklistTag.images.find((im) => im === image.id)) {
           return;
         }
 
-        blacklistTag?.images.push(image.id);
+        blacklistTag.images.push(image.id);
 
-        putTag(blacklistTag!);
+        putTag(blacklistTag).then().catch(alert);
       }
 
       return {
         ...state,
-        ...updateTagLists(get()),
+        ...updateTagLists(state),
       };
     });
   },
@@ -283,7 +281,7 @@ const store = combine(initialState, (set, get) => ({
   },
   /* -------------------------------- EditMode -------------------------------- */
   toggleEditMode: () =>
-    set({ editMode: get().editMode === "add" ? "delete" : "add" }),
+    set((state) => ({ editMode: state.editMode === "add" ? "delete" : "add" })),
 
   /* ---------------------------------- etc. ---------------------------------- */
   setTheme: (theme: DefaultTheme) => {

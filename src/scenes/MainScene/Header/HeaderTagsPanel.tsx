@@ -130,11 +130,6 @@ function BasicSearch() {
         onChange={(e) => {
           setSearch((e.target as HTMLInputElement).value);
         }}
-        onBlur={() => {
-          if (!searchText) {
-            setActive(false);
-          }
-        }}
         className="blank"
         style={{ height: "100%" }}
         containerStyle={{
@@ -195,11 +190,10 @@ function NewTag(props: { theme: DefaultTheme }) {
       color={props.theme.color.primary}
       textColor={props.theme.color.onPrimary}
       onClick={onClick}
-      data-test="header__add-tag"
     >
       <ExpandingInput
         id="headerAddTag"
-        className="light-placeholder"
+        className="light-placeholder header__addTag"
         ref={addTagRef}
         placeholder="Add Tag"
         style={{
@@ -292,12 +286,11 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
           // Normal mode
           editMode === "add" ? (
             <Tag
-              className="header-tag"
+              className="header__tag"
               style={{ whiteSpace: "nowrap" }}
               key={i}
               onClick={setSelectedList(tag.name)}
               active={selectedLists.includes(tag.name)}
-              data-test="tag"
             >
               {tag.name} - {tag.images.length}
             </Tag>
@@ -307,7 +300,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
               key={i}
               trigger={
                 <Tag
-                  className="header-tag"
+                  className="header__tag"
                   active={selectedLists.includes(tag.name)}
                   color={props.theme.color.danger}
                 >

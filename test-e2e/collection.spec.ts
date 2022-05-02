@@ -43,6 +43,13 @@ const mockSession =
       })
     );
 
+    await page.route("**/api/tags/*", (route) =>
+      route.fulfill({
+        status: 200,
+        body: "Ok",
+      })
+    );
+
     await page.goto(BASE_URL + "/collection");
   };
 
@@ -66,19 +73,19 @@ test.describe("new user", () => {
   }) => {
     const tagName = "new tag";
 
-    await page.click("#headerAddTag");
-    await page.fill("#headerAddTag", tagName);
+    await page.click(".header__addTag");
+    await page.fill(".header__addTag", tagName);
     await page.keyboard.press("Enter");
 
     await expect(
-      page.locator(`.header-tag:has-text('${tagName} - 0')`)
+      page.locator(`.header__tag:has-text('${tagName} - 0')`)
     ).toHaveCount(1);
 
-    await page.click("#headerDeleteMode");
-    await page.click(`.header-tag:has-text('${tagName}')`);
+    await page.click(".header__deleteMode");
+    await page.click(`.header__tag:has-text('${tagName}')`);
     await page.click(".confirm-accept");
 
-    await expect(page.locator(".header-tag")).toHaveCount(0);
+    await expect(page.locator(".header__tag")).toHaveCount(0);
   });
 
   test("should create a tag, add two images to the tag, and delete one image", async ({
@@ -86,24 +93,42 @@ test.describe("new user", () => {
   }) => {
     const tagName = "new tag";
 
-    await page.click("#headerAddTag");
-    await page.fill("#headerAddTag", tagName);
+    await page.click(".header__addTag");
+    await page.fill(".header__addTag", tagName);
     await page.keyboard.press("Enter");
 
-    await page.locator("[data-test=tweet__add-tag] >> nth=0").click();
+    await page.locator(".tweetComp__tagEdit >> nth=0").click();
     await page.click(`.addImage:has-text('${tagName}')`);
-    await page.locator("[data-test=tweet__add-tag] >> nth=1").click();
+    await page.locator(".tweetComp__tagEdit>> nth=1").click();
     await page.click(`.addImage:has-text('${tagName}')`);
 
-    await page.click(`.header-tag:has-text('${tagName} - 2')`);
+    await page.click(`.header__tag:has-text('${tagName} - 2')`);
 
-    await expect(page.locator("[data-test=tweet]")).toHaveCount(2);
+    await expect(page.locator(".tweetComp")).toHaveCount(2);
 
-    await page.click("#headerDeleteMode");
+    await page.click(".header__deleteMode");
 
-    await page.click("[data-test=tweet__remove-tag] >> nth=0");
+    await page.click(".tweetComp__tagEdit >> nth=0");
 
-    await expect(page.locator("[data-test=tweet]")).toHaveCount(1);
+    await expect(page.locator(".tweetComp")).toHaveCount(1);
+  });
+
+  test("should hide blacklist when no tags are blacklisted, and show when there are", async ({
+    page,
+  }) => {
+    await page.click(".header__user");
+
+    await expect(page.locator(".header__blacklist")).toHaveCount(0);
+
+    await page.locator(".tweetComp__tagEdit >> nth=0").click();
+
+    await expect(page.locator(".tweetComp__blacklist")).toHaveCount(1);
+
+    await page.click(".tweetComp__blacklist");
+    await page.click(".header__user");
+    await page.click(".header__blacklist");
+
+    await expect(page.locator(".tweetComp")).toHaveCount(1);
   });
 });
 
@@ -115,8 +140,19 @@ test.describe("existing user", () => {
   test("should load existing tag", async ({ page }) => {
     await expect(
       page.locator(
-        `.header-tag:has-text('${existingTag.name} - ${existingTag.images.length}')`
+        `.header__tag:has-text('${existingTag.name} - ${existingTag.images.length}')`
       )
     ).toHaveCount(1);
+  });
+
+  test("should show blacklist options when blacklist tags are loaded", async ({
+    page,
+  }) => {
+    await page.click(".header__user");
+    await expect(page.locator(".header__blacklist")).toHaveCount(1);
+
+    await page.click(".header__blacklist");
+
+    await expect(page.locator(".tweetComp")).toHaveCount(1);
   });
 });

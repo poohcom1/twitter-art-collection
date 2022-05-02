@@ -2,28 +2,36 @@ import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 import { StyledPopup, PopupItem } from "src/components";
 import styled from "styled-components";
-import { useCallback, useMemo } from "react";
+import { HTMLAttributes, useCallback, useMemo } from "react";
 import { useStore } from "src/stores/rootStore";
 import { BLACKLIST_TAG } from "types/constants";
 import Link from "next/link";
 
-const Avatar = styled.div`
+const Avatar = styled.button`
   border-radius: 50%;
   overflow: hidden;
   height: 48px;
   width: 48px;
 
+  background-color: transparent;
+  border: none;
+  margin: 0;
+  padding: 0;
+
   cursor: pointer;
 `;
 
-function UserAvatar(props: {
-  image: string | null | undefined;
-  name: string | null | undefined;
-}) {
+function UserAvatar(
+  props: {
+    image: string | null | undefined;
+    name: string | null | undefined;
+  } & HTMLAttributes<HTMLButtonElement>
+) {
+  const { image, name, ...buttonProps } = props;
+
   const onSignoutClicked = useCallback(() => signOut(), []);
 
   // Blacklist
-
   const showBlacklist = useStore(
     (state) =>
       state.tags.has(BLACKLIST_TAG) &&
@@ -42,19 +50,17 @@ function UserAvatar(props: {
       position={"bottom left"}
       trigger={useMemo(
         () => (
-          <button className="blank">
-            <Avatar title="User settings">
-              <Image
-                src={props.image ?? ""}
-                alt={props.name ?? "usernames"}
-                height={48}
-                width={48}
-                quality={100}
-              />
-            </Avatar>
-          </button>
+          <Avatar title="User settings" {...buttonProps}>
+            <Image
+              src={image ?? ""}
+              alt={name ?? "usernames"}
+              height={48}
+              width={48}
+              quality={100}
+            />
+          </Avatar>
         ),
-        [props.image, props.name]
+        [buttonProps, image, name]
       )}
       closeOnDocumentClick
     >
@@ -63,6 +69,7 @@ function UserAvatar(props: {
           {showBlacklist ? (
             // FIXME Broswer accessibility outline not showing on open
             <PopupItem
+              className="header__blacklist"
               onClick={() => {
                 close();
                 onBlacklistClicked();
@@ -95,13 +102,12 @@ function UserAvatar(props: {
 export default function UserSection() {
   const session = useSession();
 
-  console.log(session);
-
   return (
     <>
       {session.status === "authenticated" ? (
         <div className="center">
           <UserAvatar
+            className="header__user"
             name={session.data.user.name}
             image={session.data.user.image}
           />
