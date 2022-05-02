@@ -27,3 +27,5 @@ yarn-error.log*
 
 # ts
 tsconfig.tsbuildinfo
+test-results/
+playwright-report/

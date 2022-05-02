@@ -11,9 +11,11 @@
     "type": "tsc",
     "type:watch": "tsc -w",
     "analyze": "cross-env ANALYZE=true next build",
-    "test": "jest"
+    "test": "jest",
+    "test-e2e": "npx playwright test"
   },
   "dependencies": {
+    "dotenv": "^16.0.0",
     "masonic": "^3.6.5",
     "mongoose": "^6.2.2",
     "next": "^12.1.5",
@@ -34,6 +36,7 @@
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-typescript": "^7.16.7",
     "@next/bundle-analyzer": "^12.1.0",
+    "@playwright/test": "^1.21.1",
     "@testing-library/jest-dom": "^5.16.2",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",

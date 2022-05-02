@@ -18,6 +18,16 @@
     "incremental": true,
     "baseUrl": "."
   },
-  "include": ["src", "pages", "lib", "models", "index.d.ts", "types"],
+  "include": [
+    "src",
+    "pages",
+    "lib",
+    "models",
+    "index.d.ts",
+    "types",
+    "playwright.config.ts",
+    "test",
+    "test-e2e"
+  ],
   "exclude": ["node_modules"]
 }
