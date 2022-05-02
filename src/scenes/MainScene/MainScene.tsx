@@ -64,9 +64,13 @@ export default function MainScene() {
           if (res.error) {
             setTweetsError(res.error);
           } else {
-            fetchTweets().then(() => {
-              setTweetsLoaded(true);
-            });
+            fetchTweets()
+              .then(() => {
+                setTweetsLoaded(true);
+              })
+              .catch((e) => {
+                setTweetsError(e);
+              });
           }
         })
         .catch((e) => {
@@ -115,7 +119,7 @@ export default function MainScene() {
     return (
       <AppDiv className="App">
         <Header />
-        <div className="main">{tweetsError}</div>
+        <div className="main">{tweetsError as string}</div>
       </AppDiv>
     );
   }

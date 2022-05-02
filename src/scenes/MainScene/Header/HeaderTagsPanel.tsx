@@ -195,9 +195,10 @@ function NewTag(props: { theme: DefaultTheme }) {
       color={props.theme.color.primary}
       textColor={props.theme.color.onPrimary}
       onClick={onClick}
-      data-cy="header__add-tag"
+      data-test="header__add-tag"
     >
       <ExpandingInput
+        id="headerAddTag"
         className="light-placeholder"
         ref={addTagRef}
         placeholder="Add Tag"
@@ -291,11 +292,12 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
           // Normal mode
           editMode === "add" ? (
             <Tag
+              className="header-tag"
               style={{ whiteSpace: "nowrap" }}
               key={i}
               onClick={setSelectedList(tag.name)}
               active={selectedLists.includes(tag.name)}
-              data-cy="tag"
+              data-test="tag"
             >
               {tag.name} - {tag.images.length}
             </Tag>
@@ -305,6 +307,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
               key={i}
               trigger={
                 <Tag
+                  className="header-tag"
                   active={selectedLists.includes(tag.name)}
                   color={props.theme.color.danger}
                 >

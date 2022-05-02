@@ -112,7 +112,7 @@ function AddImagesPopupListItem(
     image: TweetSchema;
     close: () => void;
     keyNum: string | number;
-  } & React.HTMLProps<HTMLDivElement>
+  } & HTMLAttributes<HTMLButtonElement>
 ) {
   const session = useSession();
   const addImage = useStore((state) => state.addImage);
@@ -126,7 +126,7 @@ function AddImagesPopupListItem(
   }, [addImage, props, session.data]);
 
   return (
-    <PopupItem key={props.keyNum} onClick={onClick}>
+    <PopupItem key={props.keyNum} onClick={onClick} {...props}>
       {props.tag.name}
     </PopupItem>
   );
@@ -320,7 +320,7 @@ const TweetTags = withTheme(function TweetTags(props: {
           trigger={
             <Tab
               title={"Add image to tag"}
-              data-cy="tweet__add-tag"
+              data-test="tweet__add-tag"
               tabIndex={-1}
             >
               <PlusCircle size={BUTTON_SIZE} />
@@ -354,11 +354,13 @@ const TweetTags = withTheme(function TweetTags(props: {
 
               {addTagList.map((tag) => (
                 <AddImagesPopupListItem
+                  className="addImage"
                   key={tag.name}
                   keyNum={tag.name}
                   tag={tag}
                   image={props.image}
                   close={close}
+                  data-test="tweetTags__addImage"
                 />
               ))}
               {/* Blacklist Section. Show if not in any tags */}
@@ -372,7 +374,10 @@ const TweetTags = withTheme(function TweetTags(props: {
                     }}
                   />
 
-                  <PopupItem onClick={() => blacklistImage(props.image)}>
+                  <PopupItem
+                    className="blacklist"
+                    onClick={() => blacklistImage(props.image)}
+                  >
                     <BlacklistButton>Blacklist</BlacklistButton>
                   </PopupItem>
                 </>
@@ -386,7 +391,7 @@ const TweetTags = withTheme(function TweetTags(props: {
         <Tab
           color={props.theme.color.danger}
           title={"Remove image from tag"}
-          data-cy="tweet__remove-tag"
+          data-test="tweet__remove-tag"
           onClick={onDeleteTag}
           tabIndex={-1}
         >
@@ -412,7 +417,7 @@ const TweetTags = withTheme(function TweetTags(props: {
                   removeImage(tag, props.image);
                 }
               }}
-              data-cy="tweet__tag"
+              data-test="tweet__tag"
               tabIndex={-1}
             >
               {tag.name}

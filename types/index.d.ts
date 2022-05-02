@@ -58,10 +58,15 @@ interface Settings {
   showTagDeleteWarning?: boolean;
 }
 
+interface RawUserSchema {
+  uid: string;
+  tags: Record<string, TagSchema>;
+}
+
 interface UserSchema {
   uid: string;
   tags: TagCollection;
-  tweetIds: string[];
+  tweetIds?: string[];
 }
 
 // Request Body Types

@@ -95,9 +95,11 @@ function UserAvatar(props: {
 export default function UserSection() {
   const session = useSession();
 
+  console.log(session);
+
   return (
     <>
-      {session.data ? (
+      {session.status === "authenticated" ? (
         <div className="center">
           <UserAvatar
             name={session.data.user.name}

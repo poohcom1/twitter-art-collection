@@ -42,7 +42,7 @@ const ConfirmationDialogue = withTheme(
         <br />
         <ButtonsDiv>
           <StyledButton
-            className="active"
+            className="active confirm-accept"
             ref={confirmButtonRef}
             color={props.acceptColor ?? props.theme.color.primary}
             onClick={useCallback(
@@ -53,6 +53,7 @@ const ConfirmationDialogue = withTheme(
             {useMemo(() => props.acceptText ?? "Accept", [props.acceptText])}
           </StyledButton>
           <StyledButton
+            className="confirm-cancel"
             color={props.cancelColor ?? props.theme.color.secondary}
             onClick={useCallback(() => props.closeCallback(), [props])}
           >
