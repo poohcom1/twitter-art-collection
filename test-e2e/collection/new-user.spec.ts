@@ -20,6 +20,7 @@ test.describe("new user", () => {
     });
 
     await test.step("Delete the tag", async () => {
+      await page.waitForSelector(".header__deleteMode");
       await page.click(".header__deleteMode");
       await page.click(`.header__tag:has-text('${tagName}')`);
       await page.click(".confirm-accept");
