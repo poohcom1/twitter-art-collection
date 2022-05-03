@@ -322,6 +322,7 @@ const TweetTags = withTheme(function TweetTags(props: {
               className="tweetComp__tagEdit tweetComp__addImage"
               title={"Add image to tag"}
               tabIndex={-1}
+              onClick={() => undefined}
             >
               <PlusCircle size={BUTTON_SIZE} />
             </Tab>

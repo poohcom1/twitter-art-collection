@@ -35,7 +35,11 @@ function TweetComponent(props: {
   const theme = useStore((state) => state.theme);
 
   return (
-    <TweetDiv className="tweetComp" tabIndex={props.index + 1}>
+    <TweetDiv
+      id={`tweetComp${props.index}`}
+      className={`tweetComp`}
+      data-index={props.index}
+    >
       <TweetTags
         image={{
           id: props.id,

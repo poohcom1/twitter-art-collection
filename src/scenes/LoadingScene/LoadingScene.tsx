@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useStore } from "src/stores/rootStore";
 import styled, { ThemeProvider } from "styled-components";
 
@@ -32,10 +33,29 @@ const Text = styled.h1`
 
 export default function LoadingScene({ display = true, text = "" }) {
   const theme = useStore((state) => state.theme);
+  const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+
+    if (!display) {
+      timeout = setTimeout(() => setVisible(false), 500);
+    } else {
+      timeout = setTimeout(() => setVisible(true), 500);
+    }
+
+    return () => clearTimeout(timeout);
+  }, [display]);
 
   return (
     <ThemeProvider theme={theme}>
-      <MainDiv style={{ opacity: display ? "100%" : "0" }}>
+      <MainDiv
+        className="loadingScreen"
+        style={{
+          visibility: visible ? "visible" : "hidden",
+          opacity: display ? "100%" : "0",
+        }}
+      >
         <Text>{text !== "" ? text : "Please wait a moment..."}</Text>
         <div className="center" style={{ width: "100vw", marginTop: "-15px" }}>
           <Image

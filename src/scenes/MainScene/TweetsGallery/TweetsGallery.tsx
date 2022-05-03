@@ -1,25 +1,27 @@
 import styled from "styled-components";
-import React, { useEffect } from "react";
+import React, { RefObject, useEffect, useRef } from "react";
 import Image from "next/image";
 import {
   LoadMoreItemsCallback,
   MasonryProps,
-  useContainerPosition,
   useInfiniteLoader,
   useMasonry,
   useResizeObserver,
-  useScroller,
   useScrollToIndex,
 } from "masonic";
-import { useWindowSize } from "@react-hook/window-size";
 import { TweetComponent } from "../../../components";
 import useShrinkingPositioner from "./useShrinkingPositioner";
+import { useSize, useScroller } from "./miniVirtualList";
 
-const COLUMN_WIDTH = 250;
+const COLUMN_WIDTH = 240;
 const COLUMN_GUTTER = 20;
 
 const MainDiv = styled.div`
-  padding: 120px 40px 0 40px;
+  padding: 20px 20px 0 20px;
+
+  width: 100%;
+  height: 89vh;
+  overflow-y: auto;
 `;
 
 interface TweetsGalleryProps {
@@ -61,14 +63,17 @@ export default function TweetsGallery({
     threshold: 16,
   });
 
+  const containerRef = useRef(null);
+
   return (
-    <MainDiv>
+    <MainDiv ref={containerRef}>
       {maxItems === 0 ? (
         <h4 style={{ textAlign: "center" }}>Nothing to see here!</h4>
       ) : (
         <></>
       )}
       <ShrinkingMasonry
+        containerDivRef={containerRef}
         items={images}
         onRender={maybeLoadMore}
         render={MasonryCard}
@@ -93,16 +98,16 @@ export default function TweetsGallery({
   );
 }
 
-function ShrinkingMasonry(props: MasonryProps<TweetSchema>) {
-  const { columnWidth, columnGutter, items: images } = props;
+function ShrinkingMasonry(
+  props: MasonryProps<TweetSchema> & {
+    containerDivRef: RefObject<HTMLDivElement>;
+  }
+) {
+  const { columnWidth, columnGutter, items: images, containerDivRef } = props;
 
-  const containerRef = React.useRef(null);
-  const [windowWidth, height] = useWindowSize();
-  const { offset, width } = useContainerPosition(containerRef, [
-    windowWidth,
-    height,
-  ]);
-  const { scrollTop, isScrolling } = useScroller(offset);
+  const { width, height } = useSize(containerDivRef);
+
+  const { scrollTop, isScrolling } = useScroller(containerDivRef);
   const positioner = useShrinkingPositioner(
     { width, columnWidth, columnGutter },
     images
@@ -122,7 +127,6 @@ function ShrinkingMasonry(props: MasonryProps<TweetSchema>) {
     scrollTop,
     isScrolling,
     height,
-    containerRef,
     resizeObserver,
     scrollToIndex,
     tabIndex: -1,
