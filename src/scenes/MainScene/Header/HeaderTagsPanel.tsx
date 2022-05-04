@@ -6,7 +6,7 @@ import {
   StyledModel as StyledModal,
   StyledTab,
 } from "src/components";
-import { AiOutlineSearch as SearchIcon } from "react-icons/ai";
+import { FiFilter as FilterIcon } from "react-icons/fi";
 import {
   LIKED_TWEET_LIST,
   SPECIAL_LIST_KEYS,
@@ -39,7 +39,6 @@ const Tag = styled(StyledTab)`
 `;
 
 const StyledTagsPanel = styled.div`
-  margin-left: 16px;
   display: flex;
   justify-content: start;
   align-items: start;
@@ -49,14 +48,13 @@ const TagsContainer = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: start;
-  width: 65vw;
 
   overflow-x: auto;
   scrollbar-width: thin; /* Firefox */
 
   margin-bottom: 0;
 
-  &::-webkit-scrollbar {
+  /* &::-webkit-scrollbar {
     height: 7px;
   }
 
@@ -66,10 +64,17 @@ const TagsContainer = styled.div`
 
   ::-webkit-scrollbar-thumb:hover {
     background: grey;
+  } */
+
+  ::-webkit-scrollbar {
+    display: none;
   }
+
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 `;
 
-const SearchDiv = styled(Tag)`
+const FilterDiv = styled(Tag)`
   min-width: 3em;
   overflow: hidden;
 
@@ -80,7 +85,7 @@ const SearchDiv = styled(Tag)`
   transition: width 0.1s;
 `;
 
-function BasicSearch() {
+function BasicFilter() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [active, setActive] = useState(false);
@@ -107,7 +112,7 @@ function BasicSearch() {
   }, [active]);
 
   return (
-    <SearchDiv
+    <FilterDiv
       onClick={active ? () => inputRef.current?.focus() : () => setActive(true)}
       style={{
         cursor: active ? "default" : "pointer",
@@ -116,7 +121,7 @@ function BasicSearch() {
       tabIndex={active ? -1 : 0}
       active={active}
     >
-      <SearchIcon tabIndex={-1} size={20} />
+      <FilterIcon tabIndex={-1} size={20} />
       <ExpandingInput
         ref={inputRef}
         value={searchText}
@@ -130,9 +135,9 @@ function BasicSearch() {
           setSearch((e.target as HTMLInputElement).value);
         }}
         className="blank"
-        style={{ height: "100%" }}
+        style={{ marginLeft: "5px", height: "100%" }}
         containerStyle={{
-          minWidth: active ? "13em" : "0",
+          minWidth: active ? "11em" : "0",
           maxWidth: active ? "fit-content" : "0",
           transition: "min-width 0.1s",
           margin: "0",
@@ -163,7 +168,7 @@ function BasicSearch() {
           setSearch("");
         }}
       />
-    </SearchDiv>
+    </FilterDiv>
   );
 }
 
@@ -270,7 +275,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
 
       {/* Tags section */}
       <TagsContainer>
-        <BasicSearch />
+        <BasicFilter />
         <div
           style={{
             minWidth: "1px",

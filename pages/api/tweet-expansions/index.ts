@@ -62,7 +62,7 @@ async function v1(req: NextApiRequest, res: NextApiResponse) {
     await storeTweetCache(tweets)(redis);
   }
 
-  redis?.quit();
+  await redis?.quit();
 
   // End
   res.send(tweets);
@@ -121,7 +121,7 @@ export default async function v2(req: NextApiRequest, res: NextApiResponse) {
     await storeTweetCache(tweets)(redis);
   }
 
-  redis?.quit();
+  await redis?.quit();
 
   // End
   res.send(tweets);

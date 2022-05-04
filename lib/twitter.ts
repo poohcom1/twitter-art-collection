@@ -1,3 +1,4 @@
+import TwitterApiCachePluginRedis from "@twitter-api-v2/plugin-cache-redis";
 import TwitterApi, {
   TweetV2,
   Tweetv2FieldsParams,
@@ -6,11 +7,12 @@ import TwitterApi, {
   TwitterApiReadOnly,
 } from "twitter-api-v2";
 import type TwitterApiv2ReadOnly from "twitter-api-v2/dist/v2/client.v2.read";
+import { getRedis } from "./redis";
 
 let cachedClient: TwitterApi | null;
 let cachedApi: TwitterApiReadOnly | null = null;
 
-function getTwitterClient() {
+async function getTwitterClient() {
   if (cachedClient) {
     return cachedClient;
   }
@@ -22,7 +24,11 @@ function getTwitterClient() {
   }
 
   // Twitter setup
-  cachedClient = new TwitterApi(bearerToken);
+  const redis = await getRedis();
+
+  cachedClient = new TwitterApi(bearerToken, {
+    plugins: redis ? [new TwitterApiCachePluginRedis(redis)] : [],
+  });
 
   return cachedClient;
 }
@@ -32,7 +38,7 @@ export async function getTwitterApi(): Promise<TwitterApiReadOnly> {
     return cachedApi;
   }
 
-  const twitterApi = getTwitterClient();
+  const twitterApi = await getTwitterClient();
 
   cachedApi = twitterApi;
 

@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { useStore } from "src/stores/rootStore";
 import { darkTheme, lightTheme } from "src/themes";
 import styled from "styled-components";
+import { BiTrash as TrashIcon } from "react-icons/bi";
 import {
   MdLightMode as LightMode,
   MdDarkMode as DarkMode,
@@ -21,6 +22,9 @@ const OverlayItem = styled.button`
     cursor: pointer;
   }
 
+  display: block;
+  margin: 8px 2px;
+
   width: 60px;
   height: 60px;
   background-color: ${(props) => props.theme.color.surface};
@@ -33,6 +37,9 @@ const OverlayItem = styled.button`
 `;
 
 function ThemeSwitchItem() {
+  const editMode = useStore((state) => state.editMode);
+  const toggleEditMode = useStore((state) => state.toggleEditMode);
+
   const theme = useStore((state) => state.theme);
   const setTheme = useStore((state) => state.setTheme);
 
@@ -45,13 +52,31 @@ function ThemeSwitchItem() {
   }, [setTheme, theme]);
 
   return (
-    <OverlayItem onClick={toggleTheme} style={{ backgroundColor: theme.color.onSurface }}>
-      {theme === lightTheme ? (
-        <LightMode size={24} color={theme.color.surface} />
-      ) : (
-        <DarkMode size={24} color={theme.color.surface} />
-      )}
-    </OverlayItem>
+    <>
+      <OverlayItem
+        id="headerDeleteMode"
+        className="center header__deleteMode"
+        title="Delete tags"
+        onClick={toggleEditMode}
+      >
+        <TrashIcon
+          size={24}
+          color={
+            editMode === "add" ? theme.color.onSurface : theme.color.danger
+          }
+        />
+      </OverlayItem>
+      <OverlayItem
+        onClick={toggleTheme}
+        style={{ backgroundColor: theme.color.onSurface }}
+      >
+        {theme === lightTheme ? (
+          <LightMode size={24} color={theme.color.surface} />
+        ) : (
+          <DarkMode size={24} color={theme.color.surface} />
+        )}
+      </OverlayItem>
+    </>
   );
 }
 

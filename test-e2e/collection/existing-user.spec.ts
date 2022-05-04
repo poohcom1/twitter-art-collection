@@ -12,11 +12,11 @@ test.describe("existing user", () => {
   test("should load existing tag", async ({ page }) => {
     await page.locator(".loadingScreen").waitFor({ state: "hidden" });
 
-    await expect(
-      page.locator(
-        `.header__tag:has-text('${existingTag.name} - ${existingTag.images.length}')`
-      )
-    ).toHaveCount(1);
+    const selector = `.header__tag:has-text('${existingTag.name} - ${existingTag.images.length}')`;
+
+    await page.waitForSelector(selector);
+
+    await expect(page.locator(selector)).toHaveCount(1);
   });
 
   test("should show blacklist options when blacklist tags are loaded", async ({

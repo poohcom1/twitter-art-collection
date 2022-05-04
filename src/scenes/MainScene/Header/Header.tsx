@@ -1,7 +1,6 @@
-import styled, { DefaultTheme, withTheme } from "styled-components";
+import styled from "styled-components";
 import TagsPanel from "./HeaderTagsPanel";
 import UserSection from "./HeaderUserPanel";
-import { BiTrash as TrashIcon } from "react-icons/bi";
 import { useStore } from "src/stores/rootStore";
 import { Spinner } from "src/components";
 import { BLACKLIST_TAG } from "types/constants";
@@ -32,12 +31,6 @@ const HeaderFlex = styled.div`
   padding: 10px 30px;
 `;
 
-const StyledTrashIcon = styled(TrashIcon)`
-  &:hover {
-    cursor: pointer;
-  }
-`;
-
 const BlacklistHeader = styled.div`
   background-color: ${(props) => props.theme.color.secondary};
   color: ${(props) => props.theme.color.onSecondary};
@@ -49,11 +42,8 @@ const BlacklistHeader = styled.div`
   }
 `;
 
-export default withTheme(function Header(props: { theme: DefaultTheme }) {
-  const tags = useStore((state) => state.tags);
+export default function Header() {
   const tagsLoaded = useStore((state) => state.tagsStatus);
-  const editMode = useStore((state) => state.editMode);
-  const toggleEditMode = useStore((state) => state.toggleEditMode);
 
   const blacklist = useStore(
     (state) =>
@@ -73,33 +63,6 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
             <h2>Loading tags...</h2>
           </div>
         )}
-        {/* Trash Icon */}
-        <div
-          id="headerDeleteMode"
-          className="center header__deleteMode"
-          style={{
-            marginLeft: "auto",
-            justifySelf: "flex-end",
-          }}
-          onClick={() => {
-            toggleEditMode();
-          }}
-        >
-          {Array.from(tags.values()).length > 0 ? (
-            <StyledTrashIcon
-              size={30}
-              color={
-                editMode === "delete"
-                  ? props.theme.color.danger
-                  : props.theme.color.onBackground
-              }
-              style={{ margin: "0" }}
-              title="Delete tags"
-            />
-          ) : (
-            <></>
-          )}
-        </div>
       </HeaderFlex>
       {blacklist ? (
         <BlacklistHeader>
@@ -110,4 +73,4 @@ export default withTheme(function Header(props: { theme: DefaultTheme }) {
       )}
     </HeaderDiv>
   );
-});
+}

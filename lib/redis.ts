@@ -23,7 +23,7 @@ export async function useRedis(
   if (redis) {
     await callback(redis);
 
-    redis.quit();
+    await redis.quit();
   }
 }
 

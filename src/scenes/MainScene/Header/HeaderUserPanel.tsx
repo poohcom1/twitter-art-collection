@@ -105,7 +105,7 @@ export default function UserSection() {
   return (
     <>
       {session.status === "authenticated" ? (
-        <div className="center">
+        <div className="center" style={{ margin: "0 15px 0 0" }}>
           <UserAvatar
             className="header__user"
             name={session.data.user.name}
