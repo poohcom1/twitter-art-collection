@@ -2,7 +2,6 @@ import styled from "styled-components";
 import TagsPanel from "./HeaderTagsPanel";
 import UserSection from "./HeaderUserPanel";
 import { useStore } from "src/stores/rootStore";
-import { Spinner } from "src/components";
 import { BLACKLIST_TAG } from "types/constants";
 import { applyOpacity } from "src/util/themeUtil";
 
@@ -43,8 +42,6 @@ const BlacklistHeader = styled.div`
 `;
 
 export default function Header() {
-  const tagsLoaded = useStore((state) => state.tagsStatus);
-
   const blacklist = useStore(
     (state) =>
       state.selectedLists.length === 1 &&
@@ -55,15 +52,9 @@ export default function Header() {
     <HeaderDiv>
       <HeaderFlex>
         <UserSection />
-        {tagsLoaded === "loaded" ? (
-          <TagsPanel />
-        ) : (
-          <div className="flex-row">
-            <Spinner size={30} />
-            <h2>Loading tags...</h2>
-          </div>
-        )}
+        <TagsPanel />
       </HeaderFlex>
+
       {blacklist ? (
         <BlacklistHeader>
           <h3>Blacklist</h3>

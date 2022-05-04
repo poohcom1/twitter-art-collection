@@ -1,22 +1,25 @@
 import { useSession } from "next-auth/react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
+import styled, { DefaultTheme, withTheme } from "styled-components";
 import {
   ConfirmationDialogue,
   ExpandingInput,
+  PopupItem,
   StyledModel as StyledModal,
+  StyledPopup,
   StyledTab,
 } from "src/components";
 import { FiFilter as FilterIcon } from "react-icons/fi";
+import {
+  AiOutlineCloseCircle as CloseCircle,
+  AiOutlineClose as Cross,
+} from "react-icons/ai";
+import { GiHamburgerMenu as HamburgerMenu } from "react-icons/gi";
 import {
   LIKED_TWEET_LIST,
   SPECIAL_LIST_KEYS,
   useStore,
 } from "src/stores/rootStore";
-import styled, { DefaultTheme, withTheme } from "styled-components";
-import {
-  AiOutlineCloseCircle as CloseCircle,
-  AiOutlineClose as Cross,
-} from "react-icons/ai";
 import { useAddTag } from "src/hooks/useAddTag";
 import { isTagList } from "src/stores/ImageList";
 import { mapValues } from "src/util/objectUtil";
@@ -49,22 +52,9 @@ const TagsContainer = styled.div`
   flex-direction: row;
   justify-content: start;
 
-  overflow-x: auto;
-  scrollbar-width: thin; /* Firefox */
+  overflow-x: hidden;
 
   margin-bottom: 0;
-
-  /* &::-webkit-scrollbar {
-    height: 7px;
-  }
-
-  ::-webkit-scrollbar-thumb {
-    background: lightgray;
-  }
-
-  ::-webkit-scrollbar-thumb:hover {
-    background: grey;
-  } */
 
   ::-webkit-scrollbar {
     display: none;
@@ -76,13 +66,12 @@ const TagsContainer = styled.div`
 
 const FilterDiv = styled(Tag)`
   min-width: 3em;
-  overflow: hidden;
 
   padding: 0 0.7em;
 
   justify-content: flex-start;
 
-  transition: width 0.1s;
+  transition: width 0.1s color 0.1s;
 `;
 
 function BasicFilter() {
@@ -91,15 +80,19 @@ function BasicFilter() {
   const [active, setActive] = useState(false);
   const [searchText, setSearchText] = useState("");
 
+  const timeoutRef = useRef<NodeJS.Timeout>();
+
   const setSearch = useStore(
     useCallback(
       (state) => (text: string) => {
         setSearchText(text);
 
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+
         // TODO Hack to improve responsiveness. useTransition should work better once its in preact
-        setTimeout(() => {
+        timeoutRef.current = setTimeout(() => {
           state.setSearchFilter(text);
-        }, 100);
+        }, 300);
       },
       []
     )
@@ -116,13 +109,13 @@ function BasicFilter() {
       onClick={active ? () => inputRef.current?.focus() : () => setActive(true)}
       style={{
         cursor: active ? "default" : "pointer",
-        transition: "color 0.1s",
+        width: active ? "20em" : "",
       }}
       tabIndex={active ? -1 : 0}
       active={active}
     >
-      <FilterIcon tabIndex={-1} size={20} />
-      <ExpandingInput
+      <FilterIcon tabIndex={-1} size={"20px"} style={{ flexShrink: 0 }} />
+      <input
         ref={inputRef}
         value={searchText}
         onKeyUp={(e) => {
@@ -135,18 +128,20 @@ function BasicFilter() {
           setSearch((e.target as HTMLInputElement).value);
         }}
         className="blank"
-        style={{ marginLeft: "5px", height: "100%" }}
-        containerStyle={{
-          minWidth: active ? "11em" : "0",
-          maxWidth: active ? "fit-content" : "0",
-          transition: "min-width 0.1s",
+        style={{
           margin: "0",
+          marginLeft: active ? "5px" : "0",
+          height: "100%",
+          minWidth: active ? "11.7em" : "0",
+          maxWidth: active ? "fit-content" : "0",
           padding: "0",
+          transition: "min-width 0.1s",
         }}
       />
       <Cross
-        style={
-          active
+        style={{
+          flexShrink: 0,
+          ...(active
             ? {
                 cursor: "pointer",
                 width: "fit-content",
@@ -160,8 +155,8 @@ function BasicFilter() {
                 transition: "color 0.1s",
                 margin: "0",
                 padding: "0",
-              }
-        }
+              }),
+        }}
         onClick={(e) => {
           e.stopPropagation();
           setActive(false);
@@ -254,7 +249,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
   const session = useSession();
 
   return (
-    <StyledTagsPanel>
+    <>
       <StyledTagsPanel>
         {/* Special filters Section */}
         {/* <Tag
@@ -273,9 +268,9 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
         </Tag>
       </StyledTagsPanel>
 
+      <BasicFilter />
       {/* Tags section */}
       <TagsContainer>
-        <BasicFilter />
         <div
           style={{
             minWidth: "1px",
@@ -345,6 +340,34 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
           )
         )}
       </TagsContainer>
-    </StyledTagsPanel>
+
+      {/* Tags popup menu */}
+      <StyledPopup
+        position={"bottom right"}
+        trigger={
+          <button
+            className="blank"
+            style={{ margin: "0 8px", cursor: "pointer" }}
+          >
+            <HamburgerMenu size={"24px"} />
+          </button>
+        }
+        closeOnDocumentClick
+      >
+        {(close) =>
+          tagList.reverse().map((tag) => (
+            <PopupItem
+              key={tag.name}
+              onClick={(e) => {
+                close();
+                setSelectedList(tag.name)(e);
+              }}
+            >
+              {tag.name}
+            </PopupItem>
+          ))
+        }
+      </StyledPopup>
+    </>
   );
 });
