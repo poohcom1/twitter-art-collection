@@ -1,8 +1,14 @@
 import { authOptions } from "lib/nextAuth";
-import { createTweetObjects, getTwitterApi, TWEET_OPTIONS } from "lib/twitter";
+import { getTwitterApi } from "lib/twitter";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 
+/**
+ * Not working
+ * @param req ;
+ * @param res
+ * @returns
+ */
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -16,21 +22,49 @@ export default async function handler(
     return res.status(401).end();
   }
 
-  const pagination_token = (req.query.token as string) ?? undefined;
+  const since_id = (req.query.token as string) ?? undefined;
 
-  const payload = await twitterApi.v2.userTimeline(session.user.id, {
-    ...TWEET_OPTIONS,
-    pagination_token,
-  });
+  try {
+    // Access error?
+    const payload = await twitterApi.v1.homeTimeline({ since_id });
 
-  const token = payload.data.meta.next_token;
+    const tweetsV1 = payload.tweets.filter((tweet) =>
+      tweet.entities.media?.find((media) => media.type === "photo")
+    );
 
-  const tweets = createTweetObjects(payload.data);
+    const tweets: TweetSchema[] = [];
 
-  const response: TweetsResponse = {
-    nextToken: token,
-    tweets,
-  };
+    for (const tweet of tweetsV1) {
+      tweets.push({
+        id: tweet.id + "",
+        platform: "twitter",
+        data: {
+          id: tweet.id + "",
+          url: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id}`,
+          avatar: tweet.user.profile_image_url_https,
+          name: tweet.user.name,
+          username: tweet.user.screen_name,
+          date: tweet.created_at,
+          content: {
+            text: tweet.text,
+            media: tweet.entities.media?.map((media) => ({
+              url: media.display_url,
+              width: 100,
+              height: 100,
+            })),
+          },
+        },
+      });
+    }
 
-  res.send(response);
+    const response: TweetsResponse = {
+      nextToken: tweets[tweets.length - 1].id,
+      tweets,
+    };
+
+    res.send("Not implemented");
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("Not implemented");
+  }
 }

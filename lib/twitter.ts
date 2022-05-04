@@ -34,7 +34,7 @@ export async function getTwitterApi(): Promise<TwitterApiReadOnly> {
 
   const twitterApi = getTwitterClient();
 
-  cachedApi = twitterApi.readOnly;
+  cachedApi = twitterApi;
 
   return cachedApi;
 }

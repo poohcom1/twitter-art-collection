@@ -46,6 +46,21 @@ export const mockSession =
       })
     );
 
+    // TODO Finish this
+    const tweetExpansionsRoute = page.route(
+      "**/api/tweet-expansions",
+      (route) => {
+        return route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            tweets: TWEETS.slice(0, 100),
+            next_token: "",
+          }),
+        });
+      }
+    );
+
     const tagsRoute = page.route("**/api/tags/*", (route) =>
       route.fulfill({
         status: 200,

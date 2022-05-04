@@ -1,0 +1,22 @@
+{
+  "id": "0",
+  "platform": "twitter",
+  "data": {
+    "id": "0",
+    "url": "https://twitter.com/arcticcave/status/1485312275229855744",
+    "avatar": "/assets/github/GitHub-Mark-32px.png",
+    "name": "red",
+    "username": "sus",
+    "date": "2020-07-09T10:01:20.000Z",
+    "content": {
+      "text": "hello world!",
+      "media": [
+        {
+          "url": "/assets/test/tweet_placeholder.jpg",
+          "width": 295,
+          "height": 354
+        }
+      ]
+    }
+  }
+}

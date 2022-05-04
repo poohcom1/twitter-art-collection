@@ -90,6 +90,11 @@ interface UserDataResponseV2 {
   newUser?: boolean;
 }
 
+interface TweetsV1Response {
+  tweets: TweetSchema[];
+  since_id?: string;
+}
+
 interface TweetsResponse {
   tweets: TweetSchema[];
   nextToken?: string;

@@ -10,7 +10,6 @@ import { AiOutlineSearch as SearchIcon } from "react-icons/ai";
 import {
   LIKED_TWEET_LIST,
   SPECIAL_LIST_KEYS,
-  TIMELINE_TWEET_LIST,
   useStore,
 } from "src/stores/rootStore";
 import styled, { DefaultTheme, withTheme } from "styled-components";
@@ -253,13 +252,13 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
     <StyledTagsPanel>
       <StyledTagsPanel>
         {/* Special filters Section */}
-        <Tag
+        {/* <Tag
           style={{ width: DEFAULT_TAG_WIDTH }}
           onClick={setSelectedList(TIMELINE_TWEET_LIST)}
           active={selectedLists.includes(TIMELINE_TWEET_LIST)}
         >
           Timeline
-        </Tag>
+        </Tag> */}
         <Tag
           style={{ width: DEFAULT_TAG_WIDTH }}
           onClick={setSelectedList(LIKED_TWEET_LIST)}

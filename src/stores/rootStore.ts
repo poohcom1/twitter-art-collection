@@ -9,7 +9,7 @@ import {
 } from "types/constants";
 import { getUser } from "src/adapters/userAdapter";
 import { postTag, deleteTag, putTag } from "src/adapters/tagsAdapter";
-import { fetchLikedTweets, fetchFeedTweets } from "src/adapters/tweetAdapter";
+import { fetchLikedTweets } from "src/adapters/tweetAdapter";
 import { lightTheme } from "src/themes";
 import { DefaultTheme } from "styled-components";
 import { ImageList, isTagList, TagList, TweetList } from "./ImageList";
@@ -60,11 +60,11 @@ const store = combine(initialState, (set, get) => ({
       const tweetLists = get().tweetLists;
 
       const likedTweetList = new TweetList(fetchLikedTweets);
-      const timelineTweetList = new TweetList(fetchFeedTweets);
+      // const timelineTweetList = new TweetList(fetchFeedTweets);
 
       // Generate special lists
-      tweetLists.set(TIMELINE_TWEET_LIST, timelineTweetList);
       tweetLists.set(LIKED_TWEET_LIST, likedTweetList);
+      // tweetLists.set(TIMELINE_TWEET_LIST, timelineTweetList);
 
       // Generate tag lists
       const tags = new Map(Object.entries(userData.data.tags));
