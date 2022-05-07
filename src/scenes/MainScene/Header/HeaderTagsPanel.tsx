@@ -24,6 +24,7 @@ import { useAddTag } from "src/hooks/useAddTag";
 import { isTagList } from "src/stores/ImageList";
 import { mapValues } from "src/util/objectUtil";
 import { BLACKLIST_TAG } from "types/constants";
+import { useOverflowDetector } from "src/hooks/useOverflowDetector";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
@@ -47,7 +48,7 @@ const StyledTagsPanel = styled.div`
   align-items: start;
 `;
 
-const TagsContainer = styled.div`
+const TagsContainer = styled.div<{ overflowing: boolean }>`
   display: flex;
   flex-direction: row;
   justify-content: start;
@@ -62,6 +63,11 @@ const TagsContainer = styled.div`
 
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+
+  ${(props) =>
+    props.overflowing
+      ? "mask: linear-gradient(90deg, black 95%, transparent);"
+      : ""}
 `;
 
 const FilterDiv = styled(Tag)`
@@ -89,7 +95,7 @@ function BasicFilter() {
 
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
-        // TODO Hack to improve responsiveness. useTransition should work better once its in preact
+        // TODO Hack to improve responsiveness. useTransition should work better but its not in preact
         timeoutRef.current = setTimeout(() => {
           state.setSearchFilter(text);
         }, 300);
@@ -109,7 +115,7 @@ function BasicFilter() {
       onClick={active ? () => inputRef.current?.focus() : () => setActive(true)}
       style={{
         cursor: active ? "default" : "pointer",
-        width: active ? "20em" : "",
+        width: "fit-content",
       }}
       tabIndex={active ? -1 : 0}
       active={active}
@@ -130,32 +136,20 @@ function BasicFilter() {
         className="blank"
         style={{
           margin: "0",
-          marginLeft: active ? "5px" : "0",
           height: "100%",
           minWidth: active ? "11.7em" : "0",
           maxWidth: active ? "fit-content" : "0",
           padding: "0",
-          transition: "min-width 0.1s",
+          transition: "min-width 0.1s marginLEft 0.1s",
         }}
       />
       <Cross
         style={{
           flexShrink: 0,
-          ...(active
-            ? {
-                cursor: "pointer",
-                width: "fit-content",
-                color: "inherit",
-                transition: "color 0.1s",
-              }
-            : {
-                cursor: "pointer",
-                width: "0",
-                color: "transparent",
-                transition: "color 0.1s",
-                margin: "0",
-                padding: "0",
-              }),
+          cursor: "pointer",
+          color: "inherit",
+          transition: "width 0.1s",
+          width: active ? "16px" : "0px",
         }}
         onClick={(e) => {
           e.stopPropagation();
@@ -171,6 +165,8 @@ function BasicFilter() {
  * Create new tag component
  */
 function NewTag(props: { theme: DefaultTheme }) {
+  const setSelectedList = useStore((state) => state.setSelectedList);
+
   const addTagRef = useRef<HTMLInputElement>(null);
 
   const onClick = useCallback(() => {
@@ -179,8 +175,13 @@ function NewTag(props: { theme: DefaultTheme }) {
     }
   }, []);
 
-  const { inputProps, tagSetText } = useAddTag((_e) => {
-    addTagRef.current?.blur();
+  const { inputProps, tagSetText, tagText } = useAddTag((e) => {
+    switch (e) {
+      case "EXISTING_TAG":
+        setSelectedList([tagText]);
+        tagSetText("");
+        break;
+    }
   });
 
   return (
@@ -216,7 +217,6 @@ function NewTag(props: { theme: DefaultTheme }) {
 export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
   // Tag
   const editMode = useStore((state) => state.editMode);
-  const toggleEditMode = useStore((state) => state.toggleEditMode);
 
   const tagList = useStore((state) =>
     mapValues(state.tweetLists)
@@ -248,6 +248,8 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
 
   const session = useSession();
 
+  const [tagsContainerRef, overflow] = useOverflowDetector();
+
   return (
     <>
       <StyledTagsPanel>
@@ -270,7 +272,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
 
       <BasicFilter />
       {/* Tags section */}
-      <TagsContainer>
+      <TagsContainer ref={tagsContainerRef} overflowing={overflow}>
         <div
           style={{
             minWidth: "1px",
@@ -328,9 +330,7 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
                         setSelectedList(LIKED_TWEET_LIST);
                       }
 
-                      // TODO Make this an option?
-                      // Turn off edit mode when deleting tag
-                      toggleEditMode();
+                      // toggleEditMode();
                       close();
                     }
                   }}
@@ -342,32 +342,43 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
       </TagsContainer>
 
       {/* Tags popup menu */}
-      <StyledPopup
-        position={"bottom right"}
-        trigger={
-          <button
-            className="blank"
-            style={{ margin: "0 8px", cursor: "pointer" }}
-          >
-            <HamburgerMenu size={"24px"} />
-          </button>
-        }
-        closeOnDocumentClick
-      >
-        {(close) =>
-          tagList.reverse().map((tag) => (
-            <PopupItem
-              key={tag.name}
-              onClick={(e) => {
-                close();
-                setSelectedList(tag.name)(e);
-              }}
+      {overflow ? (
+        <StyledPopup
+          position={"bottom right"}
+          trigger={
+            <button
+              className="blank"
+              style={{ margin: "0 8px", cursor: "pointer" }}
             >
-              {tag.name}
-            </PopupItem>
-          ))
-        }
-      </StyledPopup>
+              <HamburgerMenu
+                size={"24px"}
+                color={props.theme.color.onSurface}
+              />
+            </button>
+          }
+          closeOnDocumentClick
+        >
+          {(close) =>
+            tagList.length > 0 ? (
+              tagList.reverse().map((tag) => (
+                <PopupItem
+                  key={tag.name}
+                  onClick={(e) => {
+                    close();
+                    setSelectedList(tag.name)(e);
+                  }}
+                >
+                  {tag.name}
+                </PopupItem>
+              ))
+            ) : (
+              <p style={{ margin: "4px" }}>No tags yet!</p>
+            )
+          }
+        </StyledPopup>
+      ) : (
+        <></>
+      )}
     </>
   );
 });

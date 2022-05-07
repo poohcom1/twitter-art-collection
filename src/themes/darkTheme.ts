@@ -17,6 +17,6 @@ export const darkTheme: DefaultTheme = {
     onBackground: "white",
     onSurface: "white",
     onAccent: "black",
-    shadow: "transparent",
+    shadow: "rgba(255, 255, 255, 0.5)",
   },
 };

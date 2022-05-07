@@ -31,7 +31,7 @@ const OverlayItem = styled.button`
   border-radius: 50%;
   border: none;
 
-  box-shadow: 0 0 5px black;
+  box-shadow: 0 0 5px ${(props) => props.theme.color.shadow};
 
   transition: background-color 0.1s;
 `;
@@ -68,12 +68,12 @@ function ThemeSwitchItem() {
       </OverlayItem>
       <OverlayItem
         onClick={toggleTheme}
-        style={{ backgroundColor: theme.color.onSurface }}
+        style={{ backgroundColor: theme.color.surface }}
       >
         {theme === lightTheme ? (
-          <LightMode size={24} color={theme.color.surface} />
+          <LightMode size={24} color={theme.color.onSurface} />
         ) : (
-          <DarkMode size={24} color={theme.color.surface} />
+          <DarkMode size={24} color={theme.color.onSurface} />
         )}
       </OverlayItem>
     </>

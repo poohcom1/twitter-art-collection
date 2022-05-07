@@ -27,6 +27,7 @@ const StyledPopup = styled(Popup)`
   }
 
   &-arrow {
+    z-index: 10;
     color: white;
   }
 `;

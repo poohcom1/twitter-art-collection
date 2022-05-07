@@ -60,8 +60,8 @@ const Tab = styled(StyledTab)`
   margin: 0 5px;
   margin-top: 2px;
 
-  border-top-left-radius: 10px;
-  border-top-right-radius: 10px;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
   border-width: 0;
 `;
 
