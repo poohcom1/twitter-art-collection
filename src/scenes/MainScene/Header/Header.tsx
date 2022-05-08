@@ -25,6 +25,7 @@ const HeaderDiv = styled.div`
 `;
 
 const HeaderFlex = styled.div`
+  width: 100vw;
   display: flex;
   align-items: center;
   padding: 10px 30px;
@@ -55,12 +56,10 @@ export default function Header() {
         <TagsPanel />
       </HeaderFlex>
 
-      {blacklist ? (
+      {blacklist && (
         <BlacklistHeader>
           <h3>Blacklist</h3>
         </BlacklistHeader>
-      ) : (
-        <></>
       )}
     </HeaderDiv>
   );

@@ -67,10 +67,8 @@ export default function TweetsGallery({
 
   return (
     <MainDiv ref={containerRef}>
-      {maxItems === 0 ? (
+      {maxItems === 0 && (
         <h4 style={{ textAlign: "center" }}>Nothing to see here!</h4>
-      ) : (
-        <></>
       )}
       <ShrinkingMasonry
         containerDivRef={containerRef}
@@ -81,7 +79,7 @@ export default function TweetsGallery({
         columnWidth={columnWidth}
         columnGutter={columnGutter}
       />
-      {images.length < maxItems ? (
+      {images.length < maxItems && (
         <div className="center" style={{ marginTop: "32px" }}>
           <Image
             src="/assets/pulse-loading.svg"
@@ -91,8 +89,6 @@ export default function TweetsGallery({
             height="80px"
           />
         </div>
-      ) : (
-        <></>
       )}
     </MainDiv>
   );

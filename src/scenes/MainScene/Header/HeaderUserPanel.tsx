@@ -102,19 +102,17 @@ function UserAvatar(
 export default function UserSection() {
   const session = useSession();
 
-  return (
-    <>
-      {session.status === "authenticated" ? (
-        <div className="center" style={{ margin: "0 15px 0 0" }}>
-          <UserAvatar
-            className="header__user"
-            name={session.data.user.name}
-            image={session.data.user.image}
-          />
-        </div>
-      ) : (
-        <></>
-      )}
-    </>
-  );
+  if (session.status === "authenticated") {
+    return (
+      <div className="center" style={{ margin: "0 15px 0 0" }}>
+        <UserAvatar
+          className="header__user"
+          name={session.data.user.name}
+          image={session.data.user.image}
+        />
+      </div>
+    );
+  } else {
+    return <></>;
+  }
 }

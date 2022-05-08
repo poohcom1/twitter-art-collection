@@ -51,7 +51,7 @@ const Banner = (
     <a style={{ color: "white", textDecoration: "none" }} href={CANONICAL_URL}>
       <h2>Twitter Art Collection</h2>
     </a>
-    {props.hideGithubLogo ? <></> : <GithubLink type={props.logoType} />}
+    {!props.hideGithubLogo && <GithubLink type={props.logoType} />}
   </HeaderDiv>
 );
 

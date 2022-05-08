@@ -50,6 +50,8 @@ interface TweetExpansions {
 interface TagSchema {
   name: string;
   images: string[];
+
+  pinned?: boolean;
 }
 
 type TagCollection = Map<string, TagSchema>;

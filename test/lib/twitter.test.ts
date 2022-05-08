@@ -27,7 +27,7 @@ describe("twitter lib", () => {
     });
 
     it("should ignore upstream when upstream is empty", () => {
-      const upstream = [];
+      const upstream: number[] = [];
       const database = [1, 2, 3, 4, 5];
 
       const merged = mergeTweets(upstream, database);
@@ -123,7 +123,7 @@ describe("twitter lib", () => {
     });
 
     it("should fetch all upstream if database is empty", async () => {
-      const databaseTweets = [];
+      const databaseTweets: string[] = [];
       const upstream = [
         "1",
         "2",
@@ -168,7 +168,7 @@ describe("twitter lib", () => {
     it("should consider all tweets deleted if array is null", () => {
       const tweetIds = tweetIdsToSchema(["1", "2", "3", "4"]);
 
-      expect(findDeletedTweets(tweetIds, null)).toStrictEqual(tweetIds);
+      expect(findDeletedTweets(tweetIds, undefined)).toStrictEqual(tweetIds);
     });
 
     it("should consider missing tweets deleted baesd on ids", () => {

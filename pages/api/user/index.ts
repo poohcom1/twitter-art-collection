@@ -50,7 +50,7 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
         return res.send(newUserResponse);
       }
 
-      const databaseTweetIds = user.tweetIds;
+      const databaseTweetIds = user.tweetIds ?? [];
 
       /* ------------------------------- Twitter API ------------------------------ */
       const { tweetIds, results } = await fetchAndMergeTweets(

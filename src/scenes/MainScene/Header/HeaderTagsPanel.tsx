@@ -1,6 +1,5 @@
-import { useSession } from "next-auth/react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import styled, { DefaultTheme, withTheme } from "styled-components";
+import styled, { withTheme } from "styled-components";
 import {
   ConfirmationDialogue,
   ExpandingInput,
@@ -14,6 +13,10 @@ import {
   AiOutlineCloseCircle as CloseCircle,
   AiOutlineClose as Cross,
 } from "react-icons/ai";
+import {
+  RiArrowLeftSLine as Left,
+  RiArrowRightSLine as Right,
+} from "react-icons/ri";
 import { GiHamburgerMenu as HamburgerMenu } from "react-icons/gi";
 import {
   LIKED_TWEET_LIST,
@@ -48,7 +51,17 @@ const StyledTagsPanel = styled.div`
   align-items: start;
 `;
 
-const TagsContainer = styled.div<{ overflowing: boolean }>`
+const VerticalBar = styled.div`
+  min-width: 1px;
+  height: 50px;
+  margin: 0 5px;
+  background-color: grey;
+`;
+
+const TagsContainer = styled.div`
+  position: relative;
+  z-index: 0;
+
   display: flex;
   flex-direction: row;
   justify-content: start;
@@ -57,21 +70,50 @@ const TagsContainer = styled.div<{ overflowing: boolean }>`
 
   margin-bottom: 0;
 
-  ::-webkit-scrollbar {
-    display: none;
-  }
-
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
-
-  ${(props) =>
-    props.overflowing
-      ? "mask: linear-gradient(90deg, black 95%, transparent);"
-      : ""}
+  scroll-behavior: smooth;
 `;
 
-const FilterDiv = styled(Tag)`
+const ArrowDiv = styled.div<{ show: boolean }>`
+  opacity: ${(props) => (props.show ? "100%" : "0%")};
+  transition: opacity 0.2s;
+
+  pointer-events: ${(props) => (props.show ? "all" : "none")};
+
+  position: absolute;
+  z-index: 1;
+  height: 100%;
+  width: 3rem;
+
+  display: flex;
+  align-items: center;
+`;
+
+const LeftArrowDiv = styled(ArrowDiv)`
+  left: 0;
+  justify-content: flex-start;
+
+  background-image: linear-gradient(
+    to right,
+    ${(props) => props.theme.color.surface} 25%,
+    transparent
+  );
+`;
+
+const RightArrowDiv = styled(ArrowDiv)`
+  right: 0;
+  justify-content: flex-end;
+
+  background-image: linear-gradient(
+    to left,
+    ${(props) => props.theme.color.surface} 25%,
+    transparent
+  );
+`;
+
+const BasicFilterDiv = styled(Tag)`
   min-width: 3em;
+  width: fit-content;
+  flex: 0 0 auto;
 
   padding: 0 0.7em;
 
@@ -111,11 +153,10 @@ function BasicFilter() {
   }, [active]);
 
   return (
-    <FilterDiv
+    <BasicFilterDiv
       onClick={active ? () => inputRef.current?.focus() : () => setActive(true)}
       style={{
         cursor: active ? "default" : "pointer",
-        width: "fit-content",
       }}
       tabIndex={active ? -1 : 0}
       active={active}
@@ -157,14 +198,14 @@ function BasicFilter() {
           setSearch("");
         }}
       />
-    </FilterDiv>
+    </BasicFilterDiv>
   );
 }
 
 /**
  * Create new tag component
  */
-function NewTag(props: { theme: DefaultTheme }) {
+const NewTag = withTheme(function NewTag(props) {
   const setSelectedList = useStore((state) => state.setSelectedList);
 
   const addTagRef = useRef<HTMLInputElement>(null);
@@ -209,13 +250,11 @@ function NewTag(props: { theme: DefaultTheme }) {
       />
     </Tag>
   );
-}
+});
 
-/**
- * Main Component
- */
-export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
-  // Tag
+const SCROLL_AMOUNT = 500;
+
+const TagsSection = withTheme(function TagsSection(props) {
   const editMode = useStore((state) => state.editMode);
 
   const tagList = useStore((state) =>
@@ -246,85 +285,103 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
 
   const removeTag = useStore((state) => state.removeTag);
 
-  const session = useSession();
-
   const [tagsContainerRef, overflow] = useOverflowDetector();
+
+  // Scrolling
+
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
+
+  useEffect(() => {
+    const ref = tagsContainerRef.current;
+    if (ref) {
+      setCanScrollLeft(ref.scrollLeft > 0);
+      setCanScrollRight(ref.scrollLeft < ref.clientWidth);
+    }
+  }, [tagsContainerRef]);
+
+  const scrollRight = useCallback(() => {
+    const ref = tagsContainerRef.current;
+    if (ref) {
+      const scrollTo = ref.scrollLeft + SCROLL_AMOUNT;
+
+      setCanScrollLeft(scrollTo > 0);
+      setCanScrollRight(scrollTo + ref.offsetWidth < ref.scrollWidth);
+      ref.scrollTo(scrollTo, 0);
+    }
+  }, [tagsContainerRef]);
+
+  const scrollLeft = useCallback(() => {
+    const ref = tagsContainerRef.current;
+    if (ref) {
+      const scrollTo =
+        ref.scrollLeft - SCROLL_AMOUNT > SCROLL_AMOUNT
+          ? ref.scrollLeft - SCROLL_AMOUNT
+          : 0;
+
+      setCanScrollLeft(scrollTo > 0);
+      setCanScrollRight(scrollTo + ref.offsetWidth < ref.scrollWidth);
+      ref.scrollTo(scrollTo, 0);
+    }
+  }, [tagsContainerRef]);
 
   return (
     <>
-      <StyledTagsPanel>
-        {/* Special filters Section */}
-        {/* <Tag
-          style={{ width: DEFAULT_TAG_WIDTH }}
-          onClick={setSelectedList(TIMELINE_TWEET_LIST)}
-          active={selectedLists.includes(TIMELINE_TWEET_LIST)}
-        >
-          Timeline
-        </Tag> */}
-        <Tag
-          style={{ width: DEFAULT_TAG_WIDTH }}
-          onClick={setSelectedList(LIKED_TWEET_LIST)}
-          active={selectedLists.includes(LIKED_TWEET_LIST)}
-        >
-          Likes
-        </Tag>
-      </StyledTagsPanel>
-
-      <BasicFilter />
-      {/* Tags section */}
-      <TagsContainer ref={tagsContainerRef} overflowing={overflow}>
-        <div
-          style={{
-            minWidth: "1px",
-            height: "50px",
-            margin: "0 5px",
-            backgroundColor: "grey",
-          }}
-        />
-        <NewTag theme={props.theme} />
-
-        {tagList.reverse().map((tag, i) =>
-          // Normal mode
-          editMode === "add" ? (
-            <Tag
-              className="header__tag"
-              style={{ whiteSpace: "nowrap" }}
-              key={i}
-              onClick={setSelectedList(tag.name)}
-              active={selectedLists.includes(tag.name)}
-            >
-              {tag.name} - {tag.images.length}
-            </Tag>
-          ) : (
-            // Delete mode
-            <StyledModal
-              key={i}
-              trigger={
-                <Tag
-                  className="header__tag"
-                  active={selectedLists.includes(tag.name)}
-                  color={props.theme.color.danger}
-                >
-                  {tag.name}
-                  <CloseCircle
-                    size={25}
-                    style={{ marginLeft: "8px", marginRight: "-3px" }}
-                  />
-                </Tag>
-              }
-              modal
-            >
-              {/* Delete toggle */}
-              {(close: () => void) => (
-                <ConfirmationDialogue
-                  title={`Deleting "${tag.name}"`}
-                  text="Are you sure you want to delete this tag?"
-                  acceptText="Delete"
-                  cancelText="Cancel"
-                  acceptColor={props.theme.color.danger}
-                  closeCallback={close}
-                  onAccept={() => {
-                    if (session.data) {
+      <div
+        style={{
+          position: "relative",
+          width: "fit-content",
+          overflow: "hidden",
+        }}
+      >
+        <LeftArrowDiv onClick={scrollLeft} show={canScrollLeft}>
+          <Left />
+        </LeftArrowDiv>
+        <RightArrowDiv onClick={scrollRight} show={canScrollRight}>
+          <Right />
+        </RightArrowDiv>
+        <TagsContainer ref={tagsContainerRef}>
+          {tagList.reverse().map((tag, i) =>
+            // Normal mode
+            editMode === "add" ? (
+              <Tag
+                className="header__tag"
+                style={{ whiteSpace: "nowrap" }}
+                key={i}
+                onClick={setSelectedList(tag.name)}
+                active={selectedLists.includes(tag.name)}
+              >
+                {tag.name} - {tag.images.length}
+              </Tag>
+            ) : (
+              // Delete mode
+              <StyledModal
+                key={i}
+                trigger={
+                  <Tag
+                    className="header__tag"
+                    active={selectedLists.includes(tag.name)}
+                    color={props.theme.color.danger}
+                  >
+                    {tag.name}
+                    <CloseCircle
+                      size={25}
+                      style={{ marginLeft: "8px", marginRight: "-3px" }}
+                    />
+                  </Tag>
+                }
+                modal
+              >
+                {/* Delete toggle */}
+                {(close: () => void) => (
+                  <ConfirmationDialogue
+                    title={`Deleting "${tag.name}"`}
+                    text="Are you sure you want to delete this tag?"
+                    acceptText="Delete"
+                    cancelText="Cancel"
+                    acceptColor={props.theme.color.danger}
+                    closeCallback={close}
+                    onAccept={() => {
                       removeTag(tag);
                       if (selectedLists.includes(tag.name)) {
                         setSelectedList(LIKED_TWEET_LIST);
@@ -332,17 +389,16 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
 
                       // toggleEditMode();
                       close();
-                    }
-                  }}
-                />
-              )}
-            </StyledModal>
-          )
-        )}
-      </TagsContainer>
-
+                    }}
+                  />
+                )}
+              </StyledModal>
+            )
+          )}
+        </TagsContainer>
+      </div>
       {/* Tags popup menu */}
-      {overflow ? (
+      {overflow && (
         <StyledPopup
           position={"bottom right"}
           trigger={
@@ -376,9 +432,53 @@ export default withTheme(function TagsPanel(props: { theme: DefaultTheme }) {
             )
           }
         </StyledPopup>
-      ) : (
-        <></>
       )}
+    </>
+  );
+});
+
+/* ----------------------------- Main Component ----------------------------- */
+
+export default withTheme(function TagsPanel(_props) {
+  // Tag
+
+  const selectedLists = useStore((state) => state.selectedLists);
+  const setSelectedList = useStore(
+    (state) =>
+      (tag: string) =>
+      (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        if (e.shiftKey && !SPECIAL_LIST_KEYS.includes(tag)) {
+          if (!state.selectedLists.includes(tag)) {
+            const tagKeys = state.selectedLists.filter(
+              (t) => !SPECIAL_LIST_KEYS.includes(t)
+            );
+
+            state.setSelectedList([...tagKeys, tag]);
+          }
+        } else {
+          state.setSelectedList([tag]);
+        }
+      }
+  );
+
+  return (
+    <>
+      <StyledTagsPanel>
+        {/* Special filters Section */}
+        <Tag
+          style={{ width: DEFAULT_TAG_WIDTH }}
+          onClick={setSelectedList(LIKED_TWEET_LIST)}
+          active={selectedLists.includes(LIKED_TWEET_LIST)}
+        >
+          Likes
+        </Tag>
+      </StyledTagsPanel>
+
+      <BasicFilter />
+      {/* Tags section */}
+      <VerticalBar />
+      <NewTag />
+      <TagsSection />
     </>
   );
 });

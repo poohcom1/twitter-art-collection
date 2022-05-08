@@ -364,7 +364,7 @@ const TweetTags = withTheme(function TweetTags(props: {
                 />
               ))}
               {/* Blacklist Section. Show if not in any tags */}
-              {includedTags.length === 0 ? (
+              {includedTags.length === 0 && (
                 <>
                   <div
                     style={{
@@ -381,8 +381,6 @@ const TweetTags = withTheme(function TweetTags(props: {
                     <BlacklistButton>Blacklist</BlacklistButton>
                   </PopupItem>
                 </>
-              ) : (
-                <></>
               )}
             </>
           )}
@@ -420,14 +418,12 @@ const TweetTags = withTheme(function TweetTags(props: {
               tabIndex={-1}
             >
               {tag.name}
-              {editMode === "delete" ? (
+              {editMode === "delete" && (
                 <CloseCircle
                   style={{ marginLeft: "5px" }}
                   className="center"
                   size={20}
                 />
-              ) : (
-                <></>
               )}
             </Tab>
           ))}
@@ -443,10 +439,8 @@ const TweetTags = withTheme(function TweetTags(props: {
         closeOnDocumentClick
       >
         {(close) =>
-          props.imageSrcs.length > 0 ? (
+          props.imageSrcs.length > 0 && (
             <PreviewImage imageSrcs={props.imageSrcs} onClick={close} />
-          ) : (
-            <></>
           )
         }
       </StyledModal>

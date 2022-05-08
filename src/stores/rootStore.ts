@@ -230,7 +230,10 @@ const store = combine(initialState, (set, get) => ({
       const blacklistTag = tags.get(BLACKLIST_TAG);
 
       if (!blacklistTag) {
-        const newBlacklistTag = { name: BLACKLIST_TAG, images: [image.id] };
+        const newBlacklistTag = {
+          name: BLACKLIST_TAG,
+          images: [image.id],
+        };
 
         tags.set(BLACKLIST_TAG, newBlacklistTag);
 
