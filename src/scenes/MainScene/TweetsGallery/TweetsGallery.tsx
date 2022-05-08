@@ -14,8 +14,6 @@ import useShrinkingPositioner from "./useShrinkingPositioner";
 import { useSize, useScroller } from "./miniVirtualList";
 import { useDisplayStore } from "src/stores/displayStore";
 
-const COLUMN_GUTTER = 30;
-
 const MainDiv = styled.div`
   padding: 20px;
 
@@ -40,7 +38,10 @@ export default function TweetsGallery({
   masonryKey,
   maxItems,
 }: TweetsGalleryProps) {
-  const columnCount = useDisplayStore((state) => state.columnCount);
+  const [columnCount, columnGutter] = useDisplayStore((state) => [
+    state.columnCount,
+    state.getColumnGutter(),
+  ]);
 
   useEffect(() => {
     if (images.length === 0 && maxItems !== 0) {
@@ -76,7 +77,7 @@ export default function TweetsGallery({
         onRender={maybeLoadMore}
         render={MasonryCard}
         key={masonryKey}
-        columnGutter={COLUMN_GUTTER}
+        columnGutter={columnGutter}
         columnCount={columnCount}
       />
       {images.length < maxItems && (

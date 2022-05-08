@@ -17,9 +17,9 @@ export default function Tweet(props: {
 
   return (
     <div className={`tweet ${props.darkMode ? "dark" : ""}`}>
-      <div className="tweet-header">
+      <div className="tweet__header">
         <a
-          className="tweet-header-avatar"
+          className="tweet__header-avatar"
           style={{ textDecoration: "none" }}
           href={`https://twitter.com/${data.username}`}
           target="_blank"
@@ -27,7 +27,7 @@ export default function Tweet(props: {
           tabIndex={-1}
         >
           <Image
-            className="tweet-header-avatar-img"
+            className="tweet__header-avatar-img"
             src={data.avatar!}
             alt={`${data.username} profile`}
             width="52px"
@@ -41,14 +41,14 @@ export default function Tweet(props: {
           rel="noreferrer"
           tabIndex={-1}
         >
-          <h3 className={`tweet-header-name ${props.darkMode ? "dark" : ""}`}>
+          <h3 className={`tweet__header-name ${props.darkMode ? "dark" : ""}`}>
             {data.name}
           </h3>
-          <p className="tweet-header-username">@{data.username}</p>
+          <p className="tweet__header-username">@{data.username}</p>
         </a>
 
         <a
-          className="tweet-header-logo"
+          className="tweet__header-logo"
           href={data.url}
           target="_blank"
           rel="noreferrer"
@@ -64,18 +64,18 @@ export default function Tweet(props: {
         </a>
       </div>
 
-      <div className="tweet-content">
-        <div className={`tweet-content-text ${props.darkMode ? "dark" : ""}`}>
+      <div className="tweet__content">
+        <div className={`tweet__content-text ${props.darkMode ? "dark" : ""}`}>
           {data.content.text ? injectTweetLink(data.content.text) : ""}
         </div>
         <div
-          className={`tweet-content-media tweet-image-${
+          className={`tweet__content-media tweet__image-${
             data.content.media!.length > 1 ? "grid" : "container"
           }`}
         >
           {data.content.media?.map((im, index) => (
             <Image
-              className="tweet-image"
+              className="tweet__image"
               src={im.url}
               alt="Twitter Image"
               key={im.url}
@@ -89,12 +89,12 @@ export default function Tweet(props: {
         </div>
       </div>
 
-      <div className="tweet-footer">
+      <div className="tweet__footer">
         <a href={data.url} target="_blank" rel="noreferrer" tabIndex={-1}>
           View on twitter
         </a>
 
-        <div className="tweet-footer-date">
+        <div className="tweet__footer-date">
           <time>{new Date(data.date!).toDateString()}</time>
         </div>
       </div>

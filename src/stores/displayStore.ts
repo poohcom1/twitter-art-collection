@@ -15,7 +15,7 @@ const MAX_COLUMNS = 8;
 const displayState = {
   // Settings
   theme: lightTheme,
-  columnCount: 4,
+  columnCount: DEFAULT_COLUMNS,
 };
 
 const displayStore = combine(displayState, (set, get) => ({
@@ -50,6 +50,7 @@ const displayStore = combine(displayState, (set, get) => ({
 
     set({ columnCount });
   },
+  getColumnGutter: () => getColumnGutter(get().columnCount),
   setTheme: (theme: DefaultTheme) => {
     localStorage.setItem(
       THEME_KEY,
@@ -61,3 +62,8 @@ const displayStore = combine(displayState, (set, get) => ({
 }));
 
 export const useDisplayStore = create(displayStore);
+
+// Helper functions
+function getColumnGutter(columnCount: number) {
+  return 120 / columnCount;
+}

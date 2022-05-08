@@ -100,87 +100,92 @@ button.blank {
   border: 1px solid grey;
 }
 
-.tweet-header {
+.tweet__header {
+  font-size: 0.8em;
   display: flex;
   margin: 0;
   align-items: center;
 }
 
-.tweet-header-logo {
+.tweet__header-logo {
   margin-left: auto;
 }
 
-.tweet-header-avatar {
+.tweet__header-avatar {
   margin-right: 15px;
 }
 
-.tweet-header-avatar-img {
+.tweet__header-avatar-img {
   object-fit: cover;
   border-radius: 50%;
   width: 52px;
   height: 52px;
 }
 
-.tweet-header-name {
+.tweet__header-name {
   color: black;
   margin: 0;
 }
 
-.tweet-header-name.dark {
+.tweet__header-name.dark {
   color: white;
 }
 
-.tweet-header-username {
+.tweet__header-username {
   color: grey;
   margin: 0;
 }
 
-.tweet-header img {
+.tweet__header img {
   object-fit: contain;
   padding: 0;
   margin-right: 10px;
 }
 
-.tweet-content {
+.tweet__content {
+  font-size: 0.8em;
   margin: 0;
 }
 
-.tweet-content-text {
+.tweet__content-text {
   margin: 5px 0;
   color: black;
 }
 
-.tweet-content-text.dark {
-  margin: 5px 0;
+.tweet__content-text a {
+  text-decoration: none;
+}
+
+.tweet__content-text.dark {
   color: white;
 }
 
-.tweet-footer {
+.tweet__footer {
   margin-top: 15px;
   display: flex;
   font-size: 0.8em;
 }
 
-.tweet-footer-date {
+.tweet__footer-date {
   color: grey;
   margin-left: auto;
   text-align: right;
 }
 
-.tweet-content-media {
+.tweet__content-media {
   border-radius: 10px;
 }
 
-.tweet-image-container {
+.tweet__image-container {
   width: 100%;
 }
 
-.tweet-image-grid {
+.tweet__image-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(50%, 1fr));
   overflow: hidden;
 }
 
-.tweet-image:hover {
+.tweet__image:hover {
   cursor: pointer;
 }
