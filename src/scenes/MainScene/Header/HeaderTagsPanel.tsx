@@ -80,7 +80,7 @@ const TagsContainer = styled.div`
 `;
 
 const ArrowDiv = styled.div<{ show: boolean; direction: "left" | "right" }>`
-  opacity: ${(props) => (props.show ? "90%" : "0%")};
+  opacity: ${(props) => (props.show ? "100%" : "0%")};
   transition: opacity 0.2s background-image;
 
   cursor: ${(props) => (props.show ? "pointer" : "default")};
@@ -105,7 +105,6 @@ const ArrowDiv = styled.div<{ show: boolean; direction: "left" | "right" }>`
   );
 
   &:hover {
-    opacity: ${(props) => (props.show ? "100%" : "0%")};
     background-image: linear-gradient(
       to ${(props) => (props.direction === "left" ? "right" : "left")},
       ${(props) => props.theme.color.surface} 25%,
@@ -355,10 +354,10 @@ const TagsSection = withTheme(function TagsSection(props) {
         }}
       >
         <ArrowDiv direction="left" onClick={scrollLeft} show={canScrollLeft}>
-          <Left />
+          <Left size="30px" />
         </ArrowDiv>
         <ArrowDiv direction="right" onClick={scrollRight} show={canScrollRight}>
-          <Right />
+          <Right size="30px" />
         </ArrowDiv>
         <TagsContainer
           ref={tagsContainerRef}

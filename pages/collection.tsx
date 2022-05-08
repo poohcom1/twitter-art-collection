@@ -6,7 +6,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { CANONICAL_URL } from "types/constants";
-import { useStore } from "src/stores/rootStore";
+import { useDisplayStore } from "src/stores/displayStore";
 
 export default function Index() {
   const session = useSession();
@@ -18,7 +18,7 @@ export default function Index() {
     }
   });
 
-  const theme = useStore((state) => state.theme);
+  const theme = useDisplayStore((state) => state.theme);
 
   return (
     <>

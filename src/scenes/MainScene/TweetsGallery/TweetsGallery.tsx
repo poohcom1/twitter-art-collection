@@ -12,15 +12,15 @@ import {
 import { TweetComponent } from "../../../components";
 import useShrinkingPositioner from "./useShrinkingPositioner";
 import { useSize, useScroller } from "./miniVirtualList";
+import { useDisplayStore } from "src/stores/displayStore";
 
-const COLUMN_WIDTH = 240;
-const COLUMN_GUTTER = 20;
+const COLUMN_GUTTER = 30;
 
 const MainDiv = styled.div`
-  padding: 20px 20px 0 20px;
+  padding: 20px;
 
   width: 100%;
-  height: 89vh;
+  height: 100%;
   overflow-y: auto;
 `;
 
@@ -39,9 +39,9 @@ export default function TweetsGallery({
   fetchItems,
   masonryKey,
   maxItems,
-  columnWidth = COLUMN_WIDTH,
-  columnGutter = COLUMN_GUTTER,
 }: TweetsGalleryProps) {
+  const columnCount = useDisplayStore((state) => state.columnCount);
+
   useEffect(() => {
     if (images.length === 0 && maxItems !== 0) {
       fetchItems().then().catch(alert);
@@ -76,8 +76,8 @@ export default function TweetsGallery({
         onRender={maybeLoadMore}
         render={MasonryCard}
         key={masonryKey}
-        columnWidth={columnWidth}
-        columnGutter={columnGutter}
+        columnGutter={COLUMN_GUTTER}
+        columnCount={columnCount}
       />
       {images.length < maxItems && (
         <div className="center" style={{ marginTop: "32px" }}>
@@ -99,15 +99,12 @@ function ShrinkingMasonry(
     containerDivRef: RefObject<HTMLDivElement>;
   }
 ) {
-  const { columnWidth, columnGutter, items: images, containerDivRef } = props;
+  const { items: images, containerDivRef } = props;
 
   const { width, height } = useSize(containerDivRef);
 
   const { scrollTop, isScrolling } = useScroller(containerDivRef);
-  const positioner = useShrinkingPositioner(
-    { width, columnWidth, columnGutter },
-    images
-  );
+  const positioner = useShrinkingPositioner({ width, ...props }, images);
 
   const resizeObserver = useResizeObserver(positioner);
   const scrollToIndex = useScrollToIndex(positioner, {});

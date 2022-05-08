@@ -7,7 +7,7 @@ import { applyOpacity } from "src/util/themeUtil";
 
 const HeaderDiv = styled.div`
   width: 100vw;
-  height: 11vh;
+  height: fit-content;
 
   background-color: ${(props) => applyOpacity(props.theme.color.surface, 0.85)};
 

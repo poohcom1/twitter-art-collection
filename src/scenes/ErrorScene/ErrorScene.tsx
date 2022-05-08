@@ -1,5 +1,5 @@
 import { Banner } from "src/components";
-import { useStore } from "src/stores/rootStore";
+import { useDisplayStore } from "src/stores/displayStore";
 import styled, { ThemeProvider } from "styled-components";
 
 const BodyDiv = styled.div`
@@ -31,7 +31,7 @@ const Text = styled.h1`
 `;
 
 export default function ErrorScene() {
-  const theme = useStore((state) => state.theme);
+  const theme = useDisplayStore((state) => state.theme);
 
   return (
     <ThemeProvider theme={theme}>

@@ -8,7 +8,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { LoadingScene } from "src/scenes";
 import { CANONICAL_URL } from "types/constants";
-import { useStore } from "src/stores/rootStore";
+import { useDisplayStore } from "src/stores/displayStore";
 
 const GlobalCSS = createGlobalStyle`
   body {
@@ -140,7 +140,7 @@ export default function Index() {
     }
   });
 
-  const theme = useStore((state) => state.theme);
+  const theme = useDisplayStore((state) => state.theme);
 
   return (
     <>

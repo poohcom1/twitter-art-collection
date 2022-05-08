@@ -1,7 +1,7 @@
 import Head from "next/head";
 import Link from "next/link";
 import { Banner, StyledButton } from "src/components";
-import { useStore } from "src/stores/rootStore";
+import { useDisplayStore } from "src/stores/displayStore";
 import { createGlobalStyle, ThemeProvider } from "styled-components";
 
 const GlobalStyle = createGlobalStyle`
@@ -12,7 +12,7 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 export default function Privacy() {
-  const theme = useStore((state) => state.theme);
+  const theme = useDisplayStore((state) => state.theme);
 
   return (
     <>

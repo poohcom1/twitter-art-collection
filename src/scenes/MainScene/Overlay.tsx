@@ -2,11 +2,16 @@ import { useCallback } from "react";
 import { useStore } from "src/stores/rootStore";
 import { darkTheme, lightTheme } from "src/themes";
 import styled from "styled-components";
+import {
+  AiOutlineZoomIn as ZoomIn,
+  AiOutlineZoomOut as ZoomOut,
+} from "react-icons/ai";
 import { BiTrash as TrashIcon } from "react-icons/bi";
 import {
   MdLightMode as LightMode,
   MdDarkMode as DarkMode,
 } from "react-icons/md";
+import { useDisplayStore } from "src/stores/displayStore";
 
 const OverlayContainer = styled.div`
   position: fixed;
@@ -40,8 +45,10 @@ function ThemeSwitchItem() {
   const editMode = useStore((state) => state.editMode);
   const toggleEditMode = useStore((state) => state.toggleEditMode);
 
-  const theme = useStore((state) => state.theme);
-  const setTheme = useStore((state) => state.setTheme);
+  const setColumnCount = useDisplayStore((state) => state.setColumnCount);
+
+  const theme = useDisplayStore((state) => state.theme);
+  const setTheme = useDisplayStore((state) => state.setTheme);
 
   const toggleTheme = useCallback(() => {
     if (theme === lightTheme) {
@@ -53,6 +60,12 @@ function ThemeSwitchItem() {
 
   return (
     <>
+      <OverlayItem onClick={() => setColumnCount(-1)}>
+        <ZoomIn size="24px" color={theme.color.onSurface} />
+      </OverlayItem>
+      <OverlayItem onClick={() => setColumnCount(1)}>
+        <ZoomOut size="24px" color={theme.color.onSurface} />
+      </OverlayItem>
       <OverlayItem
         id="headerDeleteMode"
         className="center header__deleteMode"
@@ -60,7 +73,7 @@ function ThemeSwitchItem() {
         onClick={toggleEditMode}
       >
         <TrashIcon
-          size={24}
+          size="24px"
           color={
             editMode === "add" ? theme.color.onSurface : theme.color.danger
           }
@@ -71,9 +84,9 @@ function ThemeSwitchItem() {
         style={{ backgroundColor: theme.color.surface }}
       >
         {theme === lightTheme ? (
-          <LightMode size={24} color={theme.color.onSurface} />
+          <LightMode size="24px" color={theme.color.onSurface} />
         ) : (
-          <DarkMode size={24} color={theme.color.onSurface} />
+          <DarkMode size="24px" color={theme.color.onSurface} />
         )}
       </OverlayItem>
     </>

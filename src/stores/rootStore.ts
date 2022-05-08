@@ -1,17 +1,10 @@
 import create from "zustand";
 import { combine } from "zustand/middleware";
 import { imageEqual, isString, mapKeys } from "src/util/objectUtil";
-import {
-  BLACKLIST_TAG,
-  LOCAL_THEME_DARK,
-  LOCAL_THEME_KEY,
-  LOCAL_THEME_LIGHT,
-} from "types/constants";
+import { BLACKLIST_TAG } from "types/constants";
 import { getUser } from "src/adapters/userAdapter";
 import { postTag, deleteTag, putTag } from "src/adapters/tagsAdapter";
 import { fetchLikedTweets } from "src/adapters/tweetAdapter";
-import { lightTheme } from "src/themes";
-import { DefaultTheme } from "styled-components";
 import { ImageList, isTagList, TagList, TweetList } from "./ImageList";
 import { cacheTweets } from "src/util/tweetUtil";
 
@@ -26,7 +19,7 @@ export const TIMELINE_TWEET_LIST = "__timeline";
 
 export const SPECIAL_LIST_KEYS = [LIKED_TWEET_LIST, TIMELINE_TWEET_LIST];
 
-const initialState = {
+const dataStore = {
   selectedLists: [LIKED_TWEET_LIST],
   tweetLists: <Map<string, ImageList>>new Map(),
 
@@ -47,12 +40,9 @@ const initialState = {
   // Twitter
 
   tweetMap: <Map<string, TweetSchema>>new Map(),
-
-  // Settings
-  theme: lightTheme,
 };
 
-const store = combine(initialState, (set, get) => ({
+const store = combine(dataStore, (set, get) => ({
   initTweetsAndTags: async (): Promise<Result<null>> => {
     const userData = await getUser();
 
@@ -285,29 +275,15 @@ const store = combine(initialState, (set, get) => ({
   /* -------------------------------- EditMode -------------------------------- */
   toggleEditMode: () =>
     set((state) => ({ editMode: state.editMode === "add" ? "delete" : "add" })),
-
-  /* ---------------------------------- etc. ---------------------------------- */
-  setTheme: (theme: DefaultTheme) => {
-    if (window) {
-      localStorage.setItem(
-        LOCAL_THEME_KEY,
-        theme === lightTheme ? LOCAL_THEME_LIGHT : LOCAL_THEME_DARK
-      );
-    }
-
-    set({ theme });
-  },
 }));
 
 export const useStore = create(store);
 
-// Init helpers
-
 // Image List helpers
 
 function updateTagLists(
-  state: Pick<typeof initialState, "tags" | "tweetLists" | "tweetMap">
-): Pick<typeof initialState, "tags" | "tweetLists"> {
+  state: Pick<typeof dataStore, "tags" | "tweetLists" | "tweetMap">
+): Pick<typeof dataStore, "tags" | "tweetLists"> {
   mapKeys(state.tags).forEach((tagName) => {
     const tag = state.tags.get(tagName);
     const tagList = state.tweetLists.get(tagName);
@@ -325,94 +301,12 @@ function updateTagLists(
 }
 
 // Filters helpers
-type ImagePredicate = <S extends ImageSchema>(
-  image: S,
-  index?: number,
-  array?: S[]
-) => image is S;
 
 type TweetPredicate = <S extends TweetSchema>(
   image: S,
   index?: number,
   array?: S[]
 ) => image is S;
-
-const FILTERS = ["all", "uncategorized", "tag", "multi"] as const;
-export type FilterType = typeof FILTERS[number];
-export function isFilterType(filter: string): filter is FilterType {
-  return FILTERS.includes(filter as FilterType);
-}
-
-interface FilterAction<A extends FilterType> {
-  type: A;
-}
-
-interface FilterTagAction extends FilterAction<"tag"> {
-  tag: TagSchema;
-}
-
-interface FilterMultipleTagAction extends FilterAction<"multi"> {
-  tags: TagSchema[];
-}
-
-type FilterActions =
-  | FilterAction<"all">
-  | FilterAction<"uncategorized">
-  | FilterTagAction
-  | FilterMultipleTagAction;
-
-/**
- * @deprecated Shared logic for setting tags filter state
- * @param action Filter dispatch action
- * @param tags Tag list
- * @returns
- */
-// eslint-disable-next-line unused-imports/no-unused-vars
-function setFilter(action: FilterActions, tags: TagCollection) {
-  let imageFilter = <ImagePredicate>((_image) => true);
-  let filterSelectTags: string[] = [];
-
-  switch (action.type) {
-    case "all":
-      imageFilter = <ImagePredicate>((_image) => true);
-      break;
-    case "uncategorized":
-      imageFilter = <ImagePredicate>((image) => {
-        const tagList = Array.from(tags.values());
-        for (let i = 0; i < tagList.length; i++) {
-          const tag = tagList[i];
-
-          if (tag.images.find((im) => im === image.id)) return false;
-        }
-        return true;
-      });
-      break;
-    case "tag":
-      filterSelectTags = [action.tag.name];
-      imageFilter = <ImagePredicate>((image) => {
-        return !!action.tag.images.find((im) => im === image.id);
-      });
-      break;
-    case "multi":
-      filterSelectTags = action.tags.map((t) => t.name);
-      imageFilter = <ImagePredicate>((image) => {
-        for (const tag of action.tags) {
-          if (!tag.images.find((im) => im === image.id)) {
-            return false;
-          }
-        }
-
-        return true;
-      });
-      break;
-  }
-
-  return {
-    filterType: action.type,
-    imageFilter: imageFilter,
-    filterSelectTags,
-  };
-}
 
 // Search Filter helper
 interface TweetTextData {

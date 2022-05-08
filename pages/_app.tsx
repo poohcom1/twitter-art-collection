@@ -3,9 +3,7 @@ import type { AppProps } from "next/app";
 import Router from "next/router";
 import { useEffect, useState } from "react";
 import { LoadingScene } from "src/scenes";
-import { useStore } from "src/stores/rootStore";
-import { darkTheme, lightTheme } from "src/themes";
-import { LOCAL_THEME_KEY, LOCAL_THEME_LIGHT } from "types/constants";
+import { useDisplayStore } from "src/stores/displayStore";
 import "../styles/globals.css";
 
 // Suppress specific warnings in dev
@@ -45,28 +43,12 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
     setPageLoading(false);
   });
 
-  const setTheme = useStore((state) => state.setTheme);
+  const initDisplay = useDisplayStore((state) => state.initSettings);
 
   // Theme detection
   useEffect(() => {
-    if (!localStorage.getItem(LOCAL_THEME_KEY)) {
-      const preferDark = window.matchMedia(
-        "(prefers-color-scheme: dark)"
-      ).matches;
-
-      if (preferDark) {
-        setTheme(darkTheme);
-      } else {
-        setTheme(lightTheme);
-      }
-    } else {
-      setTheme(
-        localStorage.getItem(LOCAL_THEME_KEY) === LOCAL_THEME_LIGHT
-          ? lightTheme
-          : darkTheme
-      );
-    }
-  }, [setTheme]);
+    initDisplay();
+  }, [initDisplay]);
 
   return (
     <SessionProvider session={session}>

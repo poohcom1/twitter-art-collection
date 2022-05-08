@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { useStore } from "src/stores/rootStore";
+import { useDisplayStore } from "src/stores/displayStore";
 import styled, { ThemeProvider } from "styled-components";
 
 const MainDiv = styled.div`
@@ -32,7 +32,7 @@ const Text = styled.h1`
 `;
 
 export default function LoadingScene({ display = true, text = "" }) {
-  const theme = useStore((state) => state.theme);
+  const theme = useDisplayStore((state) => state.theme);
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {

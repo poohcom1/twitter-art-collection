@@ -27,6 +27,8 @@ const GlobalStyle = createGlobalStyle`
 const AppDiv = styled.div`
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 `;
 
 export default function MainScene() {
@@ -124,24 +126,27 @@ export default function MainScene() {
     );
   }
   return (
-    <AppDiv className="App">
-      <Header />
+    <>
       <GlobalStyle />
       <Overlay />
       <LoadingScene
         display={!tweetsLoaded || newUser}
         text={newUser ? "Creating new user..." : ""}
       />
-      <TweetsGallery
-        masonryKey={selectedList.join(",") + "-" + searchTerm}
-        images={tweets}
-        fetchItems={fetchTweets}
-        maxItems={
-          fetchState === "all_fetched" || searchTerm !== ""
-            ? tweets.length
-            : 9e9
-        }
-      />
-    </AppDiv>
+      <AppDiv className="App">
+        <Header />
+
+        <TweetsGallery
+          masonryKey={selectedList.join(",") + "-" + searchTerm}
+          images={tweets}
+          fetchItems={fetchTweets}
+          maxItems={
+            fetchState === "all_fetched" || searchTerm !== ""
+              ? tweets.length
+              : 9e9
+          }
+        />
+      </AppDiv>
+    </>
   );
 }
