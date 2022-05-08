@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import styled, { withTheme } from "styled-components";
 import {
   ConfirmationDialogue,
@@ -73,10 +79,11 @@ const TagsContainer = styled.div`
   scroll-behavior: smooth;
 `;
 
-const ArrowDiv = styled.div<{ show: boolean }>`
-  opacity: ${(props) => (props.show ? "100%" : "0%")};
-  transition: opacity 0.2s;
+const ArrowDiv = styled.div<{ show: boolean; direction: "left" | "right" }>`
+  opacity: ${(props) => (props.show ? "90%" : "0%")};
+  transition: opacity 0.2s background-image;
 
+  cursor: ${(props) => (props.show ? "pointer" : "default")};
   pointer-events: ${(props) => (props.show ? "all" : "none")};
 
   position: absolute;
@@ -86,28 +93,25 @@ const ArrowDiv = styled.div<{ show: boolean }>`
 
   display: flex;
   align-items: center;
-`;
 
-const LeftArrowDiv = styled(ArrowDiv)`
-  left: 0;
-  justify-content: flex-start;
-
-  background-image: linear-gradient(
-    to right,
-    ${(props) => props.theme.color.surface} 25%,
-    transparent
-  );
-`;
-
-const RightArrowDiv = styled(ArrowDiv)`
-  right: 0;
-  justify-content: flex-end;
+  ${(props) => (props.direction === "left" ? "left: 0" : "right: 0")};
+  justify-content: ${(props) =>
+    props.direction === "left" ? "flex-start" : "flex-end"};
 
   background-image: linear-gradient(
-    to left,
-    ${(props) => props.theme.color.surface} 25%,
+    to ${(props) => (props.direction === "left" ? "right" : "left")},
+    ${(props) => props.theme.color.surface},
     transparent
   );
+
+  &:hover {
+    opacity: ${(props) => (props.show ? "100%" : "0%")};
+    background-image: linear-gradient(
+      to ${(props) => (props.direction === "left" ? "right" : "left")},
+      ${(props) => props.theme.color.surface} 25%,
+      transparent
+    );
+  }
 `;
 
 const BasicFilterDiv = styled(Tag)`
@@ -269,7 +273,7 @@ const TagsSection = withTheme(function TagsSection(props) {
     (state) =>
       (tag: string) =>
       (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        if (e.shiftKey && !SPECIAL_LIST_KEYS.includes(tag)) {
+        if (e.shiftKey) {
           if (!state.selectedLists.includes(tag)) {
             const tagKeys = state.selectedLists.filter(
               (t) => !SPECIAL_LIST_KEYS.includes(t)
@@ -288,15 +292,28 @@ const TagsSection = withTheme(function TagsSection(props) {
   const [tagsContainerRef, overflow] = useOverflowDetector();
 
   // Scrolling
-
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  useEffect(() => {
+  const updateScrollMarkers = useCallback((ref: HTMLElement) => {
+    setCanScrollLeft(ref.scrollLeft > 0);
+    setCanScrollRight(ref.scrollLeft + ref.offsetWidth + 1 < ref.scrollWidth);
+  }, []);
+
+  // On first layout update
+  useLayoutEffect(() => {
     const ref = tagsContainerRef.current;
     if (ref) {
-      setCanScrollLeft(ref.scrollLeft > 0);
-      setCanScrollRight(ref.scrollLeft < ref.clientWidth);
+      updateScrollMarkers(ref);
+    }
+  });
+
+  const scrollLeft = useCallback(() => {
+    const ref = tagsContainerRef.current;
+    if (ref) {
+      const scrollTo = ref.scrollLeft - SCROLL_AMOUNT;
+
+      ref.scrollTo(scrollTo >= SCROLL_AMOUNT ? scrollTo : 0, 0);
     }
   }, [tagsContainerRef]);
 
@@ -305,25 +322,28 @@ const TagsSection = withTheme(function TagsSection(props) {
     if (ref) {
       const scrollTo = ref.scrollLeft + SCROLL_AMOUNT;
 
-      setCanScrollLeft(scrollTo > 0);
-      setCanScrollRight(scrollTo + ref.offsetWidth < ref.scrollWidth);
-      ref.scrollTo(scrollTo, 0);
+      ref.scrollTo(
+        scrollTo < ref.scrollWidth - ref.offsetWidth
+          ? scrollTo
+          : ref.scrollWidth,
+        0
+      );
     }
   }, [tagsContainerRef]);
 
-  const scrollLeft = useCallback(() => {
-    const ref = tagsContainerRef.current;
-    if (ref) {
-      const scrollTo =
-        ref.scrollLeft - SCROLL_AMOUNT > SCROLL_AMOUNT
-          ? ref.scrollLeft - SCROLL_AMOUNT
-          : 0;
+  const tagRefs = useRef<Record<string, HTMLButtonElement | null>>({});
 
-      setCanScrollLeft(scrollTo > 0);
-      setCanScrollRight(scrollTo + ref.offsetWidth < ref.scrollWidth);
-      ref.scrollTo(scrollTo, 0);
+  useEffect(() => {
+    if (tagsContainerRef.current && selectedLists.length === 1) {
+      const tag = selectedLists[0];
+
+      const element = tagRefs.current[tag];
+
+      if (element) {
+        element.scrollIntoView({ inline: "center" });
+      }
     }
-  }, [tagsContainerRef]);
+  }, [selectedLists, tagsContainerRef]);
 
   return (
     <>
@@ -334,17 +354,21 @@ const TagsSection = withTheme(function TagsSection(props) {
           overflow: "hidden",
         }}
       >
-        <LeftArrowDiv onClick={scrollLeft} show={canScrollLeft}>
+        <ArrowDiv direction="left" onClick={scrollLeft} show={canScrollLeft}>
           <Left />
-        </LeftArrowDiv>
-        <RightArrowDiv onClick={scrollRight} show={canScrollRight}>
+        </ArrowDiv>
+        <ArrowDiv direction="right" onClick={scrollRight} show={canScrollRight}>
           <Right />
-        </RightArrowDiv>
-        <TagsContainer ref={tagsContainerRef}>
+        </ArrowDiv>
+        <TagsContainer
+          ref={tagsContainerRef}
+          onScroll={(e) => updateScrollMarkers(e.target as HTMLElement)}
+        >
           {tagList.reverse().map((tag, i) =>
             // Normal mode
             editMode === "add" ? (
               <Tag
+                ref={(el) => (tagRefs.current[tag.name] = el)}
                 className="header__tag"
                 style={{ whiteSpace: "nowrap" }}
                 key={i}
@@ -440,26 +464,11 @@ const TagsSection = withTheme(function TagsSection(props) {
 /* ----------------------------- Main Component ----------------------------- */
 
 export default withTheme(function TagsPanel(_props) {
-  // Tag
-
+  // Special Tags
   const selectedLists = useStore((state) => state.selectedLists);
-  const setSelectedList = useStore(
-    (state) =>
-      (tag: string) =>
-      (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-        if (e.shiftKey && !SPECIAL_LIST_KEYS.includes(tag)) {
-          if (!state.selectedLists.includes(tag)) {
-            const tagKeys = state.selectedLists.filter(
-              (t) => !SPECIAL_LIST_KEYS.includes(t)
-            );
-
-            state.setSelectedList([...tagKeys, tag]);
-          }
-        } else {
-          state.setSelectedList([tag]);
-        }
-      }
-  );
+  const setSpecialSelectedList = useStore((state) => (tag: string) => () => {
+    state.setSelectedList([tag]);
+  });
 
   return (
     <>
@@ -467,7 +476,7 @@ export default withTheme(function TagsPanel(_props) {
         {/* Special filters Section */}
         <Tag
           style={{ width: DEFAULT_TAG_WIDTH }}
-          onClick={setSelectedList(LIKED_TWEET_LIST)}
+          onClick={setSpecialSelectedList(LIKED_TWEET_LIST)}
           active={selectedLists.includes(LIKED_TWEET_LIST)}
         >
           Likes
@@ -475,7 +484,6 @@ export default withTheme(function TagsPanel(_props) {
       </StyledTagsPanel>
 
       <BasicFilter />
-      {/* Tags section */}
       <VerticalBar />
       <NewTag />
       <TagsSection />
