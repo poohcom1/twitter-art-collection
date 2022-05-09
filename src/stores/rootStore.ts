@@ -1,6 +1,6 @@
 import create from "zustand";
 import { combine } from "zustand/middleware";
-import { imageEqual, isString, mapKeys } from "src/util/objectUtil";
+import { imageEqual, isString } from "src/util/objectUtil";
 import { BLACKLIST_TAG } from "types/constants";
 import { getUser } from "src/adapters/userAdapter";
 import { postTag, deleteTag, putTag } from "src/adapters/tagsAdapter";
@@ -21,24 +21,19 @@ export const SPECIAL_LIST_KEYS = [LIKED_TWEET_LIST, TIMELINE_TWEET_LIST];
 
 const dataStore = {
   selectedLists: [LIKED_TWEET_LIST],
-  tweetLists: <Map<string, ImageList>>new Map(),
+  imageLists: <Map<string, ImageList>>new Map(),
 
   searchTerm: "",
 
   editMode: <"add" | "delete">"add",
 
   // Tags
-  tags: <TagCollection>new Map(),
   tagsStatus: <"loading" | "loaded" | "error">"loading",
-
-  // Display
-  headerHeight: 0,
 
   // User
   newUser: false,
 
   // Twitter
-
   tweetMap: <Map<string, TweetSchema>>new Map(),
 };
 
@@ -47,7 +42,7 @@ const store = combine(dataStore, (set, get) => ({
     const userData = await getUser();
 
     if (userData.error === null) {
-      const tweetLists = get().tweetLists;
+      const tweetLists = get().imageLists;
 
       const likedTweetList = new TweetList(fetchLikedTweets);
       // const timelineTweetList = new TweetList(fetchFeedTweets);
@@ -63,16 +58,12 @@ const store = combine(dataStore, (set, get) => ({
         tweetLists.set(tag.name, new TagList(get().tweetMap, tag));
       });
 
-      get().tags = tags;
-      get().tweetLists = tweetLists;
+      get().imageLists = tweetLists;
 
       set({
         tagsStatus: "loaded",
-        ...updateTagLists({
-          tags,
-          tweetLists,
-          tweetMap: get().tweetMap,
-        }),
+        imageLists: tweetLists,
+        tweetMap: get().tweetMap,
       });
 
       return { data: null, error: null };
@@ -84,7 +75,7 @@ const store = combine(dataStore, (set, get) => ({
 
   getTweets: () => {
     const selectedLists = get().selectedLists;
-    const tweetLists = get().tweetLists;
+    const tweetLists = get().imageLists;
 
     let tweets: TweetSchema[] = tweetLists.get(selectedLists[0])?.tweets ?? [];
 
@@ -96,7 +87,7 @@ const store = combine(dataStore, (set, get) => ({
       );
     }
 
-    const blacklist = get().tags.get(BLACKLIST_TAG);
+    const blacklist = getTag(get().imageLists, BLACKLIST_TAG);
 
     if (blacklist && !get().selectedLists.includes(blacklist.name)) {
       tweets = tweets.filter(
@@ -111,7 +102,7 @@ const store = combine(dataStore, (set, get) => ({
   },
   fetchMoreTweets: async () => {
     if (get().selectedLists.length === 1 && get().searchTerm === "") {
-      const tweetList = get().tweetLists.get(get().selectedLists[0]);
+      const tweetList = get().imageLists.get(get().selectedLists[0]);
 
       if (tweetList) {
         if (tweetList.fetchState === "fetched") {
@@ -119,7 +110,7 @@ const store = combine(dataStore, (set, get) => ({
 
           cacheTweets(get().tweetMap, newTweets);
 
-          set({ tweetLists: new Map(get().tweetLists) });
+          set({ imageLists: new Map(get().imageLists) });
         }
       } else {
         console.warn("[fetchMoreTweets] Unknown tweet list fetch attempt");
@@ -129,95 +120,84 @@ const store = combine(dataStore, (set, get) => ({
 
   /* ---------------------------------- Tags ---------------------------------- */
   getTagList: (): TagSchema[] => {
-    const tagList = Array.from(get().tags.values());
+    const tagList = Array.from(get().imageLists.values())
+      .filter(isTagList)
+      .map((i) => i.tag);
 
-    return tagList.filter((tag) => tag.name !== BLACKLIST_TAG);
+    return tagList
+      .filter((tag) => tag.name !== BLACKLIST_TAG)
+      .sort((a, b) => a.name.localeCompare(b.name));
   },
   addTag: (tag: TagSchema): void =>
     set((state) => {
       postTag(tag).then().catch(alert);
 
-      const tags = state.tags;
-      tags.set(tag.name, tag);
+      const imageLists = state.imageLists;
+      imageLists.set(tag.name, new TagList(get().tweetMap, tag));
 
-      return {
-        ...state,
-        ...updateTagLists(state),
-      };
+      return { ...state, imageLists: new Map(imageLists) };
     }),
   removeTag: (tag: TagSchema): void =>
     set((state) => {
       // TODO Switch to "all" if current tag is deleted
       deleteTag(tag).then().catch(alert);
 
-      const tags = state.tags;
-      tags.delete(tag.name);
+      const imageLists = state.imageLists;
+      imageLists.delete(tag.name);
 
-      const tweetLists = state.tweetLists;
-      tweetLists.delete(tag.name);
-
-      return {
-        ...state,
-        ...updateTagLists(state),
-      };
+      return { ...state, imageLists: new Map(imageLists) };
     }),
 
   /* --------------------------------- Images --------------------------------- */
   addImage: (tag: TagSchema | string, image: ImageSchema): void =>
     set((state) => {
-      const tags = state.tags;
-
-      let tagObject: TagSchema | undefined;
+      let tagList: ImageList | undefined;
 
       if (isString(tag)) {
-        tagObject = tags.get(tag);
+        tagList = state.imageLists.get(tag);
       } else {
-        tagObject = tag;
+        tagList = state.imageLists.get(tag.name);
       }
 
-      if (tagObject) {
-        tagObject.images.push(image.id);
-        tags.set(tagObject.name, tagObject);
+      if (tagList && isTagList(tagList)) {
+        const tag = tagList.tag;
 
-        putTag(tagObject).then().catch(alert);
+        tag.images.push(image.id);
+        tagList.updateTag(tag);
 
-        return {
-          ...state,
-          ...updateTagLists(state),
-        };
+        putTag(tag).then().catch(alert);
+
+        return { ...state, imageLists: new Map(state.imageLists) };
       } else {
         console.error("Nonexistent tagname image add attempt");
       }
     }),
   removeImage: (tag: string | TagSchema, image: ImageSchema): void =>
     set((state) => {
-      const tags = state.tags;
-
-      let tagObject: TagSchema | undefined;
+      let tagList: ImageList | undefined;
 
       if (isString(tag)) {
-        tagObject = tags.get(tag);
+        tagList = state.imageLists.get(tag);
       } else {
-        tagObject = tag;
+        tagList = state.imageLists.get(tag.name);
       }
 
-      if (tagObject) {
-        tagObject.images = tagObject.images.filter((im) => im !== image.id);
-        tags.set(tagObject.name, tagObject);
+      if (tagList && isTagList(tagList)) {
+        const tagObject = tagList.tag;
 
+        tagObject.images = tagObject.images.filter((im) => im !== image.id);
+        tagList.updateTag(tagObject);
         putTag(tagObject).then().catch(alert);
 
         return {
           ...state,
-          ...updateTagLists(state),
+          imageLists: new Map(state.imageLists),
         };
       }
     }),
   blacklistImage: (image: ImageSchema) => {
     set((state) => {
-      const tags = state.tags;
-
-      const blacklistTag = tags.get(BLACKLIST_TAG);
+      const blacklistTag = getTag(state.imageLists, BLACKLIST_TAG);
 
       if (!blacklistTag) {
         const newBlacklistTag = {
@@ -225,7 +205,10 @@ const store = combine(dataStore, (set, get) => ({
           images: [image.id],
         };
 
-        tags.set(BLACKLIST_TAG, newBlacklistTag);
+        state.imageLists.set(
+          BLACKLIST_TAG,
+          new TagList(state.tweetMap, newBlacklistTag)
+        );
 
         postTag(newBlacklistTag).then().catch(alert);
       } else {
@@ -240,7 +223,7 @@ const store = combine(dataStore, (set, get) => ({
 
       return {
         ...state,
-        ...updateTagLists(state),
+        imageLists: new Map(state.imageLists),
       };
     });
   },
@@ -280,24 +263,15 @@ const store = combine(dataStore, (set, get) => ({
 export const useStore = create(store);
 
 // Image List helpers
+function getTag(
+  imageLists: Map<string, ImageList>,
+  tagName: string
+): TagSchema | undefined {
+  const tagList = imageLists.get(tagName);
 
-function updateTagLists(
-  state: Pick<typeof dataStore, "tags" | "tweetLists" | "tweetMap">
-): Pick<typeof dataStore, "tags" | "tweetLists"> {
-  mapKeys(state.tags).forEach((tagName) => {
-    const tag = state.tags.get(tagName);
-    const tagList = state.tweetLists.get(tagName);
-
-    if (tag) {
-      if (tagList && isTagList(tagList)) {
-        tagList.updateTag(tag);
-      } else {
-        state.tweetLists.set(tag.name, new TagList(state.tweetMap, tag));
-      }
-    }
-  });
-
-  return { tags: new Map(state.tags), tweetLists: new Map(state.tweetLists) };
+  if (tagList && isTagList(tagList)) {
+    return tagList.tag;
+  }
 }
 
 // Filters helpers

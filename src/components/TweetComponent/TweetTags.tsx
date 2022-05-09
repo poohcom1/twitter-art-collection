@@ -284,7 +284,7 @@ const TweetTags = withTheme(function TweetTags(props: {
       (state.editMode === "delete" &&
         state.selectedLists.length === 1 &&
         isTagList(
-          state.tweetLists.get(state.selectedLists[0]) ?? ({} as ImageList)
+          state.imageLists.get(state.selectedLists[0]) ?? ({} as ImageList)
         ))
   );
 

@@ -261,7 +261,7 @@ const TagsSection = withTheme(function TagsSection(props) {
   const editMode = useStore((state) => state.editMode);
 
   const tagList = useStore((state) =>
-    mapValues(state.tweetLists)
+    mapValues(state.imageLists)
       .filter(isTagList)
       .map((l) => l.tag)
       .filter((t) => t.name !== BLACKLIST_TAG)

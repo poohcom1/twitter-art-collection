@@ -6,6 +6,7 @@ import { HTMLAttributes, useCallback, useMemo } from "react";
 import { useStore } from "src/stores/rootStore";
 import { BLACKLIST_TAG } from "types/constants";
 import Link from "next/link";
+import { TagList } from "src/stores/ImageList";
 
 const Avatar = styled.button`
   border-radius: 50%;
@@ -34,15 +35,15 @@ function UserAvatar(
   // Blacklist
   const showBlacklist = useStore(
     (state) =>
-      state.tags.has(BLACKLIST_TAG) &&
-      state.tags.get(BLACKLIST_TAG)!.images.length > 0
+      state.imageLists.has(BLACKLIST_TAG) &&
+      (state.imageLists.get(BLACKLIST_TAG)! as TagList).tag.images.length > 0
   );
 
   const onBlacklistClicked = useStore((state) => () => {
     window.history.replaceState(null, "", `?filter=tag&tag=__blacklist`);
 
-    const blacklistTag = state.tags.get(BLACKLIST_TAG);
-    if (blacklistTag) state.setSelectedList([blacklistTag.name]);
+    const blacklistTag = state.imageLists.get(BLACKLIST_TAG);
+    if (blacklistTag) state.setSelectedList([BLACKLIST_TAG]);
   });
 
   return (

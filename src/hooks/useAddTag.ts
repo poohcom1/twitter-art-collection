@@ -12,7 +12,7 @@ export function useAddTag<T extends HTMLElement>(
 ) {
   const tagRef = useRef<T>(null);
 
-  const tagList = useStore((state) => Array.from(state.tags.keys()));
+  const tagList = useStore((state) => state.getTagList());
   const addTag = useStore((state) => state.addTag);
 
   const [tagName, setTagName] = useState("");
@@ -30,7 +30,10 @@ export function useAddTag<T extends HTMLElement>(
 
   const submit = useCallback(() => {
     let tagError: TagErrors = "";
-    tagError = validateTagName(tagName, tagList);
+    tagError = validateTagName(
+      tagName,
+      tagList.map((t) => t.name)
+    );
 
     if (tagError) {
       if (onFinish) {

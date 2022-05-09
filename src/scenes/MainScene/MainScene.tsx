@@ -42,7 +42,7 @@ export default function MainScene() {
   const fetchTweets = useStore((state) => state.fetchMoreTweets);
 
   const fetchState = useStore((state) => {
-    const tweetList = state.tweetLists.get(state.selectedLists[0]);
+    const tweetList = state.imageLists.get(state.selectedLists[0]);
     if (tweetList) return tweetList.fetchState;
     else return "all_fetched" as FetchState;
   });
