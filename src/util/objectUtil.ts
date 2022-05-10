@@ -14,6 +14,10 @@ export function arrayEqual<P>(arr1: P[], arr2: P[]): boolean {
   return true;
 }
 
+export function remove<P>(arr: P[], item: P) {
+  return arr.splice(arr.indexOf(item), 1);
+}
+
 export const isString = (data: unknown): data is string => {
   return typeof data === "string";
 };

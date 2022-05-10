@@ -379,7 +379,7 @@ function TagsSection(props: WithTheme) {
           onClose={hideContextMenu}
           trigger={
             <ContextMenuIcon
-              className="header-tags__context-delete"
+              className="header__tags__context-delete"
               icon={<Trash />}
               body="Delete"
             />
@@ -435,6 +435,7 @@ function TagsSection(props: WithTheme) {
                     className="header__tag"
                     active={selectedLists.includes(tag.name)}
                     color={props.theme.color.danger}
+                    borderColor={"transparent"}
                   >
                     {tag.name}
                     <CloseCircle

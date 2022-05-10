@@ -34,7 +34,7 @@ const OverlayItem = styled.button`
   height: 60px;
   background-color: ${(props) => props.theme.color.surface};
   border-radius: 50%;
-  border: none;
+  border: 2px solid ${(props) => props.theme.color.surfaceBorder};
 
   box-shadow: 0 0 5px ${(props) => props.theme.color.shadow};
 

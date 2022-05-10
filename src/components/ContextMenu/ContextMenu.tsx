@@ -17,6 +17,7 @@ const ContextMenuDiv = styled.div`
   color: ${(props) => props.theme.color.onSurface};
   background-color: ${(props) => props.theme.color.surface};
   border: 1px solid ${(props) => props.theme.color.surfaceBorder};
+  box-shadow: 2px 2px 5px ${(props) => props.theme.color.shadow};
 `;
 
 export default function ContextMenu() {

@@ -379,10 +379,7 @@ const TweetTags = withTheme(function TweetTags(props: {
   const editMode = useStore((state) => state.editMode);
 
   // Get filter
-  const [currentTag, selectedTags] = useStore((state) => [
-    state.selectedLists.length === 1 ? state.selectedLists[0] : "",
-    state.selectedLists,
-  ]);
+  const selectedTags = useStore((state) => state.selectedLists);
 
   // Get filter actions
   const [removeImage, setFilter] = useStore((state) => [
@@ -395,12 +392,22 @@ const TweetTags = withTheme(function TweetTags(props: {
     useCallback(
       (state) => {
         const tags = state.getTagList();
+        const selectedLists = state.selectedLists;
 
         const includedTags = tags.filter((tag) =>
           tag.images.find((im) => im === props.image.id)
         );
 
-        return includedTags;
+        // Sort to list selected tags first
+        return includedTags.sort((a, b) => {
+          if (selectedLists.includes(a.name)) {
+            return -1;
+          } else if (selectedLists.includes(b.name)) {
+            return 1;
+          } else {
+            return 0;
+          }
+        });
       },
       [props.image]
     )
@@ -425,37 +432,33 @@ const TweetTags = withTheme(function TweetTags(props: {
       <NewTag {...props} />
       {/* Included tags section */}
       <TabContainer ref={tagsContainerRef} overflowing={overflow}>
-        {includedTags
-          .filter((tag) => tag.name !== currentTag)
-          .map((tag) => (
-            <Tab
-              className="tweetComp__tag"
-              title={editMode !== "delete" ? "" : `Remove from "${tag.name}"`}
-              color={
-                editMode !== "delete" ? undefined : props.theme.color.danger
+        {includedTags.map((tag) => (
+          <Tab
+            className="tweetComp__tag"
+            title={editMode !== "delete" ? "" : `Remove from "${tag.name}"`}
+            color={editMode !== "delete" ? undefined : props.theme.color.danger}
+            key={tag.name}
+            active={selectedTags.includes(tag.name) && editMode !== "delete"} // Active overrides danger color, so don't show it
+            onClick={() => {
+              if (editMode !== "delete") {
+                setFilter(tag.name);
+              } else {
+                removeImage(tag, props.image);
               }
-              key={tag.name}
-              active={selectedTags.includes(tag.name) && editMode !== "delete"} // Active overrides danger color, so don't show it
-              onClick={() => {
-                if (editMode !== "delete") {
-                  setFilter(tag.name);
-                } else {
-                  removeImage(tag, props.image);
-                }
-              }}
-              tabIndex={-1}
-              onContextMenu={showContextMenu(tag)}
-            >
-              {tag.name}
-              {editMode === "delete" && (
-                <TrashIcon
-                  style={{ marginLeft: "5px" }}
-                  className="center"
-                  size={20}
-                />
-              )}
-            </Tab>
-          ))}
+            }}
+            tabIndex={-1}
+            onContextMenu={showContextMenu(tag)}
+          >
+            {tag.name}
+            {editMode === "delete" && (
+              <TrashIcon
+                style={{ marginLeft: "5px" }}
+                className="center"
+                size={20}
+              />
+            )}
+          </Tab>
+        ))}
       </TabContainer>
 
       <StyledModal
