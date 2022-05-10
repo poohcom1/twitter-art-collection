@@ -376,7 +376,7 @@ const TagsSection = withTheme(function TagsSection(props) {
           modal
           onClose={hideContextMenu}
           trigger={
-            <ContextMenuItem>
+            <ContextMenuItem className="header-tags__context-delete">
               <ContextMenuIcon>
                 <Trash />
               </ContextMenuIcon>
