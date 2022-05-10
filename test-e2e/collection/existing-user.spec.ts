@@ -1,19 +1,26 @@
-import { expect, test } from "@playwright/test";
-import USER from "../_helpers/data/user.json";
+import { BrowserContext, expect, Page, test } from "@playwright/test";
 import { mockSession } from "test-e2e/_helpers/auth/sessionUtil";
+import USER1 from "../_helpers/data/user1.json";
 
 /**
- * Test user: Has two tags: tag1 has 2 images and tag2 has 2 images; no overlaps
+ * Test user 1: Has two tags: tag1 has 2 images and tag2 has 2 images; no overlaps
  *  Has 1 image in blacklist
  */
-test.describe("existing user 1", () => {
-  const TAGS_COUNT = Object.values(USER.tags).length - 1;
+test.describe("user #1", () => {
+  let page: Page;
+  let context: BrowserContext;
+
+  test.beforeAll(async ({ browser }) => {
+    page = await browser.newPage();
+    context = await browser.newContext();
+    await mockSession(USER1, page, context);
+  });
+
+  const TAGS_COUNT = Object.values(USER1.tags).length - 1;
   const TAG_1 = "tag1";
   const TAG_2 = "tag2";
 
-  test.beforeEach(mockSession(USER));
-
-  test("should load existing tag(s)", async ({ page }) => {
+  test("should load existing tag(s)", async () => {
     await page.locator(".loadingScreen").waitFor({ state: "hidden" });
 
     const selector = `.header__tag`;
@@ -23,7 +30,7 @@ test.describe("existing user 1", () => {
     await expect(page.locator(selector)).toHaveCount(TAGS_COUNT);
   });
 
-  test("should delete a tag with right-click", async ({ page }) => {
+  test("should delete a tag with right-click", async () => {
     await page.locator(".loadingScreen").waitFor({ state: "hidden" });
 
     const tagSelector = `.header__tag`;
@@ -39,7 +46,7 @@ test.describe("existing user 1", () => {
     await expect(page.locator(tagSelector)).toHaveCount(TAGS_COUNT - 1);
   });
 
-  test("should delete images with right click", async ({ page }) => {
+  test("should delete images with right click", async () => {
     await test.step("Delete 1 image", async () => {
       await page
         .locator(".tweetComp__tag >> nth=0", { hasText: TAG_1 })
@@ -53,10 +60,8 @@ test.describe("existing user 1", () => {
     });
   });
 
-  test("should delete images without throwing a masonic error", async ({
-    page,
-  }) => {
-    const tagName = USER["tags"][TAG_1].name;
+  test("should delete images without throwing a masonic error", async () => {
+    const tagName = USER1["tags"][TAG_1].name;
 
     await test.step("Delete 1 image", async () => {
       await page.click(`.header__tag:has-text('${tagName}')`);
@@ -72,9 +77,7 @@ test.describe("existing user 1", () => {
     });
   });
 
-  test("should show blacklist options when blacklist tags are loaded", async ({
-    page,
-  }) => {
+  test("should show blacklist options when blacklist tags are loaded", async () => {
     await page.click(".header__user");
     await expect(page.locator(".header__blacklist")).toHaveCount(1);
 
@@ -84,9 +87,7 @@ test.describe("existing user 1", () => {
     await expect(page.locator(".tweetComp")).toHaveCount(1);
   });
 
-  test("should show images in multiple tags when selected with shift-click", async ({
-    page,
-  }) => {
+  test("should show images in multiple tags when selected with shift-click", async () => {
     await page.click("text=" + TAG_1);
 
     await page.click(".tweetComp__addImage >> nth=0");
