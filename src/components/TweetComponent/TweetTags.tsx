@@ -7,7 +7,7 @@ import React, {
   useRef,
 } from "react";
 import { useSession } from "next-auth/react";
-import { BiTrashAlt as CloseCircle } from "react-icons/bi";
+import { BiTrashAlt as TrashIcon } from "react-icons/bi";
 import {
   MdBookmarkAdd as AddIcon,
   MdBookmarkRemove as RemoveIcon,
@@ -20,12 +20,13 @@ import {
 import Popup from "reactjs-popup";
 import { useStore } from "src/stores/rootStore";
 import styled, { DefaultTheme, withTheme } from "styled-components";
-import { PopupItem, StyledPopup, StyledTab } from "..";
+import { ContextMenuIcon, PopupItem, StyledPopup, StyledTab } from "..";
 import { useOverflowDetector } from "src/hooks/useOverflowDetector";
 import Image from "next/image";
 import AddTag from "../AddTag/AddTag";
 import { BLACKLIST_TAG } from "types/constants";
 import { ImageList, isTagList } from "src/stores/ImageList";
+import useContextMenu from "src/hooks/useContextMenus";
 
 const BUTTON_SIZE = 25;
 
@@ -213,71 +214,30 @@ function PreviewImage(
   );
 }
 
-/* ----------------------------- Main Component ----------------------------- */
+function NewTag(props: { image: TweetSchema; theme: DefaultTheme }) {
+  const ref = useRef<HTMLInputElement>(null);
 
-/**
- * Main Component
- * @param props
- * @returns
- */
-const TweetTags = withTheme(function TweetTags(props: {
-  image: TweetSchema;
-  theme: DefaultTheme;
-  tweetRef: RefObject<HTMLDivElement>;
-  imageSrcs: string[];
-}) {
-  const editMode = useStore((state) => state.editMode);
-
-  // Get filter
-
+  // Data store
   const [currentTag, selectedTags] = useStore((state) => [
     state.selectedLists.length === 1 ? state.selectedLists[0] : "",
     state.selectedLists,
   ]);
 
-  // Get filter actions
-  const [removeImage, setFilter] = useStore((state) => [
-    state.removeImage,
-    (tag: string) => state.setSelectedList([tag]),
-  ]);
+  const [notIncludedTags, showBlacklist] = useStore((state) => {
+    const tags = state.getTagList();
 
-  // Get tags for image
-  const [includedTags, notIncludedTags] = useStore(
-    useCallback(
-      (state) => {
-        const tags = state.getTagList();
+    const notIncludedTags = tags.filter(
+      (tag) => !tag.images.find((im) => im === props.image.id)
+    );
 
-        const includedTags = tags.filter((tag) =>
-          tag.images.find((im) => im === props.image.id)
-        );
-        const notIncludedTags = tags.filter(
-          (tag) => !tag.images.find((im) => im === props.image.id)
-        );
-
-        return [includedTags, notIncludedTags];
-      },
-      [props.image]
-    )
-    // ,
-    // (p, n) => {
-    //   // Ignore inner image changes
-    //   return (
-    //     arrayEqual(p[1].map((t) => t.name), n[1].map((t) => t.name)) &&
-    //     arrayEqual(p[0].map((t) => t.name), n[0].map((t) => t.name))
-    //   );
-    // }
-  );
-
-  // Overflow detection
-  const [tagsContainerRef, overflow] = useOverflowDetector();
+    return [notIncludedTags, notIncludedTags.length === tags.length];
+  });
 
   // Blacklist Image
   const blacklistImage = useStore((state) => state.blacklistImage);
 
   // Add tag image list
   const addImage = useStore((state) => state.addImage);
-
-  const addTagRef = useRef<HTMLInputElement>(null);
 
   const deleteMode = useStore(
     (state) =>
@@ -289,10 +249,23 @@ const TweetTags = withTheme(function TweetTags(props: {
         ))
   );
 
+  // Get filter actions
+  const removeImage = useStore((state) => state.removeImage);
+
+  const [search, setSearch] = useState("");
+
+  const addTagList = useMemo(() => {
+    if (search) {
+      return notIncludedTags.filter((tag) => tag.name.includes(search));
+    } else {
+      return notIncludedTags;
+    }
+  }, [notIncludedTags, search]);
+
   // Add new tag OR delete current tag
   const onNewTagOpen = useCallback(() => {
-    if (addTagRef.current) {
-      addTagRef.current.select();
+    if (ref.current) {
+      ref.current.select();
     }
   }, []);
 
@@ -302,19 +275,8 @@ const TweetTags = withTheme(function TweetTags(props: {
     }
   }, [currentTag, props.image, removeImage]);
 
-  const [search, setSearch] = useState("");
-  const addTagList = useMemo(() => {
-    if (search) {
-      return notIncludedTags.filter((tag) => tag.name.includes(search));
-    } else {
-      return notIncludedTags;
-    }
-  }, [notIncludedTags, search]);
-
   return (
-    <MainContainer>
-      {/* Add image to tag section */}
-
+    <>
       {!deleteMode ? (
         <StyledPopup
           position={["bottom center", "bottom left", "bottom right"]}
@@ -336,7 +298,7 @@ const TweetTags = withTheme(function TweetTags(props: {
             <>
               <PopupItem tabIndex={-1}>
                 <AddTag
-                  ref={addTagRef}
+                  ref={ref}
                   placeholder="Enter a tag name..."
                   onFinish={(error, text) => {
                     switch (error) {
@@ -365,7 +327,7 @@ const TweetTags = withTheme(function TweetTags(props: {
                 />
               ))}
               {/* Blacklist Section. Show if not in any tags */}
-              {includedTags.length === 0 && (
+              {showBlacklist && (
                 <>
                   <div
                     style={{
@@ -397,12 +359,77 @@ const TweetTags = withTheme(function TweetTags(props: {
           <RemoveIcon size={BUTTON_SIZE} />
         </Tab>
       )}
+    </>
+  );
+}
+
+/* ----------------------------- Main Component ----------------------------- */
+
+/**
+ * Main Component
+ * @param props
+ * @returns
+ */
+const TweetTags = withTheme(function TweetTags(props: {
+  image: TweetSchema;
+  theme: DefaultTheme;
+  tweetRef: RefObject<HTMLDivElement>;
+  imageSrcs: string[];
+}) {
+  const editMode = useStore((state) => state.editMode);
+
+  // Get filter
+  const [currentTag, selectedTags] = useStore((state) => [
+    state.selectedLists.length === 1 ? state.selectedLists[0] : "",
+    state.selectedLists,
+  ]);
+
+  // Get filter actions
+  const [removeImage, setFilter] = useStore((state) => [
+    state.removeImage,
+    (tag: string) => state.setSelectedList([tag]),
+  ]);
+
+  // Get tags for image
+  const includedTags = useStore(
+    useCallback(
+      (state) => {
+        const tags = state.getTagList();
+
+        const includedTags = tags.filter((tag) =>
+          tag.images.find((im) => im === props.image.id)
+        );
+
+        return includedTags;
+      },
+      [props.image]
+    )
+  );
+
+  // Overflow detection
+  const [tagsContainerRef, overflow] = useOverflowDetector();
+
+  const [showContextMenu] = useContextMenu((tag: TagSchema) => (
+    <>
+      <ContextMenuIcon
+        icon={<TrashIcon />}
+        body="Remove"
+        onClick={() => removeImage(tag, props.image)}
+      />
+    </>
+  ));
+
+  return (
+    <MainContainer>
+      {/* Add image to tag section */}
+      <NewTag {...props} />
       {/* Included tags section */}
       <TabContainer ref={tagsContainerRef} overflowing={overflow}>
         {includedTags
           .filter((tag) => tag.name !== currentTag)
           .map((tag) => (
             <Tab
+              className="tweetComp__tag"
               title={editMode !== "delete" ? "" : `Remove from "${tag.name}"`}
               color={
                 editMode !== "delete" ? undefined : props.theme.color.danger
@@ -417,10 +444,11 @@ const TweetTags = withTheme(function TweetTags(props: {
                 }
               }}
               tabIndex={-1}
+              onContextMenu={showContextMenu(tag)}
             >
               {tag.name}
               {editMode === "delete" && (
-                <CloseCircle
+                <TrashIcon
                   style={{ marginLeft: "5px" }}
                   className="center"
                   size={20}

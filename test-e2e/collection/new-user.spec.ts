@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import NEW_USER from "../helpers/data/newUser.json";
-import { mockSession } from "test-e2e/helpers/auth/sessionUtil";
+import NEW_USER from "../_helpers/data/newUser.json";
+import { mockSession } from "test-e2e/_helpers/auth/sessionUtil";
 
 const BASE_URL = "http://localhost:3000";
 

@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import styled, { DefaultTheme, withTheme } from "styled-components";
+import styled, { WithTheme, withTheme } from "styled-components";
 import {
   ConfirmationDialogue,
   ExpandingInput,
@@ -13,7 +13,6 @@ import {
   StyledModel as StyledModal,
   StyledPopup,
   StyledTab,
-  ContextMenuItem,
   ContextMenuIcon,
 } from "src/components";
 import { FiFilter as FilterIcon } from "react-icons/fi";
@@ -209,7 +208,7 @@ function BasicFilter() {
 /**
  * Create new tag component
  */
-const AddTag = withTheme(function AddTag(props) {
+function AddTag(props: WithTheme) {
   const setSelectedList = useStore((state) => state.setSelectedList);
 
   const addTagRef = useRef<HTMLInputElement>(null);
@@ -255,13 +254,14 @@ const AddTag = withTheme(function AddTag(props) {
       />
     </Tag>
   );
-});
+}
 
-const DeleteTag = withTheme(function DeleteTag(props: {
-  tag: TagSchema;
-  onClose: () => void;
-  theme: DefaultTheme;
-}) {
+function DeleteTag(
+  props: {
+    tag: TagSchema;
+    onClose: () => void;
+  } & WithTheme
+) {
   const selectedLists = useStore((state) => state.selectedLists);
   const removeTag = useStore((state) => state.removeTag);
   const setSelectedList = useStore((state) => state.setSelectedList);
@@ -285,11 +285,11 @@ const DeleteTag = withTheme(function DeleteTag(props: {
       }}
     />
   );
-});
+}
 
 const SCROLL_AMOUNT = 500;
 
-const TagsSection = withTheme(function TagsSection(props) {
+function TagsSection(props: WithTheme) {
   const editMode = useStore((state) => state.editMode);
 
   const tagList = useStore((state) => state.getTagList());
@@ -376,15 +376,16 @@ const TagsSection = withTheme(function TagsSection(props) {
           modal
           onClose={hideContextMenu}
           trigger={
-            <ContextMenuItem className="header-tags__context-delete">
-              <ContextMenuIcon>
-                <Trash />
-              </ContextMenuIcon>
-              Delete
-            </ContextMenuItem>
+            <ContextMenuIcon
+              className="header-tags__context-delete"
+              icon={<Trash />}
+              body="Delete"
+            />
           }
         >
-          {(close) => <DeleteTag tag={tag} onClose={close} />}
+          {(close) => (
+            <DeleteTag tag={tag} onClose={close} theme={props.theme} />
+          )}
         </StyledModal>
       </>
     )
@@ -442,7 +443,9 @@ const TagsSection = withTheme(function TagsSection(props) {
                 }
                 modal
               >
-                {(close) => <DeleteTag tag={tag} onClose={close} />}
+                {(close) => (
+                  <DeleteTag tag={tag} onClose={close} theme={props.theme} />
+                )}
               </StyledModal>
             )
           )}
@@ -486,11 +489,11 @@ const TagsSection = withTheme(function TagsSection(props) {
       )}
     </>
   );
-});
+}
 
 /* ----------------------------- Main Component ----------------------------- */
 
-export default withTheme(function TagsPanel(_props) {
+export default withTheme(function TagsPanel(props) {
   // Special Tags
   const selectedLists = useStore((state) => state.selectedLists);
   const setSpecialSelectedList = useStore((state) => (tag: string) => () => {
@@ -512,8 +515,8 @@ export default withTheme(function TagsPanel(_props) {
 
       <BasicFilter />
       <VerticalBar />
-      <AddTag />
-      <TagsSection />
+      <AddTag {...props} />
+      <TagsSection {...props} />
     </>
   );
 });

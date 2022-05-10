@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
-import USER from "../helpers/data/user.json";
-import { mockSession } from "test-e2e/helpers/auth/sessionUtil";
+import USER from "../_helpers/data/user.json";
+import { mockSession } from "test-e2e/_helpers/auth/sessionUtil";
 
 const BASE_URL = "http://localhost:3000";
 
@@ -28,15 +28,25 @@ test.describe("existing user", () => {
 
     await page.click(tagSelector, { button: "right" });
 
-    const deleteSelector = ".header-tags__context-delete";
-
-    await page.waitForSelector(deleteSelector);
-
-    await page.click(deleteSelector);
+    await page.locator("text=Delete").click();
 
     await page.click(".confirm-accept");
 
     await expect(page.locator(tagSelector)).toHaveCount(0);
+  });
+
+  test("should delete images with right click", async ({ page }) => {
+    const tagName = USER["tags"]["existing-tag"].name;
+
+    await test.step("Delete 1 image", async () => {
+      await page.click(".tweetComp__tag", { button: "right" });
+
+      await page.locator("text=Remove").click();
+
+      await page.click(`.header__tag:has-text('${tagName}')`);
+
+      await expect(page.locator(".tweetComp")).toHaveCount(1);
+    });
   });
 
   test("should delete images without throwing a masonic error", async ({
