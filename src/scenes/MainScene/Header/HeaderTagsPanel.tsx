@@ -1,4 +1,5 @@
 import React, {
+  forwardRef,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -9,16 +10,19 @@ import React, {
 import styled, { WithTheme, withTheme } from "styled-components";
 import {
   ConfirmationDialogue,
+  ContextMenuIcon,
   ExpandingInput,
   PopupItem,
   StyledModel as StyledModal,
   StyledPopup,
   StyledTab,
-  ContextMenuIcon,
 } from "src/components";
 import { FiFilter as FilterIcon } from "react-icons/fi";
 import { AiOutlineClose as Cross } from "react-icons/ai";
-import { BiTrashAlt as TrashIcon } from "react-icons/bi";
+import {
+  BiTrashAlt as TrashIcon,
+  BiPencil as PencilIcon,
+} from "react-icons/bi";
 import {
   BsPin as AddPinIcon,
   BsPinFill as PinnedIcon,
@@ -36,8 +40,9 @@ import {
 } from "src/stores/rootStore";
 import { useAddTag } from "src/hooks/useAddTag";
 import { useOverflowDetector } from "src/hooks/useOverflowDetector";
-import useContextMenu from "src/hooks/useContextMenus";
 import { applyOpacity } from "src/util/themeUtil";
+import useContextMenu from "src/hooks/useContextMenus";
+import { standardizeTagName, validateTagName } from "lib/tagValidation";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
@@ -362,9 +367,203 @@ function PinButton(props: { active: boolean; tag: TagSchema } & WithTheme) {
 
 const SCROLL_AMOUNT = 500;
 
-function TagsSection(props: WithTheme) {
-  const editMode = useStore((state) => state.editMode);
+const TagButton = forwardRef<HTMLButtonElement, { tag: TagSchema } & WithTheme>(
+  function TagButton(props, ref) {
+    const { tag } = props;
 
+    const [renaming, _setRenaming] = useState(false);
+    const [name, _setName] = useState(tag.name);
+
+    const setRenaming = useStore(
+      useCallback(
+        (state) => (renaming: boolean) => {
+          // Auto select tag that is being renamed
+          if (renaming) state.setSelectedList([tag.name]);
+          _setRenaming(renaming);
+        },
+        [tag.name]
+      )
+    );
+
+    const setName = useCallback((name: string) => {
+      _setName(standardizeTagName(name));
+    }, []);
+
+    const onRenameCancel = useCallback(() => {
+      setRenaming(false);
+      setName(tag.name);
+    }, [setName, setRenaming, tag.name]);
+
+    const onRename = useStore(
+      useCallback(
+        (state) => () => {
+          if (validateTagName(name) === "") {
+            setRenaming(false);
+            state.renameTag(tag.name, name);
+          } else {
+            onRenameCancel();
+          }
+        },
+        [name, onRenameCancel, setRenaming, tag.name]
+      )
+    );
+
+    const editMode = useStore((state) => state.editMode);
+    const setSelectedList = useStore(
+      (state) =>
+        (tag: string) =>
+        (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+          if (e.shiftKey) {
+            // On shift click: Add to selected lists
+            if (!state.selectedLists.includes(tag)) {
+              const tagKeys = state.selectedLists.filter(
+                (t) => !SPECIAL_LIST_KEYS.includes(t)
+              );
+
+              state.setSelectedList([...tagKeys, tag]);
+            }
+          } else {
+            // On regular click, replace selected lists
+            state.setSelectedList([tag]);
+          }
+        }
+    );
+    const pinnedTags = useStore((state) => state.pinnedTags);
+    const selectedLists = useStore((state) => state.selectedLists);
+
+    // Context Menu
+    const [pinTag, unpinTag] = useStore((state) => [
+      state.pinTag,
+      state.unpinTag,
+    ]);
+
+    const removeTag = useStore((state) => state.removeTag);
+
+    const [showContextMenu, hideContextMenu] = useContextMenu(() => (
+      <>
+        {!pinnedTags.includes(tag.name) ? (
+          <ContextMenuIcon
+            className="header__tags__context-pin"
+            icon={<AddPinIcon />}
+            body={"Pin"}
+            onClick={() => pinTag(tag.name)}
+          />
+        ) : (
+          <ContextMenuIcon
+            className="header__tags__context-pin"
+            icon={<UnpinIcon />}
+            body={"Unpin"}
+            onClick={() => unpinTag(tag.name)}
+          />
+        )}
+        <ContextMenuIcon
+          icon={<PencilIcon />}
+          body="Rename"
+          onClick={() => setRenaming(true)}
+        />
+
+        {tag.images.length === 0 ? (
+          <ContextMenuIcon
+            className="header__tags__context-delete"
+            icon={<TrashIcon />}
+            body="Delete"
+            onClick={() => removeTag(tag)}
+          />
+        ) : (
+          <StyledModal
+            modal
+            onClose={hideContextMenu}
+            trigger={
+              <ContextMenuIcon
+                className="header__tags__context-delete"
+                icon={<TrashIcon />}
+                body="Delete"
+              />
+            }
+          >
+            {(close) => (
+              <DeleteTag tag={tag} onClose={close} theme={props.theme} />
+            )}
+          </StyledModal>
+        )}
+      </>
+    ));
+
+    const active = useMemo(
+      () => selectedLists.includes(tag.name),
+      [selectedLists, tag.name]
+    );
+
+    if (editMode === "add") {
+      if (!renaming)
+        return (
+          <Tag
+            ref={ref}
+            className="header__tag"
+            style={{ whiteSpace: "nowrap" }}
+            onClick={setSelectedList(tag.name)}
+            active={active}
+            onContextMenu={showContextMenu()}
+          >
+            {pinnedTags.includes(tag.name) && (
+              <PinButton tag={tag} active={active} theme={props.theme} />
+            )}
+            {tag.name}
+          </Tag>
+        );
+      else
+        return (
+          <Tag
+            ref={ref}
+            className="header__tag"
+            style={{ whiteSpace: "nowrap" }}
+            onClick={setSelectedList(tag.name)}
+            active={active}
+            onContextMenu={showContextMenu()}
+          >
+            <ExpandingInput
+              autoFocus
+              autoSelect
+              style={{
+                color: props.theme.color.onAccent,
+                textDecoration: "underline",
+              }}
+              className="blank"
+              value={name}
+              onChange={(e) => setName((e.target as HTMLInputElement).value)}
+              onKeyUp={(e) => e.key === "Enter" && onRename()}
+              onBlur={onRenameCancel}
+            />
+          </Tag>
+        );
+    } else {
+      return (
+        <StyledModal
+          trigger={
+            <Tag
+              className="header__tag"
+              color={props.theme.color.danger}
+              borderColor={"transparent"}
+            >
+              {tag.name}
+              <TrashIcon
+                size={20}
+                style={{ marginLeft: "8px", marginRight: "-3px" }}
+              />
+            </Tag>
+          }
+          modal
+        >
+          {(close) => (
+            <DeleteTag tag={tag} onClose={close} theme={props.theme} />
+          )}
+        </StyledModal>
+      );
+    }
+  }
+);
+
+function TagsSection(props: WithTheme) {
   const tagList = useStore((state) => state.getTagList());
 
   const selectedLists = useStore((state) => state.selectedLists);
@@ -444,51 +643,6 @@ function TagsSection(props: WithTheme) {
     }
   }, [selectedLists, tagsContainerRef]);
 
-  // Context Menu
-  const [pinTag, unpinTag] = useStore((state) => [
-    state.pinTag,
-    state.unpinTag,
-  ]);
-
-  const pinnedTags = useStore((state) => state.pinnedTags);
-
-  const [showContextMenu, hideContextMenu] = useContextMenu(
-    (tag: TagSchema) => (
-      <>
-        {!pinnedTags.includes(tag.name) ? (
-          <ContextMenuIcon
-            className="header__tags__context-pin"
-            icon={<AddPinIcon />}
-            body={"Pin"}
-            onClick={() => pinTag(tag.name)}
-          />
-        ) : (
-          <ContextMenuIcon
-            className="header__tags__context-pin"
-            icon={<UnpinIcon />}
-            body={"Unpin"}
-            onClick={() => unpinTag(tag.name)}
-          />
-        )}
-        <StyledModal
-          modal
-          onClose={hideContextMenu}
-          trigger={
-            <ContextMenuIcon
-              className="header__tags__context-delete"
-              icon={<TrashIcon />}
-              body="Delete"
-            />
-          }
-        >
-          {(close) => (
-            <DeleteTag tag={tag} onClose={close} theme={props.theme} />
-          )}
-        </StyledModal>
-      </>
-    )
-  );
-
   return (
     <>
       <div
@@ -508,52 +662,14 @@ function TagsSection(props: WithTheme) {
           ref={tagsContainerRef}
           onScroll={(e) => updateScrollMarkers(e.target as HTMLElement)}
         >
-          {tagList.map((tag, i) =>
-            // Normal mode
-            editMode === "add" ? (
-              <Tag
-                ref={(el) => (tagRefs.current[tag.name] = el)}
-                className="header__tag"
-                style={{ whiteSpace: "nowrap" }}
-                key={i}
-                onClick={setSelectedList(tag.name)}
-                active={selectedLists.includes(tag.name)}
-                onContextMenu={showContextMenu(tag)}
-              >
-                {pinnedTags.includes(tag.name) && (
-                  <PinButton
-                    tag={tag}
-                    active={selectedLists.includes(tag.name)}
-                    theme={props.theme}
-                  />
-                )}
-                {tag.name}
-              </Tag>
-            ) : (
-              // Delete mode
-              <StyledModal
-                key={i}
-                trigger={
-                  <Tag
-                    className="header__tag"
-                    color={props.theme.color.danger}
-                    borderColor={"transparent"}
-                  >
-                    {tag.name}
-                    <TrashIcon
-                      size={20}
-                      style={{ marginLeft: "8px", marginRight: "-3px" }}
-                    />
-                  </Tag>
-                }
-                modal
-              >
-                {(close) => (
-                  <DeleteTag tag={tag} onClose={close} theme={props.theme} />
-                )}
-              </StyledModal>
-            )
-          )}
+          {tagList.map((tag) => (
+            <TagButton
+              ref={(el) => (tagRefs.current[tag.name] = el)}
+              tag={tag}
+              key={tag.name}
+              {...props}
+            />
+          ))}
         </TagsContainer>
       </div>
       {/* Tags popup menu */}

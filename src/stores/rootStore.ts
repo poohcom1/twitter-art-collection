@@ -3,11 +3,17 @@ import { combine } from "zustand/middleware";
 import { imageEqual, isString, remove } from "src/util/objectUtil";
 import { BLACKLIST_TAG } from "types/constants";
 import { getUser } from "src/adapters/userAdapter";
-import { postTag, deleteTag, putTag, pinTags } from "src/adapters/tagsAdapter";
+import {
+  postTag,
+  deleteTag,
+  putTag,
+  pinTags,
+  renameTag,
+} from "src/adapters/tagsAdapter";
 import { fetchLikedTweets } from "src/adapters/tweetAdapter";
 import { ImageList, isTagList, TagList, TweetList } from "./ImageList";
 import { cacheTweets } from "src/util/tweetUtil";
-import { getTag, TweetPredicate, getTweetTexts } from "./helper";
+import { getTag, TweetPredicate, getTweetTexts, getTagList } from "./helper";
 
 /**
  * !IMPORTANT
@@ -155,6 +161,27 @@ const store = combine(initialState, (set, get) => ({
 
       return { ...state, imageLists: new Map(imageLists) };
     }),
+  renameTag: (oldName: string, newName: string) => {
+    const imageLists = get().imageLists;
+
+    const oldList = imageLists.get(oldName);
+    if (oldList && isTagList(oldList)) {
+      oldList.tag.name = newName;
+
+      imageLists.set(newName, imageLists.get(oldName)!);
+      imageLists.delete(oldName);
+
+      renameTag(oldName, newName)
+        .then()
+        .catch(() => alert("Unable to rename tag"));
+
+      const selectedLists = get().selectedLists.includes(oldName)
+        ? [newName]
+        : get().selectedLists;
+
+      set({ imageLists: new Map(imageLists), selectedLists });
+    }
+  },
   pinTag: (tagName: string) => {
     const pinnedTags = get().pinnedTags;
     if (pinnedTags.includes(tagName)) return;
@@ -228,36 +255,41 @@ const store = combine(initialState, (set, get) => ({
       }
     }),
   blacklistImage: (image: ImageSchema) => {
-    set((state) => {
-      const blacklistTag = getTag(state.imageLists, BLACKLIST_TAG);
+    const blacklistTagList = getTagList(get().imageLists, BLACKLIST_TAG);
 
-      if (!blacklistTag) {
-        const newBlacklistTag = {
-          name: BLACKLIST_TAG,
-          images: [image.id],
-        };
+    if (!blacklistTagList) {
+      const newBlacklistTag = {
+        name: BLACKLIST_TAG,
+        images: [image.id],
+      };
 
-        state.imageLists.set(
-          BLACKLIST_TAG,
-          new TagList(state.tweetMap, newBlacklistTag)
+      get().imageLists.set(
+        BLACKLIST_TAG,
+        new TagList(get().tweetMap, newBlacklistTag)
+      );
+
+      postTag(newBlacklistTag).then().catch(alert);
+    } else {
+      const blacklistTag = blacklistTagList.tag;
+
+      if (blacklistTag.images.find((im) => im === image.id)) {
+        console.warn(
+          "Attempted to blacklist image that is already blacklisted"
         );
-
-        postTag(newBlacklistTag).then().catch(alert);
-      } else {
-        if (blacklistTag.images.find((im) => im === image.id)) {
-          return;
-        }
-
-        blacklistTag.images.push(image.id);
-
-        putTag(blacklistTag).then().catch(alert);
+        return {};
       }
 
-      return {
-        ...state,
-        imageLists: new Map(state.imageLists),
-      };
-    });
+      blacklistTag.images.push(image.id);
+
+      putTag(blacklistTag).then().catch(alert);
+    }
+
+    (get().imageLists.get(BLACKLIST_TAG) as TagList).updateTag();
+
+    set((state) => ({
+      ...state,
+      imageLists: new Map(get().imageLists),
+    }));
   },
 
   /* --------------------------------- Filters -------------------------------- */

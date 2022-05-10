@@ -24,7 +24,6 @@ export default async function handler(
       { uid: session.user.id },
       { $set: { pinnedTags: pinnedTags } }
     );
-    console.log(pinnedTags);
 
     res.status(200).end();
   } catch (e) {

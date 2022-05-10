@@ -1,4 +1,4 @@
-import { ImageList, isTagList } from "./ImageList";
+import { ImageList, isTagList, TagList } from "./ImageList";
 
 // Image List helpers
 export function getTag(
@@ -9,6 +9,17 @@ export function getTag(
 
   if (tagList && isTagList(tagList)) {
     return tagList.tag;
+  }
+}
+
+export function getTagList(
+  imageLists: Map<string, ImageList>,
+  tagName: string
+): TagList | undefined {
+  const tagList = imageLists.get(tagName);
+
+  if (tagList && isTagList(tagList)) {
+    return tagList;
   }
 }
 

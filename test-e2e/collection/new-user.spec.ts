@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import NEW_USER from "../_helpers/data/newUser.json";
 import { mockSession } from "test-e2e/_helpers/auth/sessionUtil";
 
-test.describe("new user", () => {
+test.describe("new user 1", () => {
   test.beforeEach(mockSession(NEW_USER));
 
   test("should create a tag and delete a tag", async ({ page }) => {

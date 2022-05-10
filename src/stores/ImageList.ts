@@ -92,10 +92,12 @@ export class TagList implements ImageList {
     this._tweets = tag.images.map((id) => ({ id, platform: "twitter" }));
   }
 
-  updateTag(tag: TagSchema) {
-    this._tag = tag;
+  updateTag(tag?: TagSchema) {
+    if (tag) {
+      this._tag = tag;
+    }
 
-    this._tweets = tag.images.map((id) => ({
+    this._tweets = this._tag.images.map((id) => ({
       id,
       platform: "twitter",
       data:

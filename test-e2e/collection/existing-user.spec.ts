@@ -6,12 +6,11 @@ import { mockSession } from "test-e2e/_helpers/auth/sessionUtil";
  * Test user: Has two tags: tag1 has 2 images and tag2 has 2 images; no overlaps
  *  Has 1 image in blacklist
  */
+test.describe("existing user 1", () => {
+  const TAGS_COUNT = Object.values(USER.tags).length - 1;
+  const TAG_1 = "tag1";
+  const TAG_2 = "tag2";
 
-const TAGS_COUNT = Object.values(USER.tags).length - 1;
-const TAG_1 = "tag1";
-const TAG_2 = "tag2";
-
-test.describe("existing user", () => {
   test.beforeEach(mockSession(USER));
 
   test("should load existing tag(s)", async ({ page }) => {

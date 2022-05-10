@@ -37,7 +37,8 @@ const Container = styled.div`
 export default forwardRef<
   HTMLInputElement,
   {
-    containerStyle: React.CSSProperties | undefined;
+    containerStyle?: React.CSSProperties;
+    autoSelect?: boolean;
   } & HTMLProps<HTMLInputElement>
 >(function ExpandingInput(props, ref) {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -45,7 +46,7 @@ export default forwardRef<
   const [text, setText] = useState("");
 
   const onChange = useCallback((text: string) => {
-    setText(text + (text === "" ? "" : "_"));
+    setText(text);
   }, []);
 
   useEffect(() => {
@@ -69,6 +70,7 @@ export default forwardRef<
             props.onBlur(e);
           }
         }}
+        onFocus={(e) => e.target.select()}
       />
       <div
         style={{
@@ -77,7 +79,7 @@ export default forwardRef<
           userSelect: "none",
           margin: 0,
           padding: 0,
-          zIndex: 0
+          zIndex: 0,
         }}
       >
         {text}

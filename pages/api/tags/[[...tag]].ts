@@ -37,6 +37,10 @@ async function getTags(req: NextApiRequest, res: NextApiResponse) {
 async function postTag(req: NextApiRequest, res: NextApiResponse) {
   const session = await getServerSession({ req, res }, authOptions);
 
+  if (!session) {
+    return res.status(500).send("");
+  }
+
   const tag: PostTagBody = req.body;
 
   if (validateTagName(tag.name)) {
@@ -47,15 +51,10 @@ async function postTag(req: NextApiRequest, res: NextApiResponse) {
   console.info("[POST tag] Tag added: " + tag.name);
 
   try {
-    const user = await UserModel.findOne({ uid: session!.user.id });
-
-    if (!user || tag.name in user.tags) {
-      throw new Error("Tag already exists");
-    }
-
-    user.tags[tag.name] = convertToDBTag(tag);
-
-    await user.save();
+    await UserModel.updateOne(
+      { uid: session.user.id },
+      { $set: { [`tags.${tag.name}`]: convertToDBTag(tag) } }
+    );
 
     res.status(200).send("Ok");
   } catch (e) {

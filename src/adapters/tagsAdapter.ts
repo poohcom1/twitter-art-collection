@@ -43,3 +43,7 @@ export async function deleteTag(tag: TagSchema) {
 export async function pinTags(tags: string[]) {
   return fetch(`/api/pinned-tags?tags=${tags.join(",")}`);
 }
+
+export async function renameTag(oldName: string, newName: string) {
+  return fetch(`/api/rename-tag?oldName=${oldName}&newName=${newName}`);
+}
