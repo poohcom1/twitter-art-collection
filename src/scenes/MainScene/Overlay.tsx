@@ -60,15 +60,9 @@ function ThemeSwitchItem() {
 
   return (
     <>
-      <OverlayItem onClick={() => setColumnCount(-1)}>
-        <ZoomIn size="24px" color={theme.color.onSurface} />
-      </OverlayItem>
-      <OverlayItem onClick={() => setColumnCount(1)}>
-        <ZoomOut size="24px" color={theme.color.onSurface} />
-      </OverlayItem>
       <OverlayItem
         id="headerDeleteMode"
-        className="center header__deleteMode"
+        className="center overlay__deleteMode"
         title="Delete tags"
         onClick={toggleEditMode}
       >
@@ -78,6 +72,12 @@ function ThemeSwitchItem() {
             editMode === "add" ? theme.color.onSurface : theme.color.danger
           }
         />
+      </OverlayItem>
+      <OverlayItem onClick={() => setColumnCount(-1)}>
+        <ZoomIn size="24px" color={theme.color.onSurface} />
+      </OverlayItem>
+      <OverlayItem onClick={() => setColumnCount(1)}>
+        <ZoomOut size="24px" color={theme.color.onSurface} />
       </OverlayItem>
       <OverlayItem
         onClick={toggleTheme}

@@ -24,8 +24,8 @@ test("should create a tag and delete a tag", async () => {
   });
 
   await test.step("Delete the tag", async () => {
-    await page.waitForSelector(".header__deleteMode");
-    await page.click(".header__deleteMode");
+    await page.waitForSelector(".overlay__deleteMode");
+    await page.click(".overlay__deleteMode");
     await page.click(`.header__tag:has-text('${tagName}')`);
     await page.click(".confirm-accept");
 

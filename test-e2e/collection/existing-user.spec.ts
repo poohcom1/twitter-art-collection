@@ -68,9 +68,9 @@ test.describe("user #1", () => {
 
       await expect(page.locator(".tweetComp")).toHaveCount(2);
 
-      await page.click(".header__deleteMode");
+      await page.click(".overlay__deleteMode");
       await page.click(".tweetComp__tag >> nth=0");
-      await page.click(".header__deleteMode");
+      await page.click(".overlay__deleteMode");
 
       await page.locator(".tweetComp").waitFor({ state: "visible" });
       await expect(page.locator(".tweetComp")).toHaveCount(1);

@@ -26,7 +26,7 @@ import {
 import {
   BsPin as AddPinIcon,
   BsPinFill as PinnedIcon,
-  BsPinAngleFill as UnpinIcon,
+  BsPinAngle as UnpinIcon,
 } from "react-icons/bs";
 import {
   RiArrowLeftSLine as Left,
@@ -134,7 +134,7 @@ const BasicFilterDiv = styled(Tag)`
   transition: width 0.1s color 0.1s;
 `;
 
-const StyledPinButton = styled.button<{
+const StyledPinButton = styled.div<{
   active: boolean;
 }>`
   cursor: pointer;
@@ -149,6 +149,7 @@ const StyledPinButton = styled.button<{
   margin-right: 2px;
 
   display: flex;
+  justify-content: center;
   align-items: center;
 
   background-color: transparent;
@@ -328,7 +329,7 @@ function DeleteTag(
 function PinButton(props: { active: boolean; tag: TagSchema } & WithTheme) {
   const [hover, setHover] = useState(false);
 
-  const onClickCallback: React.MouseEventHandler<HTMLButtonElement> = useStore(
+  const onClickCallback: React.MouseEventHandler<HTMLDivElement> = useStore(
     useCallback(
       (state) => (e) => {
         if (props.active) {
@@ -341,7 +342,7 @@ function PinButton(props: { active: boolean; tag: TagSchema } & WithTheme) {
   );
 
   const Icon = useMemo(
-    () => (!hover || !props.active ? PinnedIcon : AddPinIcon),
+    () => (!hover || !props.active ? PinnedIcon : UnpinIcon),
     [hover, props.active]
   );
 
@@ -352,6 +353,9 @@ function PinButton(props: { active: boolean; tag: TagSchema } & WithTheme) {
       onClick={onClickCallback}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
+      style={{
+        paddingBottom: !hover || !props.active ? "" : "4px",
+      }}
     >
       <Icon
         size="15px"
