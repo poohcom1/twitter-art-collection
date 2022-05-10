@@ -34,12 +34,12 @@ export function validateTagName(
 
   if (tagName === "") {
     return "EMPTY_TAG";
+  } else if (tagName.length > MAX_TAG_LENGTH) {
+    return "TOO_LONG";
   } else if (tagName !== standardizeTagName(tagName)) {
     return "INVALID_CHAR";
   } else if (tagList.includes(tagName)) {
     return "EXISTING_TAG";
-  } else if (tagName.length > MAX_TAG_LENGTH) {
-    return "TOO_LONG";
   } else {
     return "";
   }
