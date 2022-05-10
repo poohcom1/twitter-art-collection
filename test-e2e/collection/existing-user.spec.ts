@@ -98,4 +98,35 @@ test.describe("user #1", () => {
 
     await expect(page.locator(".tweetComp")).toHaveCount(1);
   });
+
+  test("should order pinned tags first", async () => {
+    await page
+      .locator(".header__tag", { hasText: TAG_2 })
+      .click({ button: "right" });
+
+    await page.click("text=Pin");
+
+    await expect(page.locator(".header__tag >> nth=0")).toHaveText(TAG_2);
+  });
+
+  test("should rename tag with the context menu", async () => {
+    const NEW_NAME = "Isshin Ashina";
+
+    await expect(
+      page.locator(".header__tag", { hasText: NEW_NAME })
+    ).toHaveCount(0);
+
+    await page
+      .locator(".header__tag", { hasText: TAG_1 })
+      .click({ button: "right" });
+
+    await page.click("text=Rename");
+
+    await page.fill(".header__context-rename", NEW_NAME);
+    await page.keyboard.press("Enter");
+
+    await expect(
+      page.locator(".header__tag", { hasText: NEW_NAME })
+    ).toHaveCount(1);
+  });
 });

@@ -528,7 +528,7 @@ const TagButton = forwardRef<HTMLButtonElement, { tag: TagSchema } & WithTheme>(
                 color: props.theme.color.onAccent,
                 textDecoration: "underline",
               }}
-              className="blank"
+              className="blank header__context-rename"
               value={name}
               onChange={(e) => setName((e.target as HTMLInputElement).value)}
               onKeyUp={(e) => e.key === "Enter" && onRename()}

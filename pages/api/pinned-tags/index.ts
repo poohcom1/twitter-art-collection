@@ -14,7 +14,7 @@ export default async function handler(
   ]);
 
   if (!session) {
-    return res.status(400).end();
+    return res.status(401).end();
   }
 
   const pinnedTags = (req.query.tags as string).split(",") ?? [];

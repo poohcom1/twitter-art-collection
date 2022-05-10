@@ -20,7 +20,7 @@ export default async function handler(
   ]);
 
   if (!session) {
-    return res.status(400).end();
+    return res.status(401).end();
   }
 
   const oldName = req.query.oldName as string;
@@ -28,12 +28,12 @@ export default async function handler(
 
   if (!oldName || !newName) {
     console.error("[rename-tag] 'Tag' or 'Rename' undefined");
-    return res.status(500).end();
+    return res.status(400).end();
   }
 
   if (validateTagName(newName)) {
     console.error("[rename-tag] Validation failed");
-    return res.status(500).send("Server error");
+    return res.status(400).send("Validation failed");
   }
 
   try {

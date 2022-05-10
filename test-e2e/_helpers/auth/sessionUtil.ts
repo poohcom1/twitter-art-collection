@@ -68,16 +68,19 @@ export async function mockSession(
     })
   );
 
-  const imageRoute = page.route("**/_next/image", (route) =>
-    route.fulfill({ status: 200 })
+  const imageRoute = page.route(
+    (url) => url.pathname.includes("_next/image"),
+    (route) => route.fulfill({ status: 200 })
   );
 
-  const renameRoute = page.route("**/api/rename-tag", (route) =>
-    route.fulfill({ status: 200 })
+  const renameRoute = page.route(
+    (url) => url.pathname.includes("api/rename-tag"),
+    (route) => route.fulfill({ status: 200 })
   );
 
-  const pinRoute = page.route("**/api/pinned-tag", (route) =>
-    route.fulfill({ status: 200 })
+  const pinRoute = page.route(
+    (url) => url.pathname.includes("api/pinned-tag"),
+    (route) => route.fulfill({ status: 200 })
   );
 
   await Promise.all([
