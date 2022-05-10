@@ -50,11 +50,9 @@ interface TweetExpansions {
 interface TagSchema {
   name: string;
   images: string[];
-
-  pinned?: boolean;
 }
 
-type TagCollection = Map<string, TagSchema>;
+type DBTagSchema = Omit<TagSchema, "name">;
 
 interface Settings {
   showTagDeleteWarning?: boolean;
@@ -65,11 +63,15 @@ interface RawUserSchema {
   tags: Record<string, TagSchema>;
 }
 
-interface UserSchema {
+interface DBUserSchema {
   uid: string;
-  tags: TagCollection;
+  tags: Record<string, DBTagSchema>;
   pinnedTags: string[];
   tweetIds?: string[];
+}
+
+interface UserSchema extends DBUserSchema {
+  tags: Record<string, TagSchema>;
 }
 
 // Request Body Types

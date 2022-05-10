@@ -31,7 +31,7 @@ export async function removeDeletedTweets(
   if (user && user.tweetIds) {
     user.tweetIds = user.tweetIds.filter((id) => !deletedTweetIds.includes(id));
 
-    user.tags.forEach((tag) => {
+    Object.values(user.tags).forEach((tag) => {
       tag.images = tag.images.filter((id) => !deletedTweetIds.includes(id));
     });
 

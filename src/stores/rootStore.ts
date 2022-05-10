@@ -54,9 +54,10 @@ const store = combine(initialState, (set, get) => ({
       // tweetLists.set(TIMELINE_TWEET_LIST, timelineTweetList);
 
       // Generate tag lists
-      const tags = new Map(Object.entries(userData.data.tags));
 
-      Array.from(tags.values()).forEach((tag) => {
+      const tags = userData.data.tags;
+
+      Object.values(tags).forEach((tag) => {
         tweetLists.set(tag.name, new TagList(get().tweetMap, tag));
       });
 

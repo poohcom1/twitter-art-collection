@@ -44,3 +44,18 @@ export function validateTagName(
     return "";
   }
 }
+
+export function convertToDBTag(tag: TagSchema): DBTagSchema {
+  const dbTag = { ...tag } as Omit<DBTagSchema, keyof TagSchema> &
+    Partial<Omit<TagSchema, keyof DBTagSchema>>;
+  delete dbTag.name;
+
+  return dbTag as DBTagSchema;
+}
+
+export function convertDBTagToTag(
+  tag: DBTagSchema,
+  props: Omit<TagSchema, keyof DBTagSchema>
+): TagSchema {
+  return { ...tag, ...props };
+}

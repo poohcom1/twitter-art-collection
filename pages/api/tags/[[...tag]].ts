@@ -3,7 +3,7 @@ import UserModel from "models/User";
 import { dbMethodHandler } from "lib/apiHelper";
 import { getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
-import { validateTagName } from "lib/tagValidation";
+import { convertToDBTag, validateTagName } from "lib/tagValidation";
 
 export default dbMethodHandler({
   GET: getTags,
@@ -53,7 +53,7 @@ async function postTag(req: NextApiRequest, res: NextApiResponse) {
       throw new Error("Tag already exists");
     }
 
-    user.tags.set(tag.name, tag);
+    user.tags[tag.name] = convertToDBTag(tag);
 
     await user.save();
 
@@ -74,7 +74,7 @@ async function putTag(req: NextApiRequest, res: NextApiResponse) {
       { uid: session!.user.id },
       {
         $set: {
-          [`tags.${tag.name}`]: { name: tag.name, images: tag.images },
+          [`tags.${tag.name}`]: convertToDBTag(tag),
         },
       }
     );

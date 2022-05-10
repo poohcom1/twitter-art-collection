@@ -13,6 +13,7 @@ import { getServerSession } from "next-auth";
 import { ApiResponseError } from "twitter-api-v2";
 import { dbMethodHandler } from "lib/apiHelper";
 import { storeTweetCache, useRedis } from "lib/redis";
+import { convertDBTagToTag } from "lib/tagValidation";
 
 export default dbMethodHandler({
   GET: getUserV2,
@@ -43,7 +44,7 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
         const newUserResponse: UserDataResponse = {
           newUser: true,
 
-          tags: new Map(),
+          tags: {},
           pinnedTags: [],
         };
 
@@ -78,6 +79,8 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
 
       const responseObject: UserDataResponse = {
         pinnedTags: user.pinnedTags,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         tags: user.tags,
       };
 
@@ -106,23 +109,37 @@ async function getUserV2(req: NextApiRequest, res: NextApiResponse) {
       res.status(500).send("Server auth Error");
     }
     /* ------------------------------ User Database ----------------------------- */
-    let user = await UserModel.findOne({ uid: session!.user.id });
+    const user = await UserModel.findOne({ uid: session!.user.id }).lean();
 
     // New user
     if (!user) {
       console.log("[GET USER] New user found.");
 
-      user = new UserModel({
+      const newUser = new UserModel({
         uid: session!.user.id,
-        tags: new Map(),
+        tags: {},
         pinnedTags: [],
       });
 
-      await user.save();
+      await newUser.save();
+
+      const response: UserDataResponse = {
+        tags: {},
+        pinnedTags: [],
+      };
+
+      return res.send(response);
+    }
+
+    // Fill out tag names
+    const convertedTags: Record<string, TagSchema> = {};
+
+    for (const [tagName, tag] of Object.entries(user.tags)) {
+      convertedTags[tagName] = convertDBTagToTag(tag, { name: tagName });
     }
 
     const response: UserDataResponse = {
-      tags: user.tags,
+      tags: convertedTags,
       pinnedTags: user.pinnedTags,
     };
 
@@ -180,7 +197,7 @@ async function postUser(req: NextApiRequest, res: NextApiResponse) {
         await useRedis(storeTweetCache(tweets));
 
         const response: UserDataResponse = {
-          tags: new Map(),
+          tags: {},
           pinnedTags: [],
         };
         return res.send(response);

@@ -7,6 +7,6 @@ export const userSchema = new Schema<UserSchema>({
   tweetIds: { type: [String] },
 });
 
-const UserModel: mongoose.Model<UserSchema> =
+const UserModel: mongoose.Model<DBUserSchema> =
   mongoose.models.users || model("users", userSchema);
 export default UserModel;

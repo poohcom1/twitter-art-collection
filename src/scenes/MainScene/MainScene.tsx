@@ -72,12 +72,12 @@ export default function MainScene() {
                 setTweetsLoaded(true);
               })
               .catch((e) => {
-                setTweetsError(e);
+                setTweetsError(e.toString());
               });
           }
         })
         .catch((e) => {
-          setTweetsError(e);
+          setTweetsError(e.toString());
         });
     }
   }, [

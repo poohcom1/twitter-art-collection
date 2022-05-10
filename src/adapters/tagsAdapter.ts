@@ -3,12 +3,12 @@ import { jsonOrError } from "./adapter";
 /**
  * @deprecated All tags should be fetched from the user endpoint
  */
-export async function getTags(): Promise<Result<TagCollection>> {
+export async function getTags(): Promise<Result<Map<string, TagSchema>>> {
   const res = await fetch(`/api/tags/`, {
     method: "GET",
   });
 
-  return await jsonOrError<TagCollection>(res);
+  return await jsonOrError<Map<string, TagSchema>>(res);
 }
 
 // TODO Error handling

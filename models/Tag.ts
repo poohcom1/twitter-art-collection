@@ -8,11 +8,6 @@ const imageSchema = new Schema<Pick<ImageSchema, "id" | "platform">>({
 imageSchema.index({ id: 1, platform: 1 }, { unique: true });
 
 const tagSchema = new Schema<TagSchema>({
-  name: {
-    type: String,
-    unique: true,
-    index: true,
-  },
   images: {
     type: [String],
   },
