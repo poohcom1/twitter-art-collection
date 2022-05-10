@@ -7,6 +7,10 @@ on:
 
 env:
   NEXTAUTH_SECRET: sus
+  TWITTER_AUTH_VER: ${{ env.TWITTER_AUTH_VER }}
+  TWITTER_CLIENT_ID: ${{ env.TWITTER_CLIENT_ID }}
+  TWITTER_CLIENT_SECRET: ${{ env.TWITTER_CLIENT_SECRET }}
+
 jobs:
   test:
     timeout-minutes: 60
