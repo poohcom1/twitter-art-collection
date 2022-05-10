@@ -5,13 +5,11 @@ import { EncryptJWT } from "jose";
 import SESSION from "../data/session.json";
 import TWEETS from "../data/tweets.json";
 
+const BASE_URL = "http://localhost:3000";
 export const SESSION_SECRET = process.env.NEXTAUTH_SECRET;
 
 export const mockSession =
-  (
-    baseUrl: string,
-    user: RawUserSchema
-  ): Parameters<typeof test.beforeEach>[0] =>
+  (user: RawUserSchema): Parameters<typeof test.beforeEach>[0] =>
   async ({ page, context }) => {
     const addCookies = context.addCookies([
       {
@@ -79,9 +77,10 @@ export const mockSession =
       tweetsRoute,
       tagsRoute,
       imageRoute,
+      tweetExpansionsRoute,
     ]);
 
-    await page.goto(baseUrl + "/collection");
+    await page.goto(BASE_URL + "/collection");
   };
 
 // Function logic derived from https://github.com/nextauthjs/next-auth/blob/5c1826a8d1f8d8c2d26959d12375704b0a693bfc/packages/next-auth/src/jwt/index.ts#L113-L121

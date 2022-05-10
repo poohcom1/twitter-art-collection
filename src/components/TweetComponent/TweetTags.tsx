@@ -318,7 +318,7 @@ function NewTag(props: { image: TweetSchema; theme: DefaultTheme }) {
 
               {addTagList.map((tag) => (
                 <AddImagesPopupListItem
-                  className="addImage"
+                  className="tweetComp__addImageItem"
                   key={tag.name}
                   keyNum={tag.name}
                   tag={tag}

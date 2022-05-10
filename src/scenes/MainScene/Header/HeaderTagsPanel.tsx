@@ -300,6 +300,7 @@ function TagsSection(props: WithTheme) {
       (tag: string) =>
       (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         if (e.shiftKey) {
+          // On shift click: Add to selected lists
           if (!state.selectedLists.includes(tag)) {
             const tagKeys = state.selectedLists.filter(
               (t) => !SPECIAL_LIST_KEYS.includes(t)
@@ -308,6 +309,7 @@ function TagsSection(props: WithTheme) {
             state.setSelectedList([...tagKeys, tag]);
           }
         } else {
+          // On regular click, replace selected lists
           state.setSelectedList([tag]);
         }
       }

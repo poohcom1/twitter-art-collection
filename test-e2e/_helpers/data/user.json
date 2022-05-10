@@ -1,11 +1,17 @@
 {
   "uid": "nevergonnagiveuup",
   "tags": {
-    "existing-tag": {
-      "name": "existing-tag",
+    "tag1": {
+      "name": "tag1",
       "images": [
         "1281166538045665281",
         "1336689990487531520"
+      ]
+    },
+    "tag2": {
+      "name": "tag2",
+      "images": [
+        "1352923053039046659"
       ]
     },
     "__blacklist": {

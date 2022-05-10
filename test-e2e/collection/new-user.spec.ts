@@ -2,10 +2,8 @@ import { expect, test } from "@playwright/test";
 import NEW_USER from "../_helpers/data/newUser.json";
 import { mockSession } from "test-e2e/_helpers/auth/sessionUtil";
 
-const BASE_URL = "http://localhost:3000";
-
 test.describe("new user", () => {
-  test.beforeEach(mockSession(BASE_URL, NEW_USER));
+  test.beforeEach(mockSession(NEW_USER));
 
   test("should create a tag and delete a tag", async ({ page }) => {
     const tagName = "new tag";

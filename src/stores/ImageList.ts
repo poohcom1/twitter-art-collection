@@ -98,7 +98,9 @@ export class TagList implements ImageList {
     this._tweets = tag.images.map((id) => ({
       id,
       platform: "twitter",
-      data: this._tweets.find((t) => t.id === id)?.data,
+      data:
+        this._tweets.find((t) => t.id === id)?.data ??
+        this.tweetsMap.get(id)?.data,
     }));
 
     if (
