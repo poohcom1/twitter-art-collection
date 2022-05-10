@@ -1,5 +1,7 @@
 # Twitter Art Collection (WIP)
 
+[![Join the chat at https://gitter.im/twitter-art-collection/community](https://badges.gitter.im/twitter-art-collection/community.svg)](https://gitter.im/twitter-art-collection/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ![Sample image](public/assets/sample_image.png)
 
 A web app to organize arts and photos from your Twitter likes!
