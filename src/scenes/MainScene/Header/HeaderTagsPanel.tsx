@@ -16,11 +16,8 @@ import {
   ContextMenuIcon,
 } from "src/components";
 import { FiFilter as FilterIcon } from "react-icons/fi";
-import {
-  AiOutlineCloseCircle as CloseCircle,
-  AiOutlineClose as Cross,
-} from "react-icons/ai";
-import { BiTrashAlt as Trash } from "react-icons/bi";
+import { AiOutlineClose as Cross } from "react-icons/ai";
+import { BiTrashAlt as TrashIcon } from "react-icons/bi";
 import {
   RiArrowLeftSLine as Left,
   RiArrowRightSLine as Right,
@@ -269,7 +266,7 @@ function DeleteTag(
   return (
     <ConfirmationDialogue
       title={`Deleting "${props.tag.name}"`}
-      text="Are you sure you want to delete this tag?"
+      text={`Are you sure you want to delete this tag? This tag contains ${props.tag.images.length} image(s).`}
       acceptText="Delete"
       cancelText="Cancel"
       acceptColor={props.theme.color.danger}
@@ -380,7 +377,7 @@ function TagsSection(props: WithTheme) {
           trigger={
             <ContextMenuIcon
               className="header__tags__context-delete"
-              icon={<Trash />}
+              icon={<TrashIcon />}
               body="Delete"
             />
           }
@@ -433,12 +430,11 @@ function TagsSection(props: WithTheme) {
                 trigger={
                   <Tag
                     className="header__tag"
-                    active={selectedLists.includes(tag.name)}
                     color={props.theme.color.danger}
                     borderColor={"transparent"}
                   >
                     {tag.name}
-                    <CloseCircle
+                    <TrashIcon
                       size={20}
                       style={{ marginLeft: "8px", marginRight: "-3px" }}
                     />
