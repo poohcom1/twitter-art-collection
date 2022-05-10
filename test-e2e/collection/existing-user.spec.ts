@@ -46,7 +46,7 @@ test.describe("existing user", () => {
         .locator(".tweetComp__tag >> nth=0", { hasText: TAG_1 })
         .click({ button: "right" });
 
-      await page.locator("text=Remove").click();
+      await page.locator("text=Remove tag from image").click();
 
       await page.click("text=" + TAG_1);
 
@@ -65,7 +65,7 @@ test.describe("existing user", () => {
       await expect(page.locator(".tweetComp")).toHaveCount(2);
 
       await page.click(".header__deleteMode");
-      await page.click("#tweetComp0 .tweetComp__tagEdit");
+      await page.click(".tweetComp__tag >> nth=0");
       await page.click(".header__deleteMode");
 
       await page.locator(".tweetComp").waitFor({ state: "visible" });

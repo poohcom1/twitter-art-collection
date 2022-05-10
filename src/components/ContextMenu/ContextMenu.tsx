@@ -1,4 +1,4 @@
-import { HTMLAttributes, useEffect } from "react";
+import { forwardRef, HTMLAttributes, useEffect } from "react";
 import { useDisplayStore } from "src/stores/displayStore";
 import { applyOpacity } from "src/util/themeUtil";
 import styled from "styled-components";
@@ -47,9 +47,9 @@ export const ContextMenuItem = styled.button`
   justify-content: flex-start;
   align-items: center;
 
-  font-size: large;
+  font-size: small;
 
-  height: 40px;
+  height: 30px;
   width: 100%;
   padding: 2px 8px;
   border: none;
@@ -68,20 +68,19 @@ const ContextMenuIconDiv = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-
-  font-size: large;
 `;
 
-export function ContextMenuIcon(
-  props: {
+export const ContextMenuIcon = forwardRef<
+  HTMLButtonElement,
+  {
     icon: JSX.Element;
     body: string | JSX.Element;
   } & HTMLAttributes<HTMLButtonElement>
-) {
+>(function ContextMenuIcon(props, ref) {
   return (
-    <ContextMenuItem {...props}>
+    <ContextMenuItem ref={ref} {...props}>
       <ContextMenuIconDiv>{props.icon}</ContextMenuIconDiv>
       {props.body}
     </ContextMenuItem>
   );
-}
+});

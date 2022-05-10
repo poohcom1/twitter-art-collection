@@ -1,12 +1,13 @@
 import create from "zustand";
 import { combine } from "zustand/middleware";
-import { imageEqual, isString } from "src/util/objectUtil";
+import { imageEqual, isString, remove } from "src/util/objectUtil";
 import { BLACKLIST_TAG } from "types/constants";
 import { getUser } from "src/adapters/userAdapter";
-import { postTag, deleteTag, putTag } from "src/adapters/tagsAdapter";
+import { postTag, deleteTag, putTag, pinTags } from "src/adapters/tagsAdapter";
 import { fetchLikedTweets } from "src/adapters/tweetAdapter";
 import { ImageList, isTagList, TagList, TweetList } from "./ImageList";
 import { cacheTweets } from "src/util/tweetUtil";
+import { getTag, TweetPredicate, getTweetTexts } from "./helper";
 
 /**
  * !IMPORTANT
@@ -19,7 +20,7 @@ export const TIMELINE_TWEET_LIST = "__timeline";
 
 export const SPECIAL_LIST_KEYS = [LIKED_TWEET_LIST, TIMELINE_TWEET_LIST];
 
-const dataStore = {
+const initialState = {
   selectedLists: [LIKED_TWEET_LIST],
   imageLists: <Map<string, ImageList>>new Map(),
 
@@ -28,6 +29,7 @@ const dataStore = {
   editMode: <"add" | "delete">"add",
 
   // Tags
+  pinnedTags: <string[]>[],
   tagsStatus: <"loading" | "loaded" | "error">"loading",
 
   // User
@@ -37,7 +39,7 @@ const dataStore = {
   tweetMap: <Map<string, TweetSchema>>new Map(),
 };
 
-const store = combine(dataStore, (set, get) => ({
+const store = combine(initialState, (set, get) => ({
   initTweetsAndTags: async (): Promise<Result<null>> => {
     const userData = await getUser();
 
@@ -64,6 +66,7 @@ const store = combine(dataStore, (set, get) => ({
         tagsStatus: "loaded",
         imageLists: tweetLists,
         tweetMap: get().tweetMap,
+        pinnedTags: userData.data.pinnedTags ?? [],
       });
 
       return { data: null, error: null };
@@ -126,7 +129,12 @@ const store = combine(dataStore, (set, get) => ({
 
     return tagList
       .filter((tag) => tag.name !== BLACKLIST_TAG)
-      .sort((a, b) => a.name.localeCompare(b.name));
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .sort((a, b) => {
+        if (get().pinnedTags.includes(a.name)) return -1;
+        else if (get().pinnedTags.includes(b.name)) return 1;
+        else return 0;
+      });
   },
   addTag: (tag: TagSchema): void =>
     set((state) => {
@@ -146,7 +154,31 @@ const store = combine(dataStore, (set, get) => ({
 
       return { ...state, imageLists: new Map(imageLists) };
     }),
+  pinTag: (tagName: string) => {
+    const pinnedTags = get().pinnedTags;
+    if (pinnedTags.includes(tagName)) return;
 
+    pinnedTags.push(tagName);
+
+    pinTags(pinnedTags)
+      .then()
+      .catch(() => alert("Failed to pin tag!"));
+
+    set({ pinnedTags });
+  },
+  unpinTag: (tagName: string) => {
+    if (!get().pinnedTags.includes(tagName)) {
+      console.warn("Attempted to unpin tag that wasn't pinned");
+      return;
+    }
+    const pinnedTags = remove(get().pinnedTags, tagName);
+
+    pinTags(pinnedTags)
+      .then()
+      .catch(() => alert("Failed to unpin tag!"));
+
+    set({ pinnedTags: pinnedTags });
+  },
   /* --------------------------------- Images --------------------------------- */
   addImage: (tag: TagSchema | string, image: ImageSchema): void =>
     set((state) => {
@@ -260,38 +292,3 @@ const store = combine(dataStore, (set, get) => ({
 }));
 
 export const useStore = create(store);
-
-// Image List helpers
-function getTag(
-  imageLists: Map<string, ImageList>,
-  tagName: string
-): TagSchema | undefined {
-  const tagList = imageLists.get(tagName);
-
-  if (tagList && isTagList(tagList)) {
-    return tagList.tag;
-  }
-}
-
-// Filters helpers
-
-type TweetPredicate = <S extends TweetSchema>(
-  image: S,
-  index?: number,
-  array?: S[]
-) => image is S;
-
-// Search Filter helper
-interface TweetTextData {
-  text?: string;
-  name?: string;
-  username?: string;
-}
-
-function getTweetTexts(tweet: TweetSchema): TweetTextData {
-  return {
-    text: tweet.data?.content.text,
-    name: tweet.data?.name,
-    username: tweet.data?.username,
-  };
-}

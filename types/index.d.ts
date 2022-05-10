@@ -68,6 +68,7 @@ interface RawUserSchema {
 interface UserSchema {
   uid: string;
   tags: TagCollection;
+  pinnedTags: string[];
   tweetIds?: string[];
 }
 
@@ -79,10 +80,7 @@ type PutTagBody = TagSchema;
 type DeleteTagBody = TagSchema;
 
 // Response Types
-interface UserDataResponse {
-  tweets: TweetSchema[];
-  tags: TagCollection;
-
+interface UserDataResponse extends Omit<UserSchema, "uid"> {
   newUser?: boolean;
 }
 

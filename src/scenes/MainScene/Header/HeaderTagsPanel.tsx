@@ -2,6 +2,7 @@ import React, {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -19,6 +20,11 @@ import { FiFilter as FilterIcon } from "react-icons/fi";
 import { AiOutlineClose as Cross } from "react-icons/ai";
 import { BiTrashAlt as TrashIcon } from "react-icons/bi";
 import {
+  BsPin as AddPinIcon,
+  BsPinFill as PinnedIcon,
+  BsPinAngleFill as UnpinIcon,
+} from "react-icons/bs";
+import {
   RiArrowLeftSLine as Left,
   RiArrowRightSLine as Right,
 } from "react-icons/ri";
@@ -31,6 +37,7 @@ import {
 import { useAddTag } from "src/hooks/useAddTag";
 import { useOverflowDetector } from "src/hooks/useOverflowDetector";
 import useContextMenu from "src/hooks/useContextMenus";
+import { applyOpacity } from "src/util/themeUtil";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
@@ -121,6 +128,35 @@ const BasicFilterDiv = styled(Tag)`
 
   transition: width 0.1s color 0.1s;
 `;
+
+const StyledPinButton = styled.button<{
+  active: boolean;
+}>`
+  cursor: pointer;
+  flex: 0 0 auto;
+
+  width: 25px;
+  height: 25px;
+
+  border: none;
+  border-radius: 2px;
+  margin-left: -4px;
+  margin-right: 2px;
+
+  display: flex;
+  align-items: center;
+
+  background-color: transparent;
+
+  &:hover {
+    background-color: ${(props) =>
+      props.active
+        ? applyOpacity(props.theme.color.onAccent, 0.15)
+        : "transparent"};
+  }
+`;
+
+/* ------------------------------- Components ------------------------------- */
 
 function BasicFilter() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -284,6 +320,46 @@ function DeleteTag(
   );
 }
 
+function PinButton(props: { active: boolean; tag: TagSchema } & WithTheme) {
+  const [hover, setHover] = useState(false);
+
+  const onClickCallback: React.MouseEventHandler<HTMLButtonElement> = useStore(
+    useCallback(
+      (state) => (e) => {
+        if (props.active) {
+          e.stopPropagation();
+          state.unpinTag(props.tag.name);
+        }
+      },
+      [props.active, props.tag.name]
+    )
+  );
+
+  const Icon = useMemo(
+    () => (!hover || !props.active ? PinnedIcon : AddPinIcon),
+    [hover, props.active]
+  );
+
+  return (
+    <StyledPinButton
+      title={props.active ? "Unpin" : ""}
+      active={props.active}
+      onClick={onClickCallback}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <Icon
+        size="15px"
+        color={
+          props.active
+            ? props.theme.color.onAccent
+            : props.theme.color.onSecondary
+        }
+      />
+    </StyledPinButton>
+  );
+}
+
 const SCROLL_AMOUNT = 500;
 
 function TagsSection(props: WithTheme) {
@@ -368,9 +444,32 @@ function TagsSection(props: WithTheme) {
     }
   }, [selectedLists, tagsContainerRef]);
 
+  // Context Menu
+  const [pinTag, unpinTag] = useStore((state) => [
+    state.pinTag,
+    state.unpinTag,
+  ]);
+
+  const pinnedTags = useStore((state) => state.pinnedTags);
+
   const [showContextMenu, hideContextMenu] = useContextMenu(
     (tag: TagSchema) => (
       <>
+        {!pinnedTags.includes(tag.name) ? (
+          <ContextMenuIcon
+            className="header__tags__context-pin"
+            icon={<AddPinIcon />}
+            body={"Pin"}
+            onClick={() => pinTag(tag.name)}
+          />
+        ) : (
+          <ContextMenuIcon
+            className="header__tags__context-pin"
+            icon={<UnpinIcon />}
+            body={"Unpin"}
+            onClick={() => unpinTag(tag.name)}
+          />
+        )}
         <StyledModal
           modal
           onClose={hideContextMenu}
@@ -421,6 +520,13 @@ function TagsSection(props: WithTheme) {
                 active={selectedLists.includes(tag.name)}
                 onContextMenu={showContextMenu(tag)}
               >
+                {pinnedTags.includes(tag.name) && (
+                  <PinButton
+                    tag={tag}
+                    active={selectedLists.includes(tag.name)}
+                    theme={props.theme}
+                  />
+                )}
                 {tag.name}
               </Tag>
             ) : (

@@ -43,8 +43,8 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
         const newUserResponse: UserDataResponse = {
           newUser: true,
 
-          tweets: [],
           tags: new Map(),
+          pinnedTags: [],
         };
 
         return res.send(newUserResponse);
@@ -77,7 +77,7 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
       await useRedis(storeTweetCache(tweets));
 
       const responseObject: UserDataResponse = {
-        tweets: tweets as TweetSchema[],
+        pinnedTags: user.pinnedTags,
         tags: user.tags,
       };
 
@@ -115,12 +115,18 @@ async function getUserV2(req: NextApiRequest, res: NextApiResponse) {
       user = new UserModel({
         uid: session!.user.id,
         tags: new Map(),
+        pinnedTags: [],
       });
 
       await user.save();
     }
 
-    return res.send({ tags: user.tags });
+    const response: UserDataResponse = {
+      tags: user.tags,
+      pinnedTags: user.pinnedTags,
+    };
+
+    return res.send(response);
   } catch (e) {
     res.status(500).send("Server Error");
   }
@@ -174,8 +180,8 @@ async function postUser(req: NextApiRequest, res: NextApiResponse) {
         await useRedis(storeTweetCache(tweets));
 
         const response: UserDataResponse = {
-          tweets: tweets,
           tags: new Map(),
+          pinnedTags: [],
         };
         return res.send(response);
       } catch (e) {

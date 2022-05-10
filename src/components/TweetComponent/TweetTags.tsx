@@ -423,7 +423,7 @@ const TweetTags = withTheme(function TweetTags(props: {
     <>
       <ContextMenuIcon
         icon={<TrashIcon />}
-        body="Remove"
+        body="Remove tag from image"
         onClick={() => removeImage(tag, props.image)}
       />
     </>

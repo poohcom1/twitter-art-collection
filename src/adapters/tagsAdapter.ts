@@ -37,3 +37,9 @@ export async function deleteTag(tag: TagSchema) {
     method: "DELETE",
   });
 }
+
+/* ---------------------------------- Pins ---------------------------------- */
+
+export async function pinTags(tags: string[]) {
+  return fetch(`/api/pinned-tags?tags=${tags.join(",")}`);
+}
