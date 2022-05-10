@@ -16,6 +16,7 @@ const StyledButton = styled.button<ButtonProps>`
   margin: 8px;
   padding: 16px;
   font-size: 1.1em;
+  white-space: nowrap;
 
   height: 2.75em;
 

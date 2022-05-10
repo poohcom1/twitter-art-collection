@@ -16,10 +16,17 @@ const displayState = {
   // Settings
   theme: lightTheme,
   columnCount: DEFAULT_COLUMNS,
+
+  contextMenuVisible: false,
+  contextMenuPosition: {
+    top: 0,
+    left: 0,
+  },
+  contextMenuComponents: <></>,
 };
 
 const displayStore = combine(displayState, (set, get) => ({
-  initSettings: () => {
+  initSettings() {
     let theme = localStorage.getItem(THEME_KEY);
 
     if (!theme) {
@@ -40,7 +47,7 @@ const displayStore = combine(displayState, (set, get) => ({
     });
   },
 
-  setColumnCount: (change: number) => {
+  setColumnCount(change: number) {
     const columnCount = Math.max(
       Math.min(get().columnCount + change, MAX_COLUMNS),
       0
@@ -58,6 +65,21 @@ const displayStore = combine(displayState, (set, get) => ({
     );
 
     set({ theme });
+  },
+
+  /* ------------------------------ Context Menu ------------------------------ */
+  showContextMenu(
+    position: { left: number; top: number },
+    children: JSX.Element
+  ) {
+    set({
+      contextMenuVisible: true,
+      contextMenuPosition: position,
+      contextMenuComponents: children,
+    });
+  },
+  hideContextMenu() {
+    set({ contextMenuVisible: false });
   },
 }));
 

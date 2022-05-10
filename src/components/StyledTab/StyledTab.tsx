@@ -8,6 +8,7 @@ import styled from "styled-components";
 interface TabProps extends HTMLAttributes<HTMLButtonElement> {
   active?: boolean;
   color?: string;
+  borderColor?: string;
   textColor?: string;
 }
 
@@ -23,12 +24,14 @@ const StyledTab = styled.button<TabProps>`
 
   color: ${(props) => props.textColor ?? props.theme.color.onSecondary};
   background-color: ${(props) => props.color ?? props.theme.color.secondary};
-  border-color: ${(props) => props.color ?? props.theme.color.onSecondary};
+  border-color: ${(props) =>
+    props.borderColor ?? props.theme.color.onSecondary};
 
   font: 1.1em;
   font-weight: 700;
   border-width: 2px;
   border-style: solid;
+  white-space: nowrap;
 
   &:hover {
     opacity: 70%;

@@ -1,4 +1,3 @@
-import { useSession } from "next-auth/react";
 import React, {
   RefObject,
   HTMLAttributes,
@@ -7,11 +6,13 @@ import React, {
   useMemo,
   useRef,
 } from "react";
+import { useSession } from "next-auth/react";
+import { BiTrashAlt as CloseCircle } from "react-icons/bi";
 import {
-  AiOutlinePlusCircle as PlusCircle,
-  AiOutlineCloseCircle as CloseCircle,
-} from "react-icons/ai";
-import { MdOutlineImageSearch as MenuIcon } from "react-icons/md";
+  MdBookmarkAdd as AddIcon,
+  MdBookmarkRemove as RemoveIcon,
+  MdOutlineImageSearch as MenuIcon,
+} from "react-icons/md";
 import {
   GoTriangleLeft as Left,
   GoTriangleRight as Right,
@@ -26,7 +27,7 @@ import AddTag from "../AddTag/AddTag";
 import { BLACKLIST_TAG } from "types/constants";
 import { ImageList, isTagList } from "src/stores/ImageList";
 
-const BUTTON_SIZE = 35;
+const BUTTON_SIZE = 25;
 
 type TabContainerProps = HTMLAttributes<HTMLDivElement> & {
   overflowing?: boolean;
@@ -56,7 +57,7 @@ const TabContainer = styled.div<TabContainerProps & { overflow?: boolean }>`
  * Tab with lower border radius removed
  */
 const Tab = styled(StyledTab)`
-  padding: 5px 10px;
+  padding: 4px 8px;
   margin: 0 5px;
   margin-top: 2px;
 
@@ -324,7 +325,7 @@ const TweetTags = withTheme(function TweetTags(props: {
               tabIndex={-1}
               onClick={() => undefined}
             >
-              <PlusCircle size={BUTTON_SIZE} />
+              <AddIcon size={BUTTON_SIZE} />
             </Tab>
           }
           closeOnDocumentClick
@@ -389,11 +390,11 @@ const TweetTags = withTheme(function TweetTags(props: {
         <Tab
           className="tweetComp__tagEdit tweetComp__removeImage"
           color={props.theme.color.danger}
-          title={"Remove image from tag"}
+          title={`Remove image from ${selectedTags[0]}`}
           onClick={onDeleteTag}
           tabIndex={-1}
         >
-          <CloseCircle size={BUTTON_SIZE} />
+          <RemoveIcon size={BUTTON_SIZE} />
         </Tab>
       )}
       {/* Included tags section */}

@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import styled, { withTheme } from "styled-components";
+import styled, { DefaultTheme, withTheme } from "styled-components";
 import {
   ConfirmationDialogue,
   ExpandingInput,
@@ -13,12 +13,15 @@ import {
   StyledModel as StyledModal,
   StyledPopup,
   StyledTab,
+  ContextMenuItem,
+  ContextMenuIcon,
 } from "src/components";
 import { FiFilter as FilterIcon } from "react-icons/fi";
 import {
   AiOutlineCloseCircle as CloseCircle,
   AiOutlineClose as Cross,
 } from "react-icons/ai";
+import { BiTrashAlt as Trash } from "react-icons/bi";
 import {
   RiArrowLeftSLine as Left,
   RiArrowRightSLine as Right,
@@ -30,10 +33,8 @@ import {
   useStore,
 } from "src/stores/rootStore";
 import { useAddTag } from "src/hooks/useAddTag";
-import { isTagList } from "src/stores/ImageList";
-import { mapValues } from "src/util/objectUtil";
-import { BLACKLIST_TAG } from "types/constants";
 import { useOverflowDetector } from "src/hooks/useOverflowDetector";
+import useContextMenu from "src/hooks/useContextMenus";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
@@ -208,7 +209,7 @@ function BasicFilter() {
 /**
  * Create new tag component
  */
-const NewTag = withTheme(function NewTag(props) {
+const AddTag = withTheme(function AddTag(props) {
   const setSelectedList = useStore((state) => state.setSelectedList);
 
   const addTagRef = useRef<HTMLInputElement>(null);
@@ -232,6 +233,7 @@ const NewTag = withTheme(function NewTag(props) {
     <Tag
       tabIndex={-1}
       color={props.theme.color.primary}
+      borderColor="transparent"
       textColor={props.theme.color.onPrimary}
       onClick={onClick}
     >
@@ -255,17 +257,42 @@ const NewTag = withTheme(function NewTag(props) {
   );
 });
 
+const DeleteTag = withTheme(function DeleteTag(props: {
+  tag: TagSchema;
+  onClose: () => void;
+  theme: DefaultTheme;
+}) {
+  const selectedLists = useStore((state) => state.selectedLists);
+  const removeTag = useStore((state) => state.removeTag);
+  const setSelectedList = useStore((state) => state.setSelectedList);
+
+  return (
+    <ConfirmationDialogue
+      title={`Deleting "${props.tag.name}"`}
+      text="Are you sure you want to delete this tag?"
+      acceptText="Delete"
+      cancelText="Cancel"
+      acceptColor={props.theme.color.danger}
+      closeCallback={props.onClose}
+      onAccept={() => {
+        removeTag(props.tag);
+        if (selectedLists.includes(props.tag.name)) {
+          setSelectedList([LIKED_TWEET_LIST]);
+        }
+
+        // toggleEditMode();
+        props.onClose();
+      }}
+    />
+  );
+});
+
 const SCROLL_AMOUNT = 500;
 
 const TagsSection = withTheme(function TagsSection(props) {
   const editMode = useStore((state) => state.editMode);
 
-  const tagList = useStore((state) =>
-    mapValues(state.imageLists)
-      .filter(isTagList)
-      .map((l) => l.tag)
-      .filter((t) => t.name !== BLACKLIST_TAG)
-  );
+  const tagList = useStore((state) => state.getTagList());
 
   const selectedLists = useStore((state) => state.selectedLists);
   const setSelectedList = useStore(
@@ -285,8 +312,6 @@ const TagsSection = withTheme(function TagsSection(props) {
         }
       }
   );
-
-  const removeTag = useStore((state) => state.removeTag);
 
   const [tagsContainerRef, overflow] = useOverflowDetector();
 
@@ -344,6 +369,27 @@ const TagsSection = withTheme(function TagsSection(props) {
     }
   }, [selectedLists, tagsContainerRef]);
 
+  const [showContextMenu, hideContextMenu] = useContextMenu(
+    (tag: TagSchema) => (
+      <>
+        <StyledModal
+          modal
+          onClose={hideContextMenu}
+          trigger={
+            <ContextMenuItem>
+              <ContextMenuIcon>
+                <Trash />
+              </ContextMenuIcon>
+              Delete
+            </ContextMenuItem>
+          }
+        >
+          {(close) => <DeleteTag tag={tag} onClose={close} />}
+        </StyledModal>
+      </>
+    )
+  );
+
   return (
     <>
       <div
@@ -363,7 +409,7 @@ const TagsSection = withTheme(function TagsSection(props) {
           ref={tagsContainerRef}
           onScroll={(e) => updateScrollMarkers(e.target as HTMLElement)}
         >
-          {tagList.reverse().map((tag, i) =>
+          {tagList.map((tag, i) =>
             // Normal mode
             editMode === "add" ? (
               <Tag
@@ -373,8 +419,9 @@ const TagsSection = withTheme(function TagsSection(props) {
                 key={i}
                 onClick={setSelectedList(tag.name)}
                 active={selectedLists.includes(tag.name)}
+                onContextMenu={showContextMenu(tag)}
               >
-                {tag.name} - {tag.images.length}
+                {tag.name}
               </Tag>
             ) : (
               // Delete mode
@@ -388,33 +435,14 @@ const TagsSection = withTheme(function TagsSection(props) {
                   >
                     {tag.name}
                     <CloseCircle
-                      size={25}
+                      size={20}
                       style={{ marginLeft: "8px", marginRight: "-3px" }}
                     />
                   </Tag>
                 }
                 modal
               >
-                {/* Delete toggle */}
-                {(close: () => void) => (
-                  <ConfirmationDialogue
-                    title={`Deleting "${tag.name}"`}
-                    text="Are you sure you want to delete this tag?"
-                    acceptText="Delete"
-                    cancelText="Cancel"
-                    acceptColor={props.theme.color.danger}
-                    closeCallback={close}
-                    onAccept={() => {
-                      removeTag(tag);
-                      if (selectedLists.includes(tag.name)) {
-                        setSelectedList(LIKED_TWEET_LIST);
-                      }
-
-                      // toggleEditMode();
-                      close();
-                    }}
-                  />
-                )}
+                {(close) => <DeleteTag tag={tag} onClose={close} />}
               </StyledModal>
             )
           )}
@@ -439,7 +467,7 @@ const TagsSection = withTheme(function TagsSection(props) {
         >
           {(close) =>
             tagList.length > 0 ? (
-              tagList.reverse().map((tag) => (
+              tagList.map((tag) => (
                 <PopupItem
                   key={tag.name}
                   onClick={(e) => {
@@ -484,7 +512,7 @@ export default withTheme(function TagsPanel(_props) {
 
       <BasicFilter />
       <VerticalBar />
-      <NewTag />
+      <AddTag />
       <TagsSection />
     </>
   );

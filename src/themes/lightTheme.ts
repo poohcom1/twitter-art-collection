@@ -10,6 +10,7 @@ export const lightTheme: DefaultTheme = {
 
     background: "#f3eef8",
     surface: "#ffffff",
+    surfaceBorder: "#ffffff",
 
     // Text
     onPrimary: "white",

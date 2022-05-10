@@ -11,6 +11,7 @@ declare module "styled-components" {
 
       background: string;
       surface: string;
+      surfaceBorder: string;
 
       shadow: string;
 

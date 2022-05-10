@@ -10,6 +10,7 @@ export const darkTheme: DefaultTheme = {
 
     background: "rgb(5, 5, 5)",
     surface: "rgb(20, 20, 20)",
+    surfaceBorder: "rgb(50, 50, 50)",
 
     // Text
     onPrimary: "white",

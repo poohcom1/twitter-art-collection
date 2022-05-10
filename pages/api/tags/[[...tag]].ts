@@ -96,7 +96,7 @@ async function deleteTag(req: NextApiRequest, res: NextApiResponse) {
 
     res.status(200).send("Ok");
   } catch (e) {
-    console.error("[PUT tag] " + e);
+    console.error("[DELETE tag] " + e);
     res.status(500).send("Error: " + e);
   }
 }

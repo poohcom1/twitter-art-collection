@@ -1,4 +1,3 @@
-
 const COLORS: Record<string, string> = {
   aliceblue: "#f0f8ff",
   antiquewhite: "#faebd7",
@@ -148,15 +147,21 @@ const COLOR_STRING_OP =
   /\([\d+\.?\d*]*,[ ]*[\d+\.?\d*]*,[ ]*[\d+\.?\d*]*,[ ]*[\d+\.?\d*]*\)/;
 const COLOR_STRING_OP_REP = /[\d+\.?\d*]*\)/;
 
+/**
+ *
+ * @param color color;
+ * @param opacity value between 0.0 and 1.0
+ * @returns
+ */
 export function applyOpacity(color: string, opacity: number): string {
   if (opacity > 1) {
-    console.trace("[Warning] Opacity should be between 0 and");
+    console.trace("[Warning] Opacity should be between 0 and 1");
 
     opacity /= 255;
   }
 
   if (color in COLORS) {
-    color = COLORS[color]
+    color = COLORS[color];
   }
 
   // Format #ffffffff

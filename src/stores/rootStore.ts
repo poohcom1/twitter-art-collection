@@ -139,7 +139,6 @@ const store = combine(dataStore, (set, get) => ({
     }),
   removeTag: (tag: TagSchema): void =>
     set((state) => {
-      // TODO Switch to "all" if current tag is deleted
       deleteTag(tag).then().catch(alert);
 
       const imageLists = state.imageLists;

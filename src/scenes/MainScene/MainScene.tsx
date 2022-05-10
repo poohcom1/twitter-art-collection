@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Header from "./Header/Header";
 import { LoadingScene } from "..";
+import Overlay from "./Overlay";
+import { ContextMenu } from "../../components";
 import TweetsGallery from "./TweetsGallery/TweetsGallery";
 import { useSession } from "next-auth/react";
 import { useStore } from "src/stores/rootStore";
 import styled, { createGlobalStyle } from "styled-components";
-import Overlay from "./Overlay";
 import { FetchState } from "src/stores/ImageList";
 
 // Styles
@@ -129,6 +130,7 @@ export default function MainScene() {
     <>
       <GlobalStyle />
       <Overlay />
+      <ContextMenu />
       <LoadingScene
         display={!tweetsLoaded || newUser}
         text={newUser ? "Creating new user..." : ""}
