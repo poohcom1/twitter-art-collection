@@ -10,7 +10,8 @@ const THEME_KEY__LIGHT = "light";
 const COLUMNS_KEY = "zoom";
 
 const DEFAULT_COLUMNS = 4;
-const MAX_COLUMNS = 8;
+export const MIN_COLUMNS = 1;
+export const MAX_COLUMNS = 8;
 
 const displayState = {
   // Settings
@@ -50,7 +51,7 @@ const displayStore = combine(displayState, (set, get) => ({
   setColumnCount(change: number) {
     const columnCount = Math.max(
       Math.min(get().columnCount + change, MAX_COLUMNS),
-      0
+      MIN_COLUMNS
     );
 
     localStorage.setItem(COLUMNS_KEY, columnCount + "");

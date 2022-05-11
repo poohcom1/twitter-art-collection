@@ -281,7 +281,7 @@ function NewTag(props: { image: TweetSchema; theme: DefaultTheme }) {
               <PopupItem tabIndex={-1}>
                 <AddTag
                   ref={ref}
-                  placeholder="Enter a tag name..."
+                  placeholder="Search or add a tag..."
                   onFinish={(error, text) => {
                     switch (error) {
                       case "EXISTING_TAG":

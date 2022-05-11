@@ -10,8 +10,14 @@ import { BiTrash as TrashIcon } from "react-icons/bi";
 import {
   MdLightMode as LightMode,
   MdDarkMode as DarkMode,
+  MdOutlineLiveHelp as HelpIcon,
 } from "react-icons/md";
-import { useDisplayStore } from "src/stores/displayStore";
+import {
+  MAX_COLUMNS,
+  MIN_COLUMNS,
+  useDisplayStore,
+} from "src/stores/displayStore";
+import { applyOpacity } from "src/util/themeUtil";
 
 const OverlayContainer = styled.div`
   position: fixed;
@@ -45,6 +51,10 @@ function ThemeSwitchItem() {
   const editMode = useStore((state) => state.editMode);
   const toggleEditMode = useStore((state) => state.toggleEditMode);
 
+  const [zoomInMax, zoomOutMax] = useDisplayStore((state) => [
+    state.columnCount <= MIN_COLUMNS,
+    state.columnCount >= MAX_COLUMNS,
+  ]);
   const setColumnCount = useDisplayStore((state) => state.setColumnCount);
 
   const theme = useDisplayStore((state) => state.theme);
@@ -63,7 +73,7 @@ function ThemeSwitchItem() {
       <OverlayItem
         id="headerDeleteMode"
         className="center overlay__deleteMode"
-        title="Delete tags"
+        title="Enter delete mode"
         onClick={toggleEditMode}
       >
         <TrashIcon
@@ -73,21 +83,39 @@ function ThemeSwitchItem() {
           }
         />
       </OverlayItem>
-      <OverlayItem onClick={() => setColumnCount(-1)}>
-        <ZoomIn size="24px" color={theme.color.onSurface} />
+      <OverlayItem onClick={() => setColumnCount(-1)} title="Zoom in">
+        <ZoomIn
+          size="24px"
+          color={
+            !zoomInMax
+              ? theme.color.onSurface
+              : applyOpacity(theme.color.onSurface, 0.5)
+          }
+        />
       </OverlayItem>
-      <OverlayItem onClick={() => setColumnCount(1)}>
-        <ZoomOut size="24px" color={theme.color.onSurface} />
+      <OverlayItem onClick={() => setColumnCount(1)} title="Zoom out">
+        <ZoomOut
+          size="24px"
+          color={
+            !zoomOutMax
+              ? theme.color.onSurface
+              : applyOpacity(theme.color.onSurface, 0.5)
+          }
+        />
       </OverlayItem>
       <OverlayItem
         onClick={toggleTheme}
         style={{ backgroundColor: theme.color.surface }}
+        title="Toggle theme"
       >
         {theme === lightTheme ? (
           <LightMode size="24px" color={theme.color.onSurface} />
         ) : (
           <DarkMode size="24px" color={theme.color.onSurface} />
         )}
+      </OverlayItem>
+      <OverlayItem id="open-gitter-button" title="Ask a question">
+        <HelpIcon size="24px" color={theme.color.onSurface} />
       </OverlayItem>
     </>
   );
