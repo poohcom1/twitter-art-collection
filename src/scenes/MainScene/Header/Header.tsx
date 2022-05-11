@@ -1,7 +1,8 @@
 import styled from "styled-components";
+import { AiFillCloseCircle as CloseCircle } from "react-icons/ai";
 import TagsPanel from "./HeaderTagsPanel";
 import UserSection from "./HeaderUserPanel";
-import { useStore } from "src/stores/rootStore";
+import { LIKED_TWEET_LIST, useStore } from "src/stores/rootStore";
 import { BLACKLIST_TAG } from "types/constants";
 import { applyOpacity } from "src/util/themeUtil";
 
@@ -32,6 +33,10 @@ const HeaderFlex = styled.div`
 `;
 
 const BlacklistHeader = styled.div`
+  display: flex;
+
+  text-align: center;
+
   background-color: ${(props) => props.theme.color.secondary};
   color: ${(props) => props.theme.color.onSecondary};
   margin: 0;
@@ -42,11 +47,24 @@ const BlacklistHeader = styled.div`
   }
 `;
 
+const CloseButton = styled.button`
+  display: flex;
+  align-items: center;
+  margin: 4px;
+  color: ${(props) => props.theme.color.onSecondary};
+
+  cursor: pointer;
+`;
+
 export default function Header() {
   const blacklist = useStore(
     (state) =>
       state.selectedLists.length === 1 &&
       state.selectedLists[0] === BLACKLIST_TAG
+  );
+
+  const closeBlacklist = useStore(
+    (state) => () => state.setSelectedList([LIKED_TWEET_LIST])
   );
 
   return (
@@ -58,6 +76,10 @@ export default function Header() {
 
       {blacklist && (
         <BlacklistHeader>
+          <CloseButton className="blank" onClick={closeBlacklist}>
+            <CloseCircle size="20px" />
+          </CloseButton>
+
           <h3>Blacklist</h3>
         </BlacklistHeader>
       )}

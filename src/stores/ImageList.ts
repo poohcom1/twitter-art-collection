@@ -77,6 +77,12 @@ export class TagList implements ImageList {
   }
 
   get tweets() {
+    for (const tweet of this._tweets) {
+      if (!tweet.data) {
+        tweet.data = this.tweetsMap.get(tweet.id)?.data;
+      }
+    }
+
     return this._tweets.filter((t) => !!t.data);
   }
 
@@ -100,9 +106,7 @@ export class TagList implements ImageList {
     this._tweets = this._tag.images.map((id) => ({
       id,
       platform: "twitter",
-      data:
-        this._tweets.find((t) => t.id === id)?.data ??
-        this.tweetsMap.get(id)?.data,
+      data: this._tweets.find((t) => t.id === id)?.data,
     }));
 
     if (

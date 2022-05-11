@@ -110,6 +110,15 @@ const store = combine(initialState, (set, get) => ({
   setSelectedList: (list: string[]) => {
     set({ selectedLists: list });
   },
+  addToSelectedList: (tag: string) => {
+    if (!get().selectedLists.includes(tag)) {
+      const tagKeys = get().selectedLists.filter(
+        (t) => !SPECIAL_LIST_KEYS.includes(t)
+      );
+
+      set({ selectedLists: [...tagKeys, tag] });
+    }
+  },
   fetchMoreTweets: async () => {
     if (get().selectedLists.length === 1 && get().searchTerm === "") {
       const tweetList = get().imageLists.get(get().selectedLists[0]);

@@ -67,7 +67,19 @@ function UserAvatar(
     >
       {(close: () => void) => (
         <>
-          {showBlacklist ? (
+          <a
+            tabIndex={-1}
+            className="blank"
+            href="https://github.com/poohcom1/twitter-art-collection/issues/new"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <PopupItem>Report issue</PopupItem>
+          </a>
+          <Link href="/privacy" passHref>
+            <PopupItem>Privacy</PopupItem>
+          </Link>
+          {showBlacklist && (
             // FIXME Broswer accessibility outline not showing on open
             <PopupItem
               className="header__blacklist"
@@ -76,23 +88,9 @@ function UserAvatar(
                 onBlacklistClicked();
               }}
             >
-              <div>Blacklist</div>
+              <div>View blacklist</div>
             </PopupItem>
-          ) : (
-            <></>
           )}
-          <a
-            tabIndex={-1}
-            className="blank"
-            href="https://github.com/poohcom1/twitter-art-collection/issues/new"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <PopupItem>Give feedback</PopupItem>
-          </a>
-          <Link href="/privacy" passHref>
-            <PopupItem>Privacy</PopupItem>
-          </Link>
           <PopupItem onClick={onSignoutClicked}>Logout</PopupItem>
         </>
       )}

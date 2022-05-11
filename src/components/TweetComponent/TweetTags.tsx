@@ -364,10 +364,22 @@ const TweetTags = withTheme(function TweetTags(props: {
   const selectedTags = useStore((state) => state.selectedLists);
 
   // Get filter actions
-  const [removeImage, setFilter] = useStore((state) => [
-    state.removeImage,
-    (tag: string) => state.setSelectedList([tag]),
-  ]);
+  const removeImage = useStore((state) => state.removeImage);
+
+  const setFilter = useStore(
+    useCallback(
+      (state) =>
+        (tag: string): React.MouseEventHandler<HTMLButtonElement> =>
+        (e) => {
+          if (e.shiftKey) {
+            state.addToSelectedList(tag);
+          } else {
+            state.setSelectedList([tag]);
+          }
+        },
+      []
+    )
+  );
 
   // Get tags for image
   const includedTags = useStore(
@@ -421,9 +433,9 @@ const TweetTags = withTheme(function TweetTags(props: {
             color={editMode !== "delete" ? undefined : props.theme.color.danger}
             key={tag.name}
             active={selectedTags.includes(tag.name) && editMode !== "delete"} // Active overrides danger color, so don't show it
-            onClick={() => {
+            onClick={(e) => {
               if (editMode !== "delete") {
-                setFilter(tag.name);
+                setFilter(tag.name)(e);
               } else {
                 removeImage(tag, props.image);
               }

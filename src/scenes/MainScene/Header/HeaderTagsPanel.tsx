@@ -420,16 +420,8 @@ const TagButton = forwardRef<HTMLButtonElement, { tag: TagSchema } & WithTheme>(
         (tag: string) =>
         (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
           if (e.shiftKey) {
-            // On shift click: Add to selected lists
-            if (!state.selectedLists.includes(tag)) {
-              const tagKeys = state.selectedLists.filter(
-                (t) => !SPECIAL_LIST_KEYS.includes(t)
-              );
-
-              state.setSelectedList([...tagKeys, tag]);
-            }
+            state.addToSelectedList(tag);
           } else {
-            // On regular click, replace selected lists
             state.setSelectedList([tag]);
           }
         }
@@ -532,7 +524,7 @@ const TagButton = forwardRef<HTMLButtonElement, { tag: TagSchema } & WithTheme>(
               autoSelect
               style={{
                 color: props.theme.color.onAccent,
-                textDecoration: "underline",
+                outline: "1px dotted grey",
               }}
               className="blank header__context-rename"
               value={name}
