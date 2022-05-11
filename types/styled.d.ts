@@ -15,6 +15,9 @@ declare module "styled-components" {
 
       shadow: string;
 
+      popup: string;
+      onPopup: string;
+
       // Text
       onPrimary: string;
       onSecondary: string;

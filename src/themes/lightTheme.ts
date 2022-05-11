@@ -12,6 +12,9 @@ export const lightTheme: DefaultTheme = {
     surface: "#ffffff",
     surfaceBorder: "#aaaaaa",
 
+    popup: "white",
+    onPopup: "rgb(40, 40, 40)",
+
     // Text
     onPrimary: "white",
     onSecondary: "white",

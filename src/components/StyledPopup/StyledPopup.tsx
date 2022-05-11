@@ -19,8 +19,8 @@ const StyledPopup = styled(Popup)`
 
   &-content {
     padding: 10px;
-    background: white;
-    color: black;
+    background: ${(props) => props.theme.color.popup};
+    color: ${(props) => props.theme.color.onPopup};
     border-radius: 5px;
     box-shadow: 0 0 5px ${(props) => props.theme.color.shadow};
     animation: anvil 0.15s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards;
@@ -28,12 +28,12 @@ const StyledPopup = styled(Popup)`
 
   &-arrow {
     z-index: 10;
-    color: white;
+    color: ${(props) => props.theme.color.popup};
   }
 `;
 
 export const PopupItem = styled.button`
-  color: black;
+  color: ${(props) => props.theme.color.onPopup};
 
   display: block;
   background-color: transparent;
