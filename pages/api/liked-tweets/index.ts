@@ -19,21 +19,26 @@ export default async function handler(
 
   const pagination_token = (req.query.token as string) ?? undefined;
 
-  const payload = await twitterApi.v2.userLikedTweets(session.user.id, {
-    ...TWEET_OPTIONS,
-    pagination_token,
-  });
+  try {
+    const payload = await twitterApi.v2.userLikedTweets(session.user.id, {
+      ...TWEET_OPTIONS,
+      pagination_token,
+    });
 
-  const token = payload.data.meta.next_token;
+    const token = payload.data.meta.next_token;
 
-  const tweets = createTweetObjects(payload.data);
+    const tweets = createTweetObjects(payload.data);
 
-  await useRedis(storeTweetCache(tweets));
+    await useRedis(storeTweetCache(tweets));
 
-  const response: TweetsResponse = {
-    nextToken: token,
-    tweets,
-  };
+    const response: TweetsResponse = {
+      nextToken: token,
+      tweets,
+    };
 
-  res.send(response);
+    res.send(response);
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("Server error! Failed to fetch liked tweets!");
+  }
 }
