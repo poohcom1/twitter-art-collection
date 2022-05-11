@@ -27,7 +27,7 @@ export default async function handler(
   const newName = req.query.newName as string;
 
   if (!oldName || !newName) {
-    console.error("[rename-tag] 'Tag' or 'Rename' undefined");
+    console.error("[rename-tag] 'oldName' or 'newName' undefined");
     return res.status(400).end();
   }
 
@@ -37,12 +37,16 @@ export default async function handler(
   }
 
   try {
-    await UserModel.updateOne(
-      { uid: session.user.id },
-      {
-        $rename: { [`tags.${oldName}`]: `tags.${newName}` },
-      }
-    );
+    if (oldName !== newName) {
+      await UserModel.updateOne(
+        { uid: session.user.id },
+        {
+          $rename: { [`tags.${oldName}`]: `tags.${newName}` },
+        }
+      );
+    } else {
+      console.warn("[rename-tag] oldName and newName are identical");
+    }
 
     res.status(200).end();
   } catch (e) {

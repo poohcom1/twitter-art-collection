@@ -5,6 +5,7 @@ import {
   HTMLProps,
   useCallback,
   useEffect,
+  useImperativeHandle,
 } from "react";
 import styled from "styled-components";
 
@@ -43,34 +44,47 @@ export default forwardRef<
 >(function ExpandingInput(props, ref) {
   const parentRef = useRef<HTMLDivElement>(null);
 
+  const internalRef = useRef<HTMLInputElement>(null);
+  useImperativeHandle<
+    HTMLInputElement | null,
+    HTMLInputElement | null
+  >(ref, () => internalRef.current);
+
   const [text, setText] = useState("");
 
-  const onChange = useCallback((text: string) => {
+  const onInput = useCallback((text: string) => {
     setText(text);
   }, []);
 
   useEffect(() => {
-    onChange(props.value as string);
-  }, [onChange, props.value]);
+    onInput(props.value as string);
+  }, [onInput, props.value]);
 
   const { containerStyle, ...passProps } = props;
+
+  useEffect(() => {
+    if (props.autoSelect) {
+      if (internalRef && internalRef.current) {
+        internalRef.current.select();
+      }
+    }
+  }, [props.autoSelect]);
 
   return (
     <Container ref={parentRef} style={containerStyle}>
       <input
-        ref={ref}
+        ref={internalRef}
         type="text"
         {...passProps}
-        onChange={(e) => {
-          if (props.onChange) props.onChange(e);
-          onChange(e.target.value);
+        onInput={(e) => {
+          if (props.onInput) props.onInput(e);
+          onInput((e.target as HTMLInputElement).value);
         }}
         onBlur={(e) => {
           if (props.onBlur) {
             props.onBlur(e);
           }
         }}
-        onFocus={(e) => e.target.select()}
       />
       <div
         style={{

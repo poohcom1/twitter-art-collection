@@ -25,9 +25,11 @@
     "models",
     "index.d.ts",
     "types",
-    "playwright.config.ts",
     "test",
-    "test-e2e"
+    "test-e2e",
+    "playwright.config.ts",
+    "next.config.js",
+    "next-env.d.ts"
   ],
   "exclude": ["node_modules"]
 }

@@ -398,17 +398,19 @@ const TagButton = forwardRef<HTMLButtonElement, { tag: TagSchema } & WithTheme>(
       setName(tag.name);
     }, [setName, setRenaming, tag.name]);
 
+    const tagList = useStore((state) => state.getTagList().map((t) => t.name));
+
     const onRename = useStore(
       useCallback(
         (state) => () => {
-          if (validateTagName(name) === "") {
+          if (tag.name !== name && validateTagName(name, tagList) === "") {
             setRenaming(false);
             state.renameTag(tag.name, name);
           } else {
             onRenameCancel();
           }
         },
-        [name, onRenameCancel, setRenaming, tag.name]
+        [name, onRenameCancel, setRenaming, tag.name, tagList]
       )
     );
 
@@ -534,8 +536,11 @@ const TagButton = forwardRef<HTMLButtonElement, { tag: TagSchema } & WithTheme>(
               }}
               className="blank header__context-rename"
               value={name}
-              onChange={(e) => setName((e.target as HTMLInputElement).value)}
-              onKeyUp={(e) => e.key === "Enter" && onRename()}
+              onInput={(e) => setName((e.target as HTMLInputElement).value)}
+              onKeyUp={(e) => {
+                if (e.key === "Enter") onRename();
+                else if (e.key === "Escape") onRenameCancel();
+              }}
               onBlur={onRenameCancel}
             />
           </Tag>

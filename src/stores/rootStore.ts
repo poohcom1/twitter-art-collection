@@ -165,6 +165,12 @@ const store = combine(initialState, (set, get) => ({
     const imageLists = get().imageLists;
 
     const oldList = imageLists.get(oldName);
+
+    if (imageLists.has(newName)) {
+      console.warn("Attempted to rename to existing tag");
+      return;
+    }
+
     if (oldList && isTagList(oldList)) {
       oldList.tag.name = newName;
 
