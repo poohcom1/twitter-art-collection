@@ -25,12 +25,14 @@ export default function Index() {
       <Head>
         <title>Twitter Art Collection</title>
         <link rel="canonical" href={`${CANONICAL_URL}/collection`} />
-        <script>
-          {`;((window.gitter = {}).chat = {}).options = {
-            room: "twitter-art-collection/community",
-            activationElement: "#open-gitter-button",
-          }`}
-        </script>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `;((window.gitter = {}).chat = {}).options = {
+            room: 'twitter-art-collection/community',
+            activationElement: '#open-gitter-button',
+          }`,
+          }}
+        />
         <script
           src="https://sidecar.gitter.im/dist/sidecar.v1.js"
           async

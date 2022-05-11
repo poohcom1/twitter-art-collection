@@ -10,6 +10,7 @@ interface TabProps extends HTMLAttributes<HTMLButtonElement> {
   color?: string;
   borderColor?: string;
   textColor?: string;
+  hoverOpacity?: number;
 }
 
 const StyledTab = styled.button<TabProps>`
@@ -34,7 +35,8 @@ const StyledTab = styled.button<TabProps>`
   white-space: nowrap;
 
   &:hover {
-    opacity: 70%;
+    opacity: ${(props) =>
+      props.hoverOpacity ? props.hoverOpacity + "%" : "70%"};
   }
 
   ${(props) =>

@@ -202,6 +202,7 @@ function BasicFilter() {
       }}
       tabIndex={active ? -1 : 0}
       active={active}
+      hoverOpacity={active ? 100 : undefined}
     >
       <FilterIcon tabIndex={-1} size={"20px"} style={{ flexShrink: 0 }} />
       <input
