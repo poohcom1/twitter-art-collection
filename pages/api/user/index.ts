@@ -92,7 +92,9 @@ async function getUser(req: NextApiRequest, res: NextApiResponse) {
     if (e instanceof ApiResponseError) {
       if (e.code === 429) {
         console.error("[GET USER] API Limit Reached");
-        return res.status(429).send("Too many tweets");
+        return res
+          .status(429)
+          .send("Twitter isn't responding right now, please try again later!");
       }
     }
 

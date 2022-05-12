@@ -691,7 +691,7 @@ function TagsSection(props: WithTheme) {
           }
           closeOnDocumentClick
         >
-          {(close) =>
+          {(close: () => void) =>
             tagList.length > 0 ? (
               tagList.map((tag) => (
                 <PopupItem
