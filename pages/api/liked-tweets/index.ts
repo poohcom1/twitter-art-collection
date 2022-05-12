@@ -25,7 +25,7 @@ export default async function handler(
       pagination_token,
     });
 
-    const token = payload.data.meta.next_token;
+    const token = payload.data.meta?.next_token || undefined;
 
     const tweets = createTweetObjects(payload.data);
 

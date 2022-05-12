@@ -7,6 +7,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { CANONICAL_URL } from "types/constants";
 import { useDisplayStore } from "src/stores/displayStore";
+import Script from "next/script";
 
 export default function Index() {
   const session = useSession();
@@ -25,20 +26,22 @@ export default function Index() {
       <Head>
         <title>Twitter Art Collection</title>
         <link rel="canonical" href={`${CANONICAL_URL}/collection`} />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `;((window.gitter = {}).chat = {}).options = {
-            room: 'twitter-art-collection/community',
-            activationElement: '#open-gitter-button',
-          }`,
-          }}
-        />
-        <script
-          src="https://sidecar.gitter.im/dist/sidecar.v1.js"
-          async
-          defer
-        />
       </Head>
+      <Script
+        id="gitter"
+        dangerouslySetInnerHTML={{
+          __html: `;((window.gitter = {}).chat = {}).options = {
+            room: "twitter-art-collection/community",
+            activationElement: "#open-gitter-button",
+          }`,
+        }}
+      />
+      <Script
+        id="gitter-resource"
+        src="https://sidecar.gitter.im/dist/sidecar.v1.js"
+        async
+        defer
+      />
       <ThemeProvider theme={theme}>
         {session.status === "authenticated" ? <MainScene /> : <LoadingScene />}
       </ThemeProvider>
