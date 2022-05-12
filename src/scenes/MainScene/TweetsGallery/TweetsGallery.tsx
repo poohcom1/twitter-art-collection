@@ -13,6 +13,7 @@ import { TweetComponent } from "../../../components";
 import useShrinkingPositioner from "./useShrinkingPositioner";
 import { useSize, useScroller } from "./miniVirtualList";
 import { useDisplayStore } from "src/stores/displayStore";
+import { useStore } from "src/stores/rootStore";
 
 const MainDiv = styled.div`
   padding: 20px;
@@ -43,11 +44,13 @@ export default function TweetsGallery({
     state.getColumnGutter(),
   ]);
 
+  const setError = useStore((state) => state.setError);
+
   useEffect(() => {
     if (images.length === 0 && maxItems !== 0) {
-      fetchItems().then().catch(alert);
+      fetchItems().then().catch(setError);
     }
-  }, [fetchItems, images.length, maxItems]);
+  }, [fetchItems, images.length, maxItems, setError]);
 
   const fetchMoreItems = async (
     _startIndex: number,

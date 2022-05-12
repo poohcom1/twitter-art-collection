@@ -136,7 +136,7 @@ export default function Index() {
 
   useEffect(() => {
     if (session.status === "authenticated") {
-      router.push("/collection");
+      router.push("/collection").then().catch(alert);
     }
   });
 

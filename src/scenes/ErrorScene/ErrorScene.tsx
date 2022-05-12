@@ -24,13 +24,20 @@ const MainDiv = styled.div`
   pointer-events: none;
 `;
 
-const Text = styled.h1`
+const HText = styled.h1`
   margin-bottom: 5px;
   z-index: 10;
   color: ${(props) => props.theme.color.onBackground};
 `;
 
-export default function ErrorScene() {
+const Text = styled.p`
+  margin-bottom: 5px;
+  z-index: 10;
+  color: ${(props) => props.theme.color.onBackground};
+  font-weight: 600;
+`;
+
+export default function ErrorScene({ errorText = "" }) {
   const theme = useDisplayStore((state) => state.theme);
 
   return (
@@ -38,8 +45,8 @@ export default function ErrorScene() {
       <BodyDiv>
         <Banner hideGithubLogo />
         <MainDiv>
-          <Text>Oh noes... something went wrong</Text>
-          <Text>:(</Text>
+          <HText>Oh noes... something went wrong</HText>
+          <Text>{errorText}</Text>
           {/* <div className="center" style={{ width: "100vw", marginTop: "-15px" }}>
           <Image
             src="/assets/pulse-loading.svg"

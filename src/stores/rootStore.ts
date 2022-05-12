@@ -33,6 +33,7 @@ const initialState = {
   searchTerm: "",
 
   editMode: <"add" | "delete">"add",
+  errorMessage: "",
 
   // Tags
   pinnedTags: <string[]>[],
@@ -125,11 +126,15 @@ const store = combine(initialState, (set, get) => ({
 
       if (tweetList) {
         if (tweetList.fetchState === "fetched") {
-          const newTweets = await tweetList._fetchMoreTweets();
+          const res = await tweetList._fetchMoreTweets();
 
-          cacheTweets(get().tweetMap, newTweets);
+          if (res.error === null) {
+            cacheTweets(get().tweetMap, res.data);
 
-          set({ imageLists: new Map(get().imageLists) });
+            set({ imageLists: new Map(get().imageLists) });
+          } else {
+            set({ errorMessage: res.error });
+          }
         }
       } else {
         console.warn("[fetchMoreTweets] Unknown tweet list fetch attempt");
@@ -337,6 +342,11 @@ const store = combine(initialState, (set, get) => ({
   /* -------------------------------- EditMode -------------------------------- */
   toggleEditMode: () =>
     set((state) => ({ editMode: state.editMode === "add" ? "delete" : "add" })),
+
+  /* ---------------------------------- Error --------------------------------- */
+  setError(message: string) {
+    set({ errorMessage: message });
+  },
 }));
 
 export const useStore = create(store);

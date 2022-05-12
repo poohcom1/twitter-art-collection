@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react";
 import { useStore } from "src/stores/rootStore";
 import styled, { createGlobalStyle } from "styled-components";
 import { FetchState } from "src/stores/ImageList";
+import { useRouter } from "next/router";
 
 // Styles
 const GlobalStyle = createGlobalStyle`
@@ -34,6 +35,7 @@ const AppDiv = styled.div`
 
 export default function MainScene() {
   const session = useSession();
+  const router = useRouter();
 
   // Data
   const tweets = useStore((state) =>
@@ -52,39 +54,42 @@ export default function MainScene() {
 
   // Loading
   const [tweetsLoaded, setTweetsLoaded] = useState(false);
-  const [tweetsError, setTweetsError] = useState("");
 
   const initTweetsAndTags = useStore((state) => state.initTweetsAndTags);
+
+  const errorMessage = useStore((state) => state.errorMessage);
+  const setError = useStore((state) => state.setError);
 
   useEffect(() => {
     if (
       session.status === "authenticated" &&
       !tweetsLoaded &&
-      tweetsError === ""
+      errorMessage === ""
     ) {
       initTweetsAndTags()
         .then((res) => {
           if (res.error) {
-            setTweetsError(res.error);
+            setError(res.error);
           } else {
             fetchTweets()
               .then(() => {
                 setTweetsLoaded(true);
               })
               .catch((e) => {
-                setTweetsError(e.toString());
+                setError(e.toString());
               });
           }
         })
         .catch((e) => {
-          setTweetsError(e.toString());
+          setError(e.toString());
         });
     }
   }, [
+    errorMessage,
     fetchTweets,
     initTweetsAndTags,
     session.status,
-    tweetsError,
+    setError,
     tweetsLoaded,
   ]);
 
@@ -118,14 +123,6 @@ export default function MainScene() {
 
   // TODO URL query
 
-  if (tweetsError !== "") {
-    return (
-      <AppDiv className="App">
-        <Header />
-        <div className="main">{tweetsError as string}</div>
-      </AppDiv>
-    );
-  }
   return (
     <>
       <GlobalStyle />

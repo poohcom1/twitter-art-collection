@@ -18,7 +18,7 @@ export interface ImageList {
   /**
    * Should only be used inside rootStore to ensure that changes are propagated
    */
-  _fetchMoreTweets: () => Promise<TweetSchema[]>;
+  _fetchMoreTweets: () => Promise<Result<TweetSchema[]>>;
 
   fetchState: FetchState;
 }
@@ -35,7 +35,7 @@ export class TweetList implements ImageList {
     this.tweets = [];
   }
 
-  _fetchMoreTweets = async () => {
+  _fetchMoreTweets = async (): Promise<Result<TweetSchema[]>> => {
     this.fetchState = "fetching";
     const res = await this.adapter(this.token);
 
@@ -50,13 +50,16 @@ export class TweetList implements ImageList {
         this.fetchState = "all_fetched";
       }
 
-      return res.data.tweets;
+      return {
+        data: res.data.tweets,
+        error: null,
+      };
     } else {
-      alert(res.error);
-      this.fetchState = "error";
+      return {
+        data: null,
+        error: res.error,
+      };
     }
-
-    return [];
   };
 }
 
@@ -144,6 +147,7 @@ export class TagList implements ImageList {
         });
       } else {
         this.fetchState = "error";
+        return { data: null, error: res.error };
       }
     }
 
@@ -152,7 +156,7 @@ export class TagList implements ImageList {
     } else {
       this.fetchState = "fetched";
     }
-    return fetchedTweets;
+    return { data: fetchedTweets, error: null };
   };
 }
 

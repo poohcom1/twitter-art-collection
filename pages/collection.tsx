@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { CANONICAL_URL } from "types/constants";
 import { useDisplayStore } from "src/stores/displayStore";
 import Script from "next/script";
+import { useStore } from "src/stores/rootStore";
 
 export default function Index() {
   const session = useSession();
@@ -20,6 +21,16 @@ export default function Index() {
   });
 
   const theme = useDisplayStore((state) => state.theme);
+  const errorMessage = useStore((state) => state.errorMessage);
+
+  useEffect(() => {
+    if (errorMessage) {
+      router
+        .push("/error?message=" + errorMessage)
+        .then()
+        .catch(console.error);
+    }
+  }, [errorMessage, router]);
 
   return (
     <>
