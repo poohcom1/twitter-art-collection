@@ -7,7 +7,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { LoadingScene } from "src/scenes";
-import { CANONICAL_URL } from "types/constants";
+import { CANONICAL_URL, COLLECTION_URL } from "types/constants";
 import { useDisplayStore } from "src/stores/displayStore";
 
 const GlobalCSS = createGlobalStyle`
@@ -136,7 +136,10 @@ export default function Index() {
 
   useEffect(() => {
     if (session.status === "authenticated") {
-      router.push("/collection").then().catch(alert);
+      router
+        .push("/" + COLLECTION_URL)
+        .then()
+        .catch(alert);
     }
   });
 

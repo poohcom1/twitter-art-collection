@@ -2,8 +2,8 @@ import styled from "styled-components";
 import { AiFillCloseCircle as CloseCircle } from "react-icons/ai";
 import TagsPanel from "./HeaderTagsPanel";
 import UserSection from "./HeaderUserPanel";
-import { LIKED_TWEET_LIST, useStore } from "src/stores/rootStore";
-import { BLACKLIST_TAG } from "types/constants";
+import { useStore } from "src/stores/rootStore";
+import { BLACKLIST_TAG, HOME_LIST } from "types/constants";
 import { applyOpacity } from "src/util/themeUtil";
 
 const HeaderDiv = styled.div`
@@ -64,7 +64,7 @@ export default function Header() {
   );
 
   const closeBlacklist = useStore(
-    (state) => () => state.setSelectedList([LIKED_TWEET_LIST])
+    (state) => () => state.setSelectedList([HOME_LIST])
   );
 
   return (

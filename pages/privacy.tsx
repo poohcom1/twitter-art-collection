@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Banner, StyledButton } from "src/components";
 import { useDisplayStore } from "src/stores/displayStore";
 import { createGlobalStyle, ThemeProvider } from "styled-components";
+import { COLLECTION_URL } from "types/constants";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -62,7 +63,7 @@ export default function Privacy() {
             </a>
           </p>
 
-          <Link href="/collection" passHref>
+          <Link href={"/" + COLLECTION_URL} passHref>
             <StyledButton>Return</StyledButton>
           </Link>
         </div>

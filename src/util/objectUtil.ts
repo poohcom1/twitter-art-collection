@@ -14,10 +14,23 @@ export function arrayEqual<P>(arr1: P[], arr2: P[]): boolean {
   return true;
 }
 
+/**
+ * Creates a copy of an array with the element removed
+ */
 export function remove<P>(arr: P[], item: P) {
   const newArr = [...arr];
   newArr.splice(arr.indexOf(item), 1);
   return newArr;
+}
+
+/**
+ * Removes item from arr in place
+ * @param arr
+ * @param item
+ */
+export function remove_mut<P>(arr: P[], item: P) {
+  arr.splice(arr.indexOf(item), 1);
+  return item;
 }
 
 export const isString = (data: unknown): data is string => {

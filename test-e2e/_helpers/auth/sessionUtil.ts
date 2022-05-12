@@ -4,6 +4,7 @@ import { EncryptJWT } from "jose";
 
 import SESSION from "../data/session.json";
 import TWEETS from "../data/tweets.json";
+import { COLLECTION_URL } from "types/constants";
 
 const BASE_URL = "http://localhost:3000";
 export const SESSION_SECRET = process.env.NEXTAUTH_SECRET;
@@ -95,7 +96,7 @@ export async function mockSession(
     pinRoute,
   ]);
 
-  await page.goto(BASE_URL + "/collection");
+  await page.goto(BASE_URL + "/" + COLLECTION_URL);
 }
 
 export const beforeEachSession =

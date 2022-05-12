@@ -1,5 +1,6 @@
 import { NextAuthOptions } from "next-auth";
 import TwitterProvider from "next-auth/providers/twitter";
+import { COLLECTION_URL } from "types/constants";
 
 const AUTH_VER = process.env.TWITTER_AUTH_VER ?? "1.0";
 
@@ -53,7 +54,7 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     redirect: async ({ baseUrl }) => {
-      return baseUrl + "/collection";
+      return baseUrl + "/" + COLLECTION_URL;
     },
   },
   session: {

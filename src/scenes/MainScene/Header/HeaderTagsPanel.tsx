@@ -33,16 +33,17 @@ import {
   RiArrowRightSLine as Right,
 } from "react-icons/ri";
 import { GiHamburgerMenu as HamburgerMenu } from "react-icons/gi";
-import {
-  LIKED_TWEET_LIST,
-  SPECIAL_LIST_KEYS,
-  useStore,
-} from "src/stores/rootStore";
+import { useStore } from "src/stores/rootStore";
 import { useAddTag } from "src/hooks/useAddTag";
 import { useOverflowDetector } from "src/hooks/useOverflowDetector";
 import { applyOpacity } from "src/util/themeUtil";
 import useContextMenu from "src/hooks/useContextMenus";
 import { standardizeTagName, validateTagName } from "lib/tagValidation";
+import {
+  HOME_LIST,
+  LIKED_TWEET_LIST,
+  SPECIAL_LIST_KEYS,
+} from "types/constants";
 
 const DEFAULT_TAG_WIDTH = "75px";
 
@@ -316,11 +317,12 @@ function DeleteTag(
       closeCallback={props.onClose}
       onAccept={() => {
         removeTag(props.tag);
+
+        // Return to home list if current tag removed
         if (selectedLists.includes(props.tag.name)) {
-          setSelectedList([LIKED_TWEET_LIST]);
+          setSelectedList([HOME_LIST]);
         }
 
-        // toggleEditMode();
         props.onClose();
       }}
     />

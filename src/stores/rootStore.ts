@@ -1,7 +1,12 @@
 import create from "zustand";
 import { combine } from "zustand/middleware";
-import { imageEqual, isString, remove } from "src/util/objectUtil";
-import { BLACKLIST_TAG } from "types/constants";
+import { imageEqual, isString, remove, remove_mut } from "src/util/objectUtil";
+import {
+  BLACKLIST_TAG,
+  HOME_LIST,
+  LIKED_TWEET_LIST,
+  SPECIAL_LIST_KEYS,
+} from "types/constants";
 import { getUser } from "src/adapters/userAdapter";
 import {
   postTag,
@@ -13,7 +18,13 @@ import {
 import { fetchLikedTweets } from "src/adapters/tweetAdapter";
 import { ImageList, isTagList, TagList, TweetList } from "./ImageList";
 import { cacheTweets } from "src/util/tweetUtil";
-import { getTag, TweetPredicate, getTweetTexts, getTagList } from "./helper";
+import {
+  getTag,
+  TweetPredicate,
+  getTweetTexts,
+  getTagList,
+  setURLParam,
+} from "./storeUtils";
 
 /**
  * !IMPORTANT
@@ -21,13 +32,8 @@ import { getTag, TweetPredicate, getTweetTexts, getTagList } from "./helper";
  * in its current state some refactoring will be required if that is needed.
  */
 
-export const LIKED_TWEET_LIST = "__likes";
-export const TIMELINE_TWEET_LIST = "__timeline";
-
-export const SPECIAL_LIST_KEYS = [LIKED_TWEET_LIST, TIMELINE_TWEET_LIST];
-
 const initialState = {
-  selectedLists: [LIKED_TWEET_LIST],
+  selectedLists: [HOME_LIST],
   imageLists: <Map<string, ImageList>>new Map(),
 
   searchTerm: "",
@@ -47,7 +53,7 @@ const initialState = {
 };
 
 const store = combine(initialState, (set, get) => ({
-  initTweetsAndTags: async (): Promise<Result<null>> => {
+  fetchUser: async (): Promise<Result<null>> => {
     const userData = await getUser();
 
     if (userData.error === null) {
@@ -109,16 +115,25 @@ const store = combine(initialState, (set, get) => ({
     return tweets;
   },
   setSelectedList: (list: string[]) => {
+    setURLParam(list[0]);
     set({ selectedLists: list });
   },
   addToSelectedList: (tag: string) => {
-    if (!get().selectedLists.includes(tag)) {
-      const tagKeys = get().selectedLists.filter(
-        (t) => !SPECIAL_LIST_KEYS.includes(t)
-      );
+    const selectedLists = get().selectedLists.filter(
+      (t) => !SPECIAL_LIST_KEYS.includes(t)
+    );
 
-      set({ selectedLists: [...tagKeys, tag] });
+    if (!get().selectedLists.includes(tag)) {
+      selectedLists.push(tag);
+    } else {
+      remove_mut(selectedLists, tag);
     }
+
+    setURLParam(selectedLists[0]);
+
+    set({
+      selectedLists: selectedLists.length > 0 ? selectedLists : [HOME_LIST],
+    });
   },
   fetchMoreTweets: async () => {
     if (get().selectedLists.length === 1 && get().searchTerm === "") {

@@ -40,8 +40,6 @@ function UserAvatar(
   );
 
   const onBlacklistClicked = useStore((state) => () => {
-    window.history.replaceState(null, "", `?filter=tag&tag=__blacklist`);
-
     const blacklistTag = state.imageLists.get(BLACKLIST_TAG);
     if (blacklistTag) state.setSelectedList([BLACKLIST_TAG]);
   });

@@ -37,11 +37,22 @@ export default function MainScene() {
   const session = useSession();
   const router = useRouter();
 
+  // Load URL params
+
+  const setSelectedList = useStore((state) => state.setSelectedList);
+
+  useEffect(() => {
+    const tags = router.query.tag;
+
+    if (tags) setSelectedList(typeof tags === "string" ? [tags] : tags);
+  }, [router.query.tag, setSelectedList]);
+
   // Data
   const tweets = useStore((state) =>
     state.getTweets().filter(state.searchFilter)
   );
 
+  const fetchUser = useStore((state) => state.fetchUser);
   const fetchTweets = useStore((state) => state.fetchMoreTweets);
 
   const fetchState = useStore((state) => {
@@ -55,10 +66,10 @@ export default function MainScene() {
   // Loading
   const [tweetsLoaded, setTweetsLoaded] = useState(false);
 
-  const initTweetsAndTags = useStore((state) => state.initTweetsAndTags);
-
-  const errorMessage = useStore((state) => state.errorMessage);
-  const setError = useStore((state) => state.setError);
+  const [errorMessage, setError] = useStore((state) => [
+    state.errorMessage,
+    state.setError,
+  ]);
 
   useEffect(() => {
     if (
@@ -66,36 +77,27 @@ export default function MainScene() {
       !tweetsLoaded &&
       errorMessage === ""
     ) {
-      initTweetsAndTags()
+      fetchUser()
         .then((res) => {
-          if (res.error) {
-            setError(res.error);
-          } else {
+          if (res.error) setError(res.error);
+          else
             fetchTweets()
-              .then(() => {
-                setTweetsLoaded(true);
-              })
-              .catch((e) => {
-                setError(e.toString());
-              });
-          }
+              .then(() => setTweetsLoaded(true))
+              .catch((e) => setError(e.toString()));
         })
-        .catch((e) => {
-          setError(e.toString());
-        });
+        .catch((e) => setError(e.toString()));
     }
   }, [
-    errorMessage,
-    fetchTweets,
-    initTweetsAndTags,
     session.status,
+    fetchTweets,
+    fetchUser,
     setError,
+    errorMessage,
     tweetsLoaded,
   ]);
 
   // Filtering and rendering
   const newUser = useStore((state) => state.newUser);
-
   const selectedList = useStore((state) => state.selectedLists);
 
   useEffect(() => {
@@ -120,8 +122,6 @@ export default function MainScene() {
       document.removeEventListener("keyup", escape);
     };
   }, [editMode, toggledEditMode]);
-
-  // TODO URL query
 
   return (
     <>
