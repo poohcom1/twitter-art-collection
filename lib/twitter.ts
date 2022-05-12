@@ -1,22 +1,28 @@
-import TwitterApiCachePluginRedis from "@twitter-api-v2/plugin-cache-redis";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import TwitterApi, {
   TweetV2,
   Tweetv2FieldsParams,
   Tweetv2ListResult,
   TweetV2LookupResult,
   TwitterApiReadOnly,
+  TwitterRateLimit,
 } from "twitter-api-v2";
 import type TwitterApiv2ReadOnly from "twitter-api-v2/dist/v2/client.v2.read";
+import {
+  TwitterApiRateLimitPlugin,
+  ITwitterApiRateLimitGetArgs,
+  ITwitterApiRateLimitSetArgs,
+  ITwitterApiRateLimitStore,
+} from "@twitter-api-v2/plugin-rate-limit";
+import TwitterApiCachePluginRedis from "@twitter-api-v2/plugin-cache-redis";
 import { getRedis } from "./redis";
+import { RedisClientType } from "redis";
 
-let cachedClient: TwitterApi | null;
 let cachedApi: TwitterApiReadOnly | null = null;
+let cachePlugin: TwitterApiCachePluginRedis | null = null;
+let rateLimitPlugin: TwitterApiRateLimitPlugin | null = null;
 
-async function getTwitterClient() {
-  if (cachedClient) {
-    return cachedClient;
-  }
-
+async function initTwitter() {
   const bearerToken = process.env.TWITTER_BEARER_TOKEN;
 
   if (!bearerToken) {
@@ -26,11 +32,22 @@ async function getTwitterClient() {
   // Twitter setup
   const redis = await getRedis();
 
-  cachedClient = new TwitterApi(bearerToken, {
-    plugins: redis ? [new TwitterApiCachePluginRedis(redis)] : [],
+  const plugins = [];
+
+  if (redis) {
+    cachePlugin = new TwitterApiCachePluginRedis(redis);
+    rateLimitPlugin = new TwitterApiRateLimitPlugin(
+      new RedisApiRateLimitStore(redis)
+    );
+
+    plugins.push(cachePlugin, rateLimitPlugin);
+  }
+
+  const client = new TwitterApi(bearerToken, {
+    plugins,
   });
 
-  return cachedClient;
+  return { client: client, rateLimitPlugin };
 }
 
 export async function getTwitterApi(): Promise<TwitterApiReadOnly> {
@@ -38,15 +55,23 @@ export async function getTwitterApi(): Promise<TwitterApiReadOnly> {
     return cachedApi;
   }
 
-  const twitterApi = await getTwitterClient();
+  const twitterApi = await initTwitter();
 
-  cachedApi = twitterApi;
+  cachedApi = twitterApi.client;
 
   return cachedApi;
 }
 
-export function setTwitterApi(api: TwitterApi) {
-  cachedApi = api;
+export async function getTwitterRateLimit(): Promise<TwitterApiRateLimitPlugin | null> {
+  if (rateLimitPlugin) {
+    return rateLimitPlugin;
+  }
+
+  const twitterApi = await initTwitter();
+
+  rateLimitPlugin = twitterApi.rateLimitPlugin;
+
+  return rateLimitPlugin;
 }
 
 // Helper funtions
@@ -244,5 +269,32 @@ export function findDeletedTweets(
     return databaseTweets.filter(
       (t_database) => !apiFetchedTweet.find((t_up) => t_up.id === t_database.id)
     );
+  }
+}
+
+/* --------------------------------- Plugins -------------------------------- */
+
+class RedisApiRateLimitStore implements ITwitterApiRateLimitStore {
+  constructor(protected redisClient: RedisClientType<any, any>) {}
+
+  async set(args: ITwitterApiRateLimitSetArgs): Promise<void> {
+    await this.redisClient.set(
+      args.method + "_" + args.endpoint,
+      JSON.stringify(args.rateLimit)
+    );
+  }
+
+  async get(
+    args: ITwitterApiRateLimitGetArgs
+  ): Promise<void | TwitterRateLimit> {
+    if (args.method) {
+      const rateLimit = await this.redisClient.get(
+        args.method + "_" + args.endpoint
+      );
+
+      if (rateLimit) {
+        return JSON.parse(rateLimit) as TwitterRateLimit;
+      }
+    }
   }
 }

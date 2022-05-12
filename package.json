@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@twitter-api-v2/plugin-cache-redis": "^1.0.2",
+    "@twitter-api-v2/plugin-rate-limit": "^1.1.0",
     "dotenv": "^16.0.0",
     "masonic": "^3.6.5",
     "mongoose": "^6.2.2",
