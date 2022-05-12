@@ -7,6 +7,8 @@ const THEME_KEY = "theme";
 const THEME_KEY__DARK = "dark";
 const THEME_KEY__LIGHT = "light";
 
+const OVERLAY_KEY = "overlay";
+
 const COLUMNS_KEY = "zoom";
 
 const DEFAULT_COLUMNS = 4;
@@ -24,6 +26,8 @@ const displayState = {
     left: 0,
   },
   contextMenuComponents: <></>,
+
+  showOverlay: true,
 };
 
 const displayStore = combine(displayState, (set, get) => ({
@@ -38,6 +42,10 @@ const displayStore = combine(displayState, (set, get) => ({
       theme = preferDark ? THEME_KEY__DARK : THEME_KEY__LIGHT;
     }
 
+    const showOverlay = localStorage.getItem(OVERLAY_KEY)
+      ? localStorage.getItem(OVERLAY_KEY)! === "true"
+      : true;
+
     const columnCount = localStorage.getItem(COLUMNS_KEY)
       ? parseInt(localStorage.getItem(COLUMNS_KEY)!)
       : DEFAULT_COLUMNS;
@@ -45,9 +53,18 @@ const displayStore = combine(displayState, (set, get) => ({
     set({
       theme: theme === THEME_KEY__LIGHT ? lightTheme : darkTheme,
       columnCount,
+      showOverlay,
     });
   },
 
+  /* --------------------------------- Overlay -------------------------------- */
+  toggleOverlay() {
+    localStorage.setItem(OVERLAY_KEY, `${!get().showOverlay}`);
+
+    set((state) => ({ showOverlay: !state.showOverlay }));
+  },
+
+  /* --------------------------------- Masonry -------------------------------- */
   setColumnCount(change: number) {
     const columnCount = Math.max(
       Math.min(get().columnCount + change, MAX_COLUMNS),

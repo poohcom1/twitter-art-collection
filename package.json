@@ -1,11 +1,11 @@
 {
   "name": "twitter-art-collection",
-  "version": "0.9.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "next start",
     "build": "next build",
-    "dev": "next dev",
+    "dev": "cross-env PREACT=false next dev",
     "dev:preact": "cross-env PREACT=true next dev",
     "lint": "next lint",
     "type": "tsc",

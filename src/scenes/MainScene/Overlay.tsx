@@ -1,12 +1,22 @@
-import { useCallback } from "react";
+import {
+  HTMLAttributes,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useStore } from "src/stores/rootStore";
 import { darkTheme, lightTheme } from "src/themes";
-import styled from "styled-components";
+import styled, { Keyframes, keyframes } from "styled-components";
 import {
   AiOutlineZoomIn as ZoomIn,
   AiOutlineZoomOut as ZoomOut,
 } from "react-icons/ai";
-import { BiTrash as TrashIcon } from "react-icons/bi";
+import {
+  BiTrash as TrashIcon,
+  BiDotsVerticalRounded as DotsIcon,
+} from "react-icons/bi";
 import {
   MdLightMode as LightMode,
   MdDarkMode as DarkMode,
@@ -23,21 +33,30 @@ const OverlayContainer = styled.div`
   position: fixed;
 
   right: 32px;
-  bottom: 32px;
+  bottom: 24px;
 
   z-index: 50;
 `;
 
-const OverlayItem = styled.button`
+const ITEM_MARGINS_Y = 8;
+const ITEM_SIZE = 60;
+
+const OverlayItemStyle = styled.button<{
+  keyframes: Keyframes;
+  zIndex: number;
+}>`
   &:hover {
     cursor: pointer;
   }
 
-  display: block;
-  margin: 8px 2px;
+  position: relative;
+  z-index: ${(props) => props.zIndex};
 
-  width: 60px;
-  height: 60px;
+  display: block;
+  margin: ${ITEM_MARGINS_Y}px 2px;
+
+  width: ${ITEM_SIZE}px;
+  height: ${ITEM_SIZE}px;
   background-color: ${(props) => props.theme.color.surface};
   border-radius: 50%;
   border: 2px solid ${(props) => props.theme.color.surfaceBorder};
@@ -45,9 +64,62 @@ const OverlayItem = styled.button`
   box-shadow: 0 0 5px ${(props) => props.theme.color.shadow};
 
   transition: background-color 0.1s;
+
+  animation: ${(props) => props.keyframes} 0.3s ease forwards;
 `;
 
-function ThemeSwitchItem() {
+/* ----------------------------- Main Component ----------------------------- */
+
+function OverlayItem(props: HTMLAttributes<HTMLButtonElement>) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (ref.current) {
+      const parent = ref.current.parentNode;
+      const self = ref.current;
+
+      if (parent)
+        setIndex(
+          parent.children.length -
+            Array.prototype.indexOf.call(parent.children, self) -
+            1
+        );
+    }
+  }, []);
+
+  const showOverlay = useDisplayStore((state) => state.showOverlay);
+
+  const pos = index * (ITEM_SIZE + ITEM_MARGINS_Y);
+
+  const slideUpFrames = useMemo(
+    () => keyframes`
+    from {
+      transform: translateY(${showOverlay ? pos : 0}px);
+    }
+
+    to {
+      transform: translateY(${showOverlay ? 0 : pos}px);
+    }
+  `,
+    [pos, showOverlay]
+  );
+
+  return (
+    <OverlayItemStyle
+      ref={ref}
+      keyframes={slideUpFrames}
+      zIndex={100 - index}
+      {...props}
+    >
+      {props.children}
+    </OverlayItemStyle>
+  );
+}
+
+function OverlayItems() {
+  const toggleOverlay = useDisplayStore((state) => state.toggleOverlay);
+
   const editMode = useStore((state) => state.editMode);
   const toggleEditMode = useStore((state) => state.toggleEditMode);
 
@@ -117,6 +189,9 @@ function ThemeSwitchItem() {
       <OverlayItem id="open-gitter-button" title="Ask a question">
         <HelpIcon size="24px" color={theme.color.onSurface} />
       </OverlayItem>
+      <OverlayItem onClick={toggleOverlay} title="Toggle overlay menu">
+        <DotsIcon size="24px" color={theme.color.onSurface} />
+      </OverlayItem>
     </>
   );
 }
@@ -124,7 +199,7 @@ function ThemeSwitchItem() {
 export default function Overlay() {
   return (
     <OverlayContainer>
-      <ThemeSwitchItem />
+      <OverlayItems />
     </OverlayContainer>
   );
 }
