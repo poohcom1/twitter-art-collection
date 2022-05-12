@@ -36,11 +36,11 @@ async function initTwitter() {
 
   if (redis) {
     cachePlugin = new TwitterApiCachePluginRedis(redis);
-    rateLimitPlugin = new TwitterApiRateLimitPlugin(
-      new RedisApiRateLimitStore(redis)
-    );
+    // rateLimitPlugin = new TwitterApiRateLimitPlugin(
+    // new RedisApiRateLimitStore(redis)
+    // );
 
-    plugins.push(cachePlugin, rateLimitPlugin);
+    plugins.push(cachePlugin);
   }
 
   const client = new TwitterApi(bearerToken, {
