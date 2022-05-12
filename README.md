@@ -13,18 +13,23 @@ This app is designed for those who have this issue, whether you're an art connoi
 ## Usage
 
 1. Sign into Twitter through the app to load your liked images.
-2. Click on "+ New" in the header to create a new Tag.
-3. Click the plus icon above each Tweet to add it to a Tag.
+2. Click on "Add Tag" in the header to create a new Tag.
+3. Click the bookmark icon above each Tweet to add it to a Tag.
+4. Click on the tag name in the header to see tagged images!
 
 ## For Developers
 
-Twitter API access and a Mongo database is required.
-
 ### Setup
+
+Node, Twitter API access, and a Mongo database is required.
+A Redis instance can be optionally configured.
 
 1. Clone the repository.
 2. Run `npm install`.
 3. Copy [`sample.env`](./sample.env) and rename it to `.env` and fill in the [environment variables](#environment-variables).
+
+#### Running
+
 4. Run `npm run dev` to start the web app for development.
 5. View the app on `http://localhost:3000`.
 
@@ -41,4 +46,4 @@ Environment variables are required for authorizing various services used by the 
 | NEXTAUTH_URL                             | Base URL of website for redirecting (i.e. http://localhost:3000). See [next-auth.js.org/configuration/options](https://next-auth.js.org/configuration/options#nextauth_url) |
 | NEXTAUTH_SECRET                          | Encryption key for authentication. Set it to a random string. See [next-auth.js.org/configuration/options](https://next-auth.js.org/configuration/options#nextauth_secret)  |
 | MONGODB_URI                              | URI for mongodb                                                                                                                                                             |
-| REDIS_URL                                | URL for redis                                                                                                                                                               |
+| REDIS_URL                                | URL for redis. Optional.                                                                                                                                                    |

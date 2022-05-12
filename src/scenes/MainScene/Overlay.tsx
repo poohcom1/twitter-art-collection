@@ -8,7 +8,7 @@ import {
 } from "react";
 import { useStore } from "src/stores/rootStore";
 import { darkTheme, lightTheme } from "src/themes";
-import styled, { Keyframes, keyframes } from "styled-components";
+import styled, { css, Keyframes, keyframes } from "styled-components";
 import {
   AiOutlineZoomIn as ZoomIn,
   AiOutlineZoomOut as ZoomOut,
@@ -90,20 +90,29 @@ function OverlayItem(props: HTMLAttributes<HTMLButtonElement>) {
 
   const showOverlay = useDisplayStore((state) => state.showOverlay);
 
-  const pos = index * (ITEM_SIZE + ITEM_MARGINS_Y);
+  const slideUpFrames = useMemo(() => {
+    const pos = index * (ITEM_SIZE + ITEM_MARGINS_Y);
 
-  const slideUpFrames = useMemo(
-    () => keyframes`
-    from {
-      transform: translateY(${showOverlay ? pos : 0}px);
-    }
+    const hidden = css`
+      transform: translateY(${pos}px);
+      opacity: ${index === 0 ? 100 : 10}%;
+    `;
 
-    to {
-      transform: translateY(${showOverlay ? 0 : pos}px);
-    }
-  `,
-    [pos, showOverlay]
-  );
+    const shown = css`
+      transform: translateY(0px);
+      opacity: 100%;
+    `;
+
+    return keyframes`
+      from {
+        ${showOverlay ? hidden : shown};
+      }
+
+      to {
+        ${showOverlay ? shown : hidden};
+      }
+    `;
+  }, [index, showOverlay]);
 
   return (
     <OverlayItemStyle
