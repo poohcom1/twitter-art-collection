@@ -43,7 +43,6 @@ const initialState = {
 
   // Tags
   pinnedTags: <string[]>[],
-  tagsStatus: <"loading" | "loaded" | "error">"loading",
 
   // User
   newUser: false,
@@ -77,7 +76,6 @@ const store = combine(initialState, (set, get) => ({
       get().imageLists = tweetLists;
 
       set({
-        tagsStatus: "loaded",
         imageLists: tweetLists,
         tweetMap: get().tweetMap,
         pinnedTags: userData.data.pinnedTags ?? [],

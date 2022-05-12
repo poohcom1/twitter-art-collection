@@ -65,6 +65,7 @@ export default function MainScene() {
 
   // Loading
   const [tweetsLoaded, setTweetsLoaded] = useState(false);
+  const [userLoaded, setUserLoaded] = useState(false);
 
   const [errorMessage, setError] = useStore((state) => [
     state.errorMessage,
@@ -75,16 +76,18 @@ export default function MainScene() {
     if (
       session.status === "authenticated" &&
       !tweetsLoaded &&
+      !userLoaded &&
       errorMessage === ""
     ) {
       fetchUser()
         .then((res) => {
           if (res.error) setError(res.error);
-          else
-            fetchTweets()
-              .then(() => setTweetsLoaded(true))
-              .catch((e) => setError(e.toString()));
+          else setUserLoaded(true);
         })
+        .catch((e) => setError(e.toString()));
+
+      fetchTweets()
+        .then(() => setTweetsLoaded(true))
         .catch((e) => setError(e.toString()));
     }
   }, [
@@ -94,6 +97,7 @@ export default function MainScene() {
     setError,
     errorMessage,
     tweetsLoaded,
+    userLoaded,
   ]);
 
   // Filtering and rendering
@@ -129,7 +133,7 @@ export default function MainScene() {
       <Overlay />
       <ContextMenu />
       <LoadingScene
-        display={!tweetsLoaded || newUser}
+        display={!tweetsLoaded || !userLoaded || newUser}
         text={newUser ? "Creating new user..." : ""}
       />
       <AppDiv className="App">
