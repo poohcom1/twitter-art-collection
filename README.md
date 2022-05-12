@@ -1,4 +1,4 @@
-# Twitter Art Collection (WIP)
+# Twitter Art Collection
 
 [![Join the chat at https://gitter.im/twitter-art-collection/community](https://badges.gitter.im/twitter-art-collection/community.svg)](https://gitter.im/twitter-art-collection/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -21,8 +21,14 @@ This app is designed for those who have this issue, whether you're an art connoi
 
 ### Setup
 
-Node, Twitter API access, and a Mongo database is required.
-A Redis instance can be optionally configured.
+#### Requirements
+
+- Node/NPM
+- Twitter API access
+- MongoDB
+- Redis (optional)
+
+#### Installation
 
 1. Clone the repository.
 2. Run `npm install`.
@@ -30,8 +36,8 @@ A Redis instance can be optionally configured.
 
 #### Running
 
-4. Run `npm run dev` to start the web app for development.
-5. View the app on `http://localhost:3000`.
+1. Run `npm run dev` to start the web app for development.
+2. View the app on `http://localhost:3000`.
 
 #### Environment Variables
 
