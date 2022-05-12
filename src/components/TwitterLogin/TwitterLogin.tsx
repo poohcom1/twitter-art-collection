@@ -1,6 +1,8 @@
-import { signIn, signOut, useSession } from "next-auth/react";
 import styled from "styled-components";
 import Image from "next/image";
+import { useState } from "react";
+import Spinner from "../Spinner/Spinner";
+import { signIn } from "next-auth/react";
 
 const SignInButton = styled.div`
   display: flex;
@@ -35,22 +37,36 @@ const SignInButton = styled.div`
 `;
 
 export default function TwitterLogin() {
-  const session = useSession();
+  const [clicked, setClicked] = useState(false);
 
-  if (session.status !== "authenticated") {
-    return (
-      <SignInButton onClick={() => signIn("twitter")}>
+  return (
+    <SignInButton
+      onClick={() => {
+        setClicked(true);
+        signIn("twitter").then().catch(alert);
+      }}
+    >
+      {!clicked ? (
         <Image
           src="/assets/twitter/twitter_social_blue.svg"
           alt="Twitter Sign In"
           width="50px"
           height="50px"
         />
+      ) : (
+        <Spinner
+          className="center"
+          size="40px"
+          style={{
+            width: "50px",
+            height: "50px",
+            overflow: "hidden",
+            margin: 0,
+          }}
+        />
+      )}
 
-        <h3>Sign in with Twitter</h3>
-      </SignInButton>
-    );
-  }
-
-  return <button onClick={() => signOut()}>Sign Out</button>;
+      <h3>Sign in with Twitter</h3>
+    </SignInButton>
+  );
 }

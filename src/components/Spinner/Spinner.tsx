@@ -3,7 +3,7 @@ import { ImSpinner8 as SpinnerIcon } from "react-icons/im";
 import styled, { keyframes } from "styled-components";
 
 interface SpinnerDivProps extends HTMLAttributes<HTMLDivElement> {
-  size?: number;
+  size?: string;
 }
 
 const rotate = keyframes`
@@ -23,14 +23,17 @@ const SpinnerDiv = styled.div<SpinnerDivProps>`
   height: fit-content;
 
   padding: 0;
+  margin: 0;
   display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 function Spinner(props: SpinnerDivProps, ref: ForwardedRef<HTMLDivElement>) {
   return (
     <div {...props} ref={ref}>
       <SpinnerDiv>
-        <SpinnerIcon size={props.size} />
+        <SpinnerIcon size={props.size} style={{ padding: 0, margin: 0 }} />
       </SpinnerDiv>
     </div>
   );
