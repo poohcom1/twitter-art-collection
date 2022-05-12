@@ -1,7 +1,7 @@
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
 import Router from "next/router";
-import { useEffect, useState } from "react";
+import { useLayoutEffect, useState } from "react";
 import { LoadingScene } from "src/scenes";
 import { useDisplayStore } from "src/stores/displayStore";
 import "../styles/globals.css";
@@ -43,10 +43,10 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
     setPageLoading(false);
   });
 
+  // Display options detection
   const initDisplay = useDisplayStore((state) => state.initSettings);
 
-  // Theme detection
-  useEffect(() => {
+  useLayoutEffect(() => {
     initDisplay();
   }, [initDisplay]);
 

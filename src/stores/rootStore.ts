@@ -62,6 +62,7 @@ const store = combine(initialState, (set, get) => ({
       // const timelineTweetList = new TweetList(fetchFeedTweets);
 
       // Generate special lists
+
       tweetLists.set(LIKED_TWEET_LIST, likedTweetList);
       // tweetLists.set(TIMELINE_TWEET_LIST, timelineTweetList);
 
@@ -134,7 +135,11 @@ const store = combine(initialState, (set, get) => ({
     });
   },
   fetchMoreTweets: async () => {
-    if (get().selectedLists.length === 1 && get().searchTerm === "") {
+    if (
+      get().imageLists.size > 0 &&
+      get().selectedLists.length === 1 &&
+      get().searchTerm === ""
+    ) {
       const tweetList = get().imageLists.get(get().selectedLists[0]);
 
       if (tweetList) {
@@ -150,7 +155,10 @@ const store = combine(initialState, (set, get) => ({
           }
         }
       } else {
-        console.warn("[fetchMoreTweets] Unknown tweet list fetch attempt");
+        console.warn(
+          "[fetchMoreTweets] Unknown tweet list fetch attempt: " +
+            get().selectedLists[0]
+        );
       }
     }
   },
