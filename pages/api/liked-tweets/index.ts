@@ -1,6 +1,10 @@
 import { authOptions } from "lib/nextAuth";
 import { storeTweetCache, useRedis } from "lib/redis";
-import { createTweetObjects, getTwitterApi, TWEET_OPTIONS } from "lib/twitter";
+import {
+  createTweetObjects,
+  getTwitterApi,
+  TWEET_OPTIONS,
+} from "lib/twitter/twitter";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 

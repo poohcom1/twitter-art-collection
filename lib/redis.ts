@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { RedisClientType } from "@node-redis/client";
 import { createClient } from "redis";
-import { tweetIdsToSchema } from "./twitter";
+import { tweetIdsToSchema } from "./twitter/twitter";
 
 export async function getRedis(): Promise<
   RedisClientType<any, any> | undefined

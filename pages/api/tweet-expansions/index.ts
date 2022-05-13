@@ -3,7 +3,7 @@ import {
   findDeletedTweets,
   getTwitterApi,
   TWEET_OPTIONS,
-} from "lib/twitter";
+} from "lib/twitter/twitter";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getSession } from "next-auth/react";
 import { getRedis, getTweetCache, storeTweetCache } from "lib/redis";

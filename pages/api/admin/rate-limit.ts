@@ -1,4 +1,4 @@
-import { getTwitterRateLimit } from "lib/twitter";
+import { getTwitterRateLimit } from "lib/twitter/twitter";
 import { NextApiResponse, NextApiRequest } from "next";
 
 export default async function handler(
@@ -12,13 +12,18 @@ export default async function handler(
     return res.status(500).end();
   }
 
-  const [likes, lookup] = await Promise.all([
+  const [likes, lookup, homeTimeline] = await Promise.all([
     rateLimitPlugin.v2.getRateLimitHistory("users/:id/liked_tweets", "GET"),
     rateLimitPlugin.v2.getRateLimitHistory("tweets", "GET"),
+    rateLimitPlugin.v1.getRateLimitHistory(
+      "statuses/home_timeline.json",
+      "GET"
+    ),
   ]);
 
   res.send({
-    likes: likes,
-    lookup: lookup,
+    likes,
+    lookup,
+    homeTimeline,
   });
 }

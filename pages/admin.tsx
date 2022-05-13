@@ -1,4 +1,4 @@
-import { RateLimitData } from "lib/twitter";
+import { RateLimitData } from "lib/twitter/RateLimitRedisPlugin";
 import { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
 import {
@@ -33,6 +33,7 @@ const Main = styled.div`
 interface IData {
   lookup?: RateLimitData;
   likes?: RateLimitData;
+  homeTimeline?: RateLimitData;
 }
 
 interface IModel {
@@ -88,9 +89,11 @@ export default function Admin() {
               fill: false,
               data: rateLimitData.lookup?.map((t) => ({
                 x: t.time,
-                y: t.remaining,
+                y: t.remaining / t.limit,
                 label: `${t.remaining}/${t.limit}`,
               })),
+              borderColor: "blue",
+              backgroundColor: "blue",
             },
             {
               label: "Tweet Likes",
@@ -100,8 +103,19 @@ export default function Admin() {
                 y: t.remaining / t.limit,
                 label: `${t.remaining}/${t.limit}`,
               })),
-              borderColor: "pink",
+              borderColor: "red",
               backgroundColor: "red",
+            },
+            {
+              label: "Home Timeline",
+              fill: false,
+              data: rateLimitData.homeTimeline?.map((t) => ({
+                x: t.time,
+                y: t.remaining / t.limit,
+                label: `${t.remaining}/${t.limit}`,
+              })),
+              borderColor: "yellow",
+              backgroundColor: "yellow",
             },
           ],
         }}

@@ -3,7 +3,7 @@ import {
   fetchAndMergeTweets,
   findDeletedTweets,
   tweetIdsToSchema,
-} from "../../lib/twitter";
+} from "../../lib/twitter/twitter";
 import { MockTwitterApi } from "./_twitterHelper";
 
 describe("twitter lib", () => {

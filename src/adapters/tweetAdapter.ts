@@ -1,6 +1,6 @@
 import { jsonOrError } from "./adapter";
 
-const MAX_AGE = 60 * 60 * 24 * 5;
+const MAX_AGE = 60 * 60;
 
 export type TweetAdapter = (
   tweetIds: string[]
