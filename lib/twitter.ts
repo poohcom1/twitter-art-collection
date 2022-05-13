@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import TwitterApi, {
+  ITwitterApiClientPlugin,
   TweetV2,
   Tweetv2FieldsParams,
   Tweetv2ListResult,
@@ -15,11 +16,11 @@ import {
   ITwitterApiRateLimitStore,
 } from "@twitter-api-v2/plugin-rate-limit";
 import TwitterApiCachePluginRedis from "@twitter-api-v2/plugin-cache-redis";
-import { getRedis } from "./redis";
+import { getRedis, getTweetCache, storeTweetCache } from "./redis";
 import { RedisClientType } from "redis";
 
 let cachedApi: TwitterApiReadOnly | null = null;
-let cachePlugin: TwitterApiCachePluginRedis | null = null;
+const cachePlugin: TwitterApiCachePluginRedis | null = null;
 let rateLimitPlugin: TwitterApiRateLimitPlugin | null = null;
 
 async function initTwitter() {
@@ -32,15 +33,13 @@ async function initTwitter() {
   // Twitter setup
   const redis = await getRedis();
 
-  const plugins = [];
+  const plugins: ITwitterApiClientPlugin[] = [];
 
   if (redis) {
-    cachePlugin = new TwitterApiCachePluginRedis(redis);
+    // cachePlugin = new TwitterApiCachePluginRedis(redis);
     // rateLimitPlugin = new TwitterApiRateLimitPlugin(
     // new RedisApiRateLimitStore(redis)
     // );
-
-    plugins.push(cachePlugin);
   }
 
   const client = new TwitterApi(bearerToken, {
@@ -157,6 +156,46 @@ export function createTweetObjects(tweetPayloadData: Tweetv2ListResult) {
   }
 
   return tweetSchemas;
+}
+
+export async function tweetExpansions(
+  tweetIds: string[],
+  id: string
+): Promise<TweetSchema[]> {
+  console.log(tweetIds);
+
+  const redis = await getRedis();
+
+  const tweets = await getTweetCache(tweetIds)(redis);
+
+  const twitterClient = await getTwitterApi();
+
+  // Tweets not in cache
+  const partialTweet = tweets.filter((t) => !t.data);
+  const partialTweetIds = partialTweet.map((t) => t.id);
+
+  console.log(
+    `Cache hit: ${tweets.length - partialTweetIds.length}/${tweetIds.length}`
+  );
+
+  if (partialTweetIds.length > 0) {
+    try {
+      const payload = await twitterClient.v2.tweets(
+        partialTweetIds,
+        TWEET_OPTIONS
+      );
+
+      completeTweetFields(tweets, payload);
+    } catch (e) {
+      console.error("Twitter API error: " + e);
+    }
+
+    await storeTweetCache(tweets)(redis);
+  }
+
+  await redis?.quit();
+
+  return tweets;
 }
 
 /**

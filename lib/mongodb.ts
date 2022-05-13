@@ -19,18 +19,13 @@ export async function getMongoConnection(): Promise<typeof mongoose> {
   return mongoClientCache as typeof mongoose;
 }
 
-/**
- * @deprecated
- */
 export async function removeDeletedTweets(
   userId: string,
   deletedTweetIds: string[]
 ): Promise<void> {
   const user = await UserModel.findOne({ uid: userId });
 
-  if (user && user.tweetIds) {
-    user.tweetIds = user.tweetIds.filter((id) => !deletedTweetIds.includes(id));
-
+  if (user) {
     Object.values(user.tags).forEach((tag) => {
       tag.images = tag.images.filter((id) => !deletedTweetIds.includes(id));
     });

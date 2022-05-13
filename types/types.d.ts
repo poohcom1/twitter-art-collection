@@ -18,18 +18,28 @@ declare module "next-auth" {
 declare module "next-auth/jwt/types" {
   interface JWT {
     uid: string;
+    twitter?: {
+      oauth_token?: string;
+      oauth_token_secret?: string;
+    };
   }
 }
 
-declare module '@next/bundle-analyzer'
+declare module "@next/bundle-analyzer";
 
-// ts with react18 throws error for reactjs-popup's children when using the function pattern 
-import type { PopupProps, PopupActions } from "reactjs-popup/dist/types"
+// ts with react18 throws error for reactjs-popup's children when using the function pattern
+import type { PopupProps, PopupActions } from "reactjs-popup/dist/types";
 
 declare module "reactjs-popup" {
-  const Popup: React.ForwardRefExoticComponent<(PopupProps | {
-    children: ((close: () => void) => JSX.Element)
-  }) & React.RefAttributes<PopupActions>>;
+  const Popup: React.ForwardRefExoticComponent<
+    (
+      | PopupProps
+      | {
+          children: (close: () => void) => JSX.Element;
+        }
+    ) &
+      React.RefAttributes<PopupActions>
+  >;
 
-  export = Popup
+  export = Popup;
 }

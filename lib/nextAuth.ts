@@ -47,10 +47,26 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    jwt: async ({ user, token }) => {
+    jwt: async ({ user, token, account, profile, isNewUser }) => {
       if (user) {
         token.uid = user.id;
       }
+
+      if (account) {
+        if (account.provider && !token[account.provider]) {
+          token.twitter = {};
+
+          if (account.oauth_token) {
+            token.twitter.oauth_token = account.oauth_token as string;
+          }
+
+          if (account.oauth_token_secret) {
+            token.twitter.oauth_token_secret =
+              account.oauth_token_secret as string;
+          }
+        }
+      }
+
       return token;
     },
     redirect: async ({ baseUrl }) => {
