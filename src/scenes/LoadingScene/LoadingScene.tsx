@@ -64,6 +64,7 @@ export default function LoadingScene({ display = true, text = "" }) {
             layout="fixed"
             width="120px"
             height="120px"
+            priority={true}
           />
         </div>
       </MainDiv>

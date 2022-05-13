@@ -84,6 +84,7 @@ export default function Tweet(props: {
               width={im.width}
               height={im.height}
               onClick={() => onImageClick(index)}
+              quality={1}
             />
           ))}
         </div>
