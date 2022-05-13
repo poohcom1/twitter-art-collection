@@ -1,7 +1,7 @@
-import { authOptions } from "lib/nextAuth";
-import { getTwitterApi } from "lib/twitter";
+import { tweetExpansions } from "lib/twitter";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
+import { getToken } from "next-auth/jwt";
+import { ApiResponseError, TwitterApi } from "twitter-api-v2";
 
 /**
  * Not working
@@ -13,58 +13,45 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const [twitterApi, session] = await Promise.all([
-    getTwitterApi(),
-    getServerSession({ req, res }, authOptions),
-  ]);
+  const user = await getToken({ req });
 
-  if (!session) {
-    return res.status(401).end();
+  if (!user) {
+    return;
   }
 
-  const since_id = (req.query.token as string) ?? undefined;
+  const twitterApi = new TwitterApi({
+    appKey: process.env.TWITTER_API_KEY!,
+    appSecret: process.env.TWITTER_API_SECRET!,
+    accessToken: user.twitter?.oauth_token as string,
+    accessSecret: user.twitter?.oauth_token_secret as string,
+  });
+
+  const max_id = (req.query.token as string) ?? undefined;
 
   try {
-    // Access error?
-    const payload = await twitterApi.v1.homeTimeline({ since_id });
+    const payload = await twitterApi.v1.homeTimeline({ max_id, count: 200 });
 
     const tweetsV1 = payload.tweets.filter((tweet) =>
       tweet.entities.media?.find((media) => media.type === "photo")
     );
 
-    const tweets: TweetSchema[] = [];
-
-    for (const tweet of tweetsV1) {
-      tweets.push({
-        id: tweet.id + "",
-        platform: "twitter",
-        data: {
-          id: tweet.id + "",
-          url: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id}`,
-          avatar: tweet.user.profile_image_url_https,
-          name: tweet.user.name,
-          username: tweet.user.screen_name,
-          date: tweet.created_at,
-          content: {
-            text: tweet.text,
-            media: tweet.entities.media?.map((media) => ({
-              url: media.display_url,
-              width: 100,
-              height: 100,
-            })),
-          },
-        },
-      });
-    }
+    const tweets = await tweetExpansions(
+      tweetsV1.map((t) => t.id_str),
+      user.uid
+    );
 
     const response: TweetsResponse = {
-      nextToken: tweets[tweets.length - 1].id,
-      tweets,
+      nextToken: tweets.length > 0 ? tweets[tweets.length - 1].id : undefined,
+      tweets: tweets.filter((t) => !!t.data),
     };
 
-    res.send("Not implemented");
+    res.send(response);
   } catch (e) {
+    if (e instanceof ApiResponseError && e.code === 429) {
+      return res.send({ tweets: [] });
+    }
     console.error(e);
-    res.status(500).send("Not implemented");
+
+    res.status(500).send("Server Error");
   }
 }
