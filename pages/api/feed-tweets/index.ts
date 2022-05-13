@@ -1,4 +1,4 @@
-import { getTwitterApi, tweetExpansions } from "lib/twitter/twitter";
+import { getUserTwitterApi, tweetExpansions } from "lib/twitter/twitter";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
 import { ApiResponseError } from "twitter-api-v2";
@@ -19,7 +19,7 @@ export default async function handler(
     return;
   }
 
-  const twitterApi = await getTwitterApi({
+  const twitterApi = await getUserTwitterApi({
     appKey: process.env.TWITTER_API_KEY!,
     appSecret: process.env.TWITTER_API_SECRET!,
     accessToken: user.twitter?.oauth_token as string,

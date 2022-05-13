@@ -47,16 +47,22 @@ async function initTwitter(tokens?: TwitterApiTokens) {
   return { client: client, rateLimitPlugin };
 }
 
-export async function getTwitterApi(tokens?: TwitterApiTokens) {
+export async function getTwitterApi() {
   if (cachedApi) {
     return cachedApi;
   }
 
-  const twitterApi = await initTwitter(tokens);
+  const twitterApi = await initTwitter();
 
   cachedApi = twitterApi.client;
 
   return cachedApi;
+}
+
+export async function getUserTwitterApi(tokens: TwitterApiTokens) {
+  const twitterApi = await initTwitter(tokens);
+
+  return twitterApi.client;
 }
 
 export async function getTwitterRateLimit(

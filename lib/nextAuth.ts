@@ -47,7 +47,7 @@ export const authOptions: NextAuthOptions = {
       }
       return session;
     },
-    jwt: async ({ user, token, account, profile, isNewUser }) => {
+    jwt: async ({ user, token, account }) => {
       if (user) {
         token.uid = user.id;
       }
