@@ -43,6 +43,7 @@ import {
   HOME_LIST,
   LIKED_TWEET_LIST,
   SPECIAL_LIST_KEYS,
+  TIMELINE_TWEET_LIST,
 } from "types/constants";
 
 const DEFAULT_TAG_WIDTH = "75px";
@@ -729,6 +730,12 @@ export default withTheme(function TagsPanel(props) {
     <>
       <StyledTagsPanel>
         {/* Special filters Section */}
+        <Tag
+          onClick={setSpecialSelectedList(TIMELINE_TWEET_LIST)}
+          active={selectedLists.includes(TIMELINE_TWEET_LIST)}
+        >
+          Timeline
+        </Tag>
         <Tag
           style={{ width: DEFAULT_TAG_WIDTH }}
           onClick={setSpecialSelectedList(LIKED_TWEET_LIST)}

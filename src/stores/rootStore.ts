@@ -6,6 +6,7 @@ import {
   HOME_LIST,
   LIKED_TWEET_LIST,
   SPECIAL_LIST_KEYS,
+  TIMELINE_TWEET_LIST,
 } from "types/constants";
 import { getUser } from "src/adapters/userAdapter";
 import {
@@ -15,7 +16,7 @@ import {
   pinTags,
   renameTag,
 } from "src/adapters/tagsAdapter";
-import { fetchLikedTweets } from "src/adapters/tweetAdapter";
+import { fetchFeedTweets, fetchLikedTweets } from "src/adapters/tweetAdapter";
 import { ImageList, isTagList, TagList, TweetList } from "./ImageList";
 import { cacheTweets } from "src/util/tweetUtil";
 import {
@@ -59,12 +60,12 @@ const store = combine(initialState, (set, get) => ({
       const tweetLists = get().imageLists;
 
       const likedTweetList = new TweetList(fetchLikedTweets);
-      // const timelineTweetList = new TweetList(fetchFeedTweets);
+      const timelineTweetList = new TweetList(fetchFeedTweets);
 
       // Generate special lists
 
       tweetLists.set(LIKED_TWEET_LIST, likedTweetList);
-      // tweetLists.set(TIMELINE_TWEET_LIST, timelineTweetList);
+      tweetLists.set(TIMELINE_TWEET_LIST, timelineTweetList);
 
       // Generate tag lists
 

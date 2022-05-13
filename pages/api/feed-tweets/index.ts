@@ -1,7 +1,7 @@
 import { tweetExpansions } from "lib/twitter";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getToken } from "next-auth/jwt";
-import { TwitterApi } from "twitter-api-v2";
+import { ApiResponseError, TwitterApi } from "twitter-api-v2";
 
 /**
  * Not working
@@ -26,10 +26,10 @@ export default async function handler(
     accessSecret: user.twitter?.oauth_token_secret as string,
   });
 
-  const since_id = (req.query.token as string) ?? undefined;
+  const max_id = (req.query.token as string) ?? undefined;
 
   try {
-    const payload = await twitterApi.v1.homeTimeline({ since_id });
+    const payload = await twitterApi.v1.homeTimeline({ max_id, count: 200 });
 
     const tweetsV1 = payload.tweets.filter((tweet) =>
       tweet.entities.media?.find((media) => media.type === "photo")
@@ -41,13 +41,17 @@ export default async function handler(
     );
 
     const response: TweetsResponse = {
-      nextToken: tweets[tweets.length - 1].id,
-      tweets,
+      nextToken: tweets.length > 0 ? tweets[tweets.length - 1].id : undefined,
+      tweets: tweets.filter((t) => !!t.data),
     };
 
     res.send(response);
   } catch (e) {
+    if (e instanceof ApiResponseError && e.code === 429) {
+      return res.send({ tweets: [] });
+    }
     console.error(e);
-    res.status(500).send("");
+
+    res.status(500).send("Server Error");
   }
 }

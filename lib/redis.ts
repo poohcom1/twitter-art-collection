@@ -39,7 +39,7 @@ export const getTweetCache =
       return tweets;
     }
 
-    const tweetData = await redis.mGet(tweetIds);
+    const tweetData = tweetIds.length > 0 ? await redis.mGet(tweetIds) : [];
 
     for (let i = 0; i < tweetData.length; i++) {
       const dataJSON = tweetData[i];

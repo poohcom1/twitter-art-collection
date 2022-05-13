@@ -162,8 +162,6 @@ export async function tweetExpansions(
   tweetIds: string[],
   id: string
 ): Promise<TweetSchema[]> {
-  console.log(tweetIds);
-
   const redis = await getRedis();
 
   const tweets = await getTweetCache(tweetIds)(redis);
@@ -195,7 +193,10 @@ export async function tweetExpansions(
 
   await redis?.quit();
 
-  return tweets;
+  return tweets.filter(
+    (t) =>
+      t.data?.content.media && t.data.content.media.every((m) => m.url !== "")
+  );
 }
 
 /**
