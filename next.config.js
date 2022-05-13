@@ -17,6 +17,19 @@ const configs = {
 
     return config;
   },
+  async headers() {
+    return [
+      {
+        source: "/_next/image(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: `public, max-age=${60 * 60 * 24 * 7}`,
+          },
+        ],
+      },
+    ];
+  },
 };
 
 module.exports =

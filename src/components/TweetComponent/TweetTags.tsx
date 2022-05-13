@@ -192,6 +192,7 @@ function PreviewImage(
           alt="Tweet image"
           layout="fill"
           objectFit="contain"
+          priority={true}
         />
       </div>
       <ModalClickableDiv

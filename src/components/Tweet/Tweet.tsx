@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useCallback } from "react";
 import { injectTweetLink } from "src/util/tweetUtil";
+import { DEFAULT_QUALITY } from "types/constants";
 
 export default function Tweet(props: {
   data: TweetExpansions;
@@ -84,7 +85,7 @@ export default function Tweet(props: {
               width={im.width}
               height={im.height}
               onClick={() => onImageClick(index)}
-              quality={1}
+              quality={DEFAULT_QUALITY}
             />
           ))}
         </div>

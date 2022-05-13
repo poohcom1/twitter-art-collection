@@ -4,7 +4,7 @@ import { StyledPopup, PopupItem } from "src/components";
 import styled from "styled-components";
 import { HTMLAttributes, useCallback, useMemo } from "react";
 import { useStore } from "src/stores/rootStore";
-import { BLACKLIST_TAG } from "types/constants";
+import { BLACKLIST_TAG, DEFAULT_QUALITY } from "types/constants";
 import Link from "next/link";
 import { TagList } from "src/stores/ImageList";
 
@@ -55,7 +55,7 @@ function UserAvatar(
               alt={name ?? "usernames"}
               height={48}
               width={48}
-              quality={100}
+              quality={DEFAULT_QUALITY}
             />
           </Avatar>
         ),
