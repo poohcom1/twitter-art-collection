@@ -74,23 +74,6 @@ export async function getTwitterRateLimit(): Promise<TwitterApiRateLimitRedisPlu
 }
 
 // Helper functions
-/**
- * @deprecated
- * @param upstream
- * @param database
- * @returns
- */
-export function mergeTweets<T>(upstream: T[], database: T[]) {
-  for (let j = 0; j < database.length; j++) {
-    for (let i = 0; i < upstream.length; i++) {
-      if (upstream[i] === database[j]) {
-        return upstream.slice(0, i).concat(database.slice(j));
-      }
-    }
-  }
-
-  return upstream.concat(database);
-}
 
 /**
  * Predicate to filter for only tweets with photo media
@@ -271,6 +254,24 @@ export const TWEET_OPTIONS: Partial<Tweetv2FieldsParams> = {
   "media.fields": ["url", "width", "height"],
 };
 
+/**
+ * @deprecated
+ */
+export function mergeTweets<T>(upstream: T[], database: T[]) {
+  for (let j = 0; j < database.length; j++) {
+    for (let i = 0; i < upstream.length; i++) {
+      if (upstream[i] === database[j]) {
+        return upstream.slice(0, i).concat(database.slice(j));
+      }
+    }
+  }
+
+  return upstream.concat(database);
+}
+
+/**
+ * @deprecated
+ */
 export async function fetchAndMergeTweets(
   twitterApi: TwitterApiv2ReadOnly,
   userId: string,

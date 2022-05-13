@@ -40,9 +40,15 @@ export class TweetList implements ImageList {
     const res = await this.adapter(this.token);
 
     if (res.error === null) {
-      this.tweets = this.tweets.concat(res.data.tweets);
+      this.tweets = this.tweets.concat(
+        res.data.tweets.filter((t) => !this.tweets.find((t2) => t.id === t2.id))
+      );
 
-      if (res.data.nextToken && res.data.tweets.length > 0) {
+      if (
+        res.data.nextToken &&
+        res.data.nextToken !== this.token &&
+        res.data.tweets.length > 0
+      ) {
         this.fetchState = "fetched";
         this.token = res.data.nextToken;
       } else {

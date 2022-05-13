@@ -94,6 +94,11 @@ export default function TweetsGallery({
           />
         </div>
       )}
+      {maxItems > 0 && maxItems === images.length && (
+        <h4 style={{ textAlign: "center" }}>
+          {"That's all the tweets for now!"}
+        </h4>
+      )}
     </MainDiv>
   );
 }

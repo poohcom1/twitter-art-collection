@@ -42,7 +42,7 @@ export default async function handler(
 
     const response: TweetsResponse = {
       nextToken: tweets.length > 0 ? tweets[tweets.length - 1].id : undefined,
-      tweets: tweets.filter((t) => !!t.data),
+      tweets: tweets,
     };
 
     res.send(response);
