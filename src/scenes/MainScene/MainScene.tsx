@@ -104,10 +104,6 @@ export default function MainScene() {
   const newUser = useStore((state) => state.newUser);
   const selectedList = useStore((state) => state.selectedLists);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [selectedList]);
-
   // Key controls
   const [editMode, toggledEditMode] = useStore((state) => [
     state.editMode,

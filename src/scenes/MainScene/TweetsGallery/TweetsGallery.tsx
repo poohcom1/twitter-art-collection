@@ -67,7 +67,13 @@ export default function TweetsGallery({
     threshold: 16,
   });
 
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const selectedList = useStore((state) => state.selectedLists);
+
+  useEffect(() => {
+    containerRef.current?.scrollTo(0, 0);
+  }, [selectedList]);
 
   return (
     <MainDiv ref={containerRef}>
