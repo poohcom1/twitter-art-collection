@@ -13,7 +13,6 @@ const useIntersection = (
       ([entry]) => {
         const visible = entry.isIntersecting;
 
-        console.log(visible);
         if (visible !== isVisible) {
           callback();
         }

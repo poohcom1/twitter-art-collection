@@ -16,15 +16,17 @@ export async function getRedis(): Promise<
   }
 }
 
-export async function useRedis(
-  callback: (redis: RedisClientType<any, any>) => Promise<void>
-) {
+export async function useRedis<T>(
+  callback: (redis: RedisClientType<any, any>) => Promise<T>
+): Promise<T | void> {
   const redis = await getRedis();
 
   if (redis) {
-    await callback(redis);
+    const data = await callback(redis);
 
     await redis.quit();
+
+    return data;
   }
 }
 

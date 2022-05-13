@@ -12,13 +12,13 @@ export default async function handler(
     return res.status(500).end();
   }
 
-  const [tweetsLookup] = await Promise.all([
-    rateLimitPlugin.v2.getRateLimit("users/732184093/liked_tweets"),
+  const [likes, lookup] = await Promise.all([
+    rateLimitPlugin.v2.getRateLimitHistory("users/:id/liked_tweets", "GET"),
+    rateLimitPlugin.v2.getRateLimitHistory("tweets", "GET"),
   ]);
 
-  console.log(tweetsLookup);
-
   res.send({
-    tweetsLookup,
+    likes: likes,
+    lookup: lookup,
   });
 }
