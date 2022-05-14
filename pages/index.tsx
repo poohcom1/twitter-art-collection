@@ -158,7 +158,7 @@ export default function Index() {
       <LoadingScene display={session.status === "loading"} />
       <ThemeProvider theme={theme}>
         <GlobalCSS />
-        <Banner />
+        <Banner style={{ backgroundColor: "transparent" }} />
         <MainDiv>
           <FlexDiv>
             <TextDiv>

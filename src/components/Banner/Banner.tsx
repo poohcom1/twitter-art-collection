@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { HTMLAttributes } from "react";
-import { lightTheme } from "src/themes";
-import styled, { DefaultTheme, withTheme } from "styled-components";
+import { darkTheme, lightTheme } from "src/themes";
+import styled, { DefaultTheme, WithTheme, withTheme } from "styled-components";
 import { CANONICAL_URL } from "types/constants";
 
 const HeaderDiv = styled.div`
@@ -9,6 +9,8 @@ const HeaderDiv = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
+
+  background-color: ${(props) => props.theme.color.secondary};
 `;
 
 const GithubLinkA = styled.a`
@@ -41,18 +43,24 @@ const GithubLink = withTheme(function GithubLink(props: {
   );
 });
 
-const Banner = (
-  props: HTMLAttributes<HTMLDivElement> & {
-    logoType?: "dark" | "light";
-    hideGithubLogo?: boolean;
-  }
-) => (
-  <HeaderDiv {...props}>
-    <a style={{ textDecoration: "none" }} href={CANONICAL_URL}>
-      <h2>Twitter Art Collection</h2>
-    </a>
-    {!props.hideGithubLogo && <GithubLink type={props.logoType} />}
-  </HeaderDiv>
+const Banner = withTheme(
+  (
+    props: HTMLAttributes<HTMLDivElement> & {
+      hideGithubLogo?: boolean;
+    } & WithTheme
+  ) => (
+    <HeaderDiv {...props}>
+      <a
+        style={{ textDecoration: "none", color: props.theme.color.onSecondary }}
+        href={CANONICAL_URL}
+      >
+        <h2>Twitter Art Collection</h2>
+      </a>
+      {!props.hideGithubLogo && (
+        <GithubLink type={props.theme === darkTheme ? "dark" : "light"} />
+      )}
+    </HeaderDiv>
+  )
 );
 
 export default Banner;

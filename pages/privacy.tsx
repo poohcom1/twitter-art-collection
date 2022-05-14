@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Banner, StyledButton } from "src/components";
 import { useDisplayStore } from "src/stores/displayStore";
 import { createGlobalStyle, ThemeProvider } from "styled-components";
-import { COLLECTION_URL } from "types/constants";
 
 const GlobalStyle = createGlobalStyle`
   body {
@@ -27,7 +26,7 @@ export default function Privacy() {
       </Head>
       <ThemeProvider theme={theme}>
         <GlobalStyle />
-        <Banner style={{ backgroundColor: "black" }} logoType="light" />
+        <Banner />
         <div className="container" style={{ marginTop: "0", paddingTop: "0" }}>
           <h1 style={{ marginBottom: "0" }}>Privacy Policy</h1>
           <p style={{ color: "grey", marginTop: "0" }}>
@@ -63,8 +62,8 @@ export default function Privacy() {
             </a>
           </p>
 
-          <Link href={"/" + COLLECTION_URL} passHref>
-            <StyledButton>Return</StyledButton>
+          <Link href={"/"} passHref>
+            <StyledButton>Home</StyledButton>
           </Link>
         </div>
       </ThemeProvider>
