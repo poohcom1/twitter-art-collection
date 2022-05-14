@@ -1,81 +1,65 @@
-import TwitterApi, {
+import {
   ITwitterApiClientPlugin,
   TweetV2,
   Tweetv2FieldsParams,
   Tweetv2ListResult,
   TweetV2LookupResult,
+  TwitterApi,
   TwitterApiReadOnly,
-  TwitterApiTokens,
 } from "twitter-api-v2";
 import type TwitterApiv2ReadOnly from "twitter-api-v2/dist/v2/client.v2.read";
 import TwitterApiCachePluginRedis from "@twitter-api-v2/plugin-cache-redis";
 import { getRedis, getTweetCache, storeTweetCache } from "../redis";
 import RateLimitRedisPlugin from "./RateLimitRedisPlugin";
+import { JWT } from "next-auth/jwt";
 
 let cachedApi: TwitterApiReadOnly | null = null;
 let cachePlugin: TwitterApiCachePluginRedis | null = null;
-let rateLimitPlugin: RateLimitRedisPlugin | null = null;
 
-async function initTwitter(tokens?: TwitterApiTokens) {
-  const bearerToken = process.env.TWITTER_BEARER_TOKEN;
+const bearerToken = process.env.TWITTER_BEARER_TOKEN;
+
+async function getCachePlugin(): Promise<ITwitterApiClientPlugin> {
+  if (cachePlugin) return cachePlugin;
+
+  const redis = await getRedis();
+
+  cachePlugin = new TwitterApiCachePluginRedis(redis);
+
+  return cachePlugin;
+}
+
+export async function getTwitterAppApi() {
+  if (cachedApi) {
+    return cachedApi;
+  }
 
   if (!bearerToken) {
     throw new Error("Missing TWITTER_BEARER_TOKEN environment variables!");
   }
 
-  // Twitter setup
-  const redis = await getRedis();
+  const twitterApi = new TwitterApi(bearerToken, {
+    plugins: [await getCachePlugin(), new RateLimitRedisPlugin()],
+  });
 
-  const plugins: ITwitterApiClientPlugin[] = [];
-
-  if (redis) {
-    cachePlugin = new TwitterApiCachePluginRedis(redis);
-    rateLimitPlugin = new RateLimitRedisPlugin();
-
-    plugins.push(cachePlugin, rateLimitPlugin);
-  }
-
-  const client = tokens
-    ? new TwitterApi(tokens, {
-        plugins,
-      })
-    : new TwitterApi(bearerToken, {
-        plugins,
-      });
-
-  return { client: client, rateLimitPlugin };
-}
-
-export async function getTwitterApi() {
-  if (cachedApi) {
-    return cachedApi;
-  }
-
-  const twitterApi = await initTwitter();
-
-  cachedApi = twitterApi.client;
+  cachedApi = twitterApi;
 
   return cachedApi;
 }
 
-export async function getUserTwitterApi(tokens: TwitterApiTokens) {
-  const twitterApi = await initTwitter(tokens);
+export async function getTwitterOAuth(user: JWT) {
+  const twitterApi = new TwitterApi(
+    {
+      appKey: process.env.TWITTER_API_KEY!,
+      appSecret: process.env.TWITTER_API_SECRET!,
+      accessToken: user.twitter?.oauth_token as string,
+      accessSecret: user.twitter?.oauth_token_secret as string,
+    },
+    {
+      plugins: [await getCachePlugin(), new RateLimitRedisPlugin(user.uid)],
+    }
+  );
 
-  return twitterApi.client;
-}
-
-export async function getTwitterRateLimit(
-  tokens?: TwitterApiTokens
-): Promise<RateLimitRedisPlugin | null> {
-  if (rateLimitPlugin) {
-    return rateLimitPlugin;
-  }
-
-  const twitterApi = await initTwitter(tokens);
-
-  rateLimitPlugin = twitterApi.rateLimitPlugin;
-
-  return rateLimitPlugin;
+  return twitterApi;
 }
 
 // Helper functions
@@ -171,7 +155,7 @@ export async function tweetExpansions(
 
   const tweets = await getTweetCache(tweetIds)(redis);
 
-  const twitterApi = await getTwitterApi();
+  const twitterApi = await getTwitterAppApi();
 
   // Tweets not in cache
   const partialTweet = tweets.filter((t) => !t.data);

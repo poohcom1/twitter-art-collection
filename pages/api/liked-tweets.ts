@@ -1,30 +1,28 @@
-import { authOptions } from "lib/nextAuth";
 import { storeTweetCache, useRedis } from "lib/redis";
 import {
   createTweetObjects,
-  getTwitterApi,
+  getTwitterOAuth,
   TWEET_OPTIONS,
 } from "lib/twitter/twitter";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
+import { getToken } from "next-auth/jwt";
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const [twitterApi, session] = await Promise.all([
-    getTwitterApi(),
-    getServerSession({ req, res }, authOptions),
-  ]);
+  const user = await getToken({ req });
 
-  if (!session) {
+  if (!user) {
     return res.status(401).end();
   }
+
+  const twitterApi = await getTwitterOAuth(user);
 
   const pagination_token = (req.query.token as string) ?? undefined;
 
   try {
-    const payload = await twitterApi.v2.userLikedTweets(session.user.id, {
+    const payload = await twitterApi.v2.userLikedTweets(user.uid, {
       ...TWEET_OPTIONS,
       pagination_token,
     });

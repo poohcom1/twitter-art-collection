@@ -11,6 +11,8 @@ import {
   Legend,
   TimeScale,
   Chart as ChartJS,
+  TooltipItem,
+  ChartDataset,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 import { useSession } from "next-auth/react";
@@ -18,6 +20,8 @@ import styled from "styled-components";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
+import { RateLimitResponse } from "./api/admin/rate-limit";
+import { darkTheme } from "src/themes";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -30,19 +34,79 @@ ChartJS.register(
 );
 
 const Main = styled.div`
-  padding: 16px;
-`;
+  padding: 64px;
 
-interface IData {
-  lookup?: RateLimitData;
-  likes?: RateLimitData;
-  homeTimeline?: RateLimitData;
-}
+  background-color: ${darkTheme.color.surface};
+  color: ${darkTheme.color.onSurface};
+`;
 
 interface IModel {
   x: number;
   y: number;
   label: string;
+}
+
+function dataToChart(t: RateLimitData): IModel[] {
+  return t?.map((t) => ({
+    x: t.time,
+    y: t.remaining / t.limit,
+    label: `${t.remaining}/${t.limit}`,
+  }));
+}
+
+function CustomLineChart(props: {
+  title: string;
+  datasets: ChartDataset<"line", IModel[]>[];
+}) {
+  return (
+    <Line
+      title={props.title}
+      style={{ padding: "64px", color: "white" }}
+      options={{
+        scales: {
+          x: {
+            type: "time",
+            time: {
+              unit: "month",
+            },
+
+            grid: {
+              color: "white",
+              borderColor: "white",
+            },
+          },
+          y: {
+            suggestedMin: 0,
+            grid: {
+              color: "white",
+              borderColor: "white",
+            },
+            ticks: {
+              callback: (val) => (val as number) * 100 + "%",
+              color: "white",
+            },
+          },
+        },
+        plugins: {
+          title: {
+            display: true,
+            text: props.title,
+            color: "white",
+          },
+          tooltip: {
+            callbacks: {
+              label: function (tooltipItem: TooltipItem<"line">) {
+                return (tooltipItem.raw as IModel).label + "";
+              },
+            },
+          },
+        },
+      }}
+      data={{
+        datasets: props.datasets,
+      }}
+    />
+  );
 }
 
 export async function getServerSideProps(
@@ -65,7 +129,11 @@ export async function getServerSideProps(
 export default function Admin() {
   const session = useSession();
 
-  const [rateLimitData, setRateLimitData] = useState<IData>({});
+  const [rateLimitData, setRateLimitData] = useState<RateLimitResponse>({
+    lookups: [],
+    likes: {},
+    homeTimeline: {},
+  });
 
   useEffect(() => {
     if (session.status === "authenticated") {
@@ -79,66 +147,45 @@ export default function Admin() {
   return (
     <Main>
       <h1>Admin Dashboard</h1>
-      <h2>Rate Limits</h2>
-      <Line
-        style={{ padding: "64px" }}
-        options={{
-          scales: {
-            x: {
-              type: "time",
-              time: {
-                unit: "month",
-              },
-            },
-            y: { suggestedMin: 0 },
+
+      <h2>User Rate Limits</h2>
+      <CustomLineChart
+        title="Feed"
+        datasets={Object.entries(rateLimitData.homeTimeline).map(
+          ([id, rateLimit]) => ({
+            label: "User:" + id,
+            fill: false,
+            data: dataToChart(rateLimit),
+            borderColor: "blue",
+            backgroundColor: "blue",
+          })
+        )}
+      />
+      <CustomLineChart
+        title="Likes"
+        datasets={Object.entries(rateLimitData.likes).map(
+          ([id, rateLimit]) => ({
+            label: "User:" + id,
+            fill: false,
+            data: dataToChart(rateLimit),
+            borderColor: "red",
+            backgroundColor: "red",
+          })
+        )}
+      />
+
+      <h2>App Rate Limits</h2>
+      <CustomLineChart
+        title="App Rate Limits"
+        datasets={[
+          {
+            label: "Tweet Lookups",
+            fill: false,
+            data: dataToChart(rateLimitData.lookups),
+            borderColor: "yellow",
+            backgroundColor: "yellow",
           },
-          plugins: {
-            tooltip: {
-              callbacks: {
-                label: function (tooltipItem) {
-                  return (tooltipItem.raw as IModel).label + "";
-                },
-              },
-            },
-          },
-        }}
-        data={{
-          datasets: [
-            {
-              label: "Tweet Lookups",
-              fill: false,
-              data: rateLimitData.lookup?.map((t) => ({
-                x: t.time,
-                y: t.remaining / t.limit,
-                label: `${t.remaining}/${t.limit}`,
-              })),
-              borderColor: "blue",
-              backgroundColor: "blue",
-            },
-            {
-              label: "Tweet Likes",
-              fill: false,
-              data: rateLimitData.likes?.map((t) => ({
-                x: t.time,
-                y: t.remaining / t.limit,
-                label: `${t.remaining}/${t.limit}`,
-              })),
-              borderColor: "red",
-              backgroundColor: "red",
-            },
-            {
-              label: "Home Timeline",
-              fill: false,
-              data: rateLimitData.homeTimeline?.map((t) => ({
-                x: t.time,
-                y: t.remaining / t.limit,
-                label: `${t.remaining}/${t.limit}`,
-              })),
-              borderColor: "yellow",
-              backgroundColor: "yellow",
-            },
-          ],
-        }}
+        ]}
       />
     </Main>
   );

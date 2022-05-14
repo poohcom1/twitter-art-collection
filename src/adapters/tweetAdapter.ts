@@ -15,7 +15,7 @@ export const fetchTweetData: TweetAdapter = async (tweetIds: string[]) => {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      "Cache-Control": `public, max-age=${HOUR}`,
+      "Cache-Control": `public, max-age=${HOUR * 24}`,
     },
   });
 

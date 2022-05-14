@@ -32,14 +32,25 @@ interface TimelineTwitterApiRateLimitPluginWithPrefixV2
 export type RateLimitData = TwitterRateLimitTimeline[];
 
 class RedisApiRateLimitStore implements ITwitterApiRateLimitStore {
-  static getKey(
+  constructor(protected userId?: string | undefined) {}
+
+  /**
+   * Schema ratelimit:method:endpoint:user?:userId
+   */
+  getKey(
     args: Pick<ITwitterApiRateLimitGetArgs, "endpoint" | "method">
   ): string {
-    return args.method + ":" + args.endpoint;
+    return (
+      "ratelimit:" +
+      args.method! +
+      ":" +
+      args.endpoint +
+      (this.userId ? ":user:" + this.userId : "")
+    );
   }
 
   async set(args: ITwitterApiRateLimitSetArgs): Promise<void> {
-    const key = RedisApiRateLimitStore.getKey(args);
+    const key = this.getKey(args);
 
     await useRedis(async (redis) => {
       const data = await redis.get(key);
@@ -57,7 +68,7 @@ class RedisApiRateLimitStore implements ITwitterApiRateLimitStore {
   ): Promise<void | TwitterRateLimit> {
     if (args.method) {
       const rateLimit = await useRedis(
-        async (redis) => await redis.get(RedisApiRateLimitStore.getKey(args))
+        async (redis) => await redis.get(this.getKey(args))
       );
 
       if (rateLimit) {
@@ -68,11 +79,11 @@ class RedisApiRateLimitStore implements ITwitterApiRateLimitStore {
   }
 
   async getHistory(
-    args: ITwitterApiRateLimitGetArgs
+    args: ITwitterApiRateLimitGetArgs & { id?: string }
   ): Promise<void | RateLimitData> {
     if (args.method) {
       const rateLimit = await useRedis(
-        async (redis) => await redis.get(RedisApiRateLimitStore.getKey(args))
+        async (redis) => await redis.get(this.getKey(args))
       );
 
       if (rateLimit) {
@@ -90,8 +101,8 @@ export default class RateLimitRedisPlugin extends TwitterApiRateLimitPlugin {
   declare _v1Plugin: TimelineTwitterApiRateLimitPluginWithPrefixV1;
   declare _v2Plugin: TimelineTwitterApiRateLimitPluginWithPrefixV2;
 
-  constructor() {
-    super(new RedisApiRateLimitStore());
+  constructor(userId?: string) {
+    super(new RedisApiRateLimitStore(userId));
   }
 
   getRateLimitHistory(args: ITwitterApiRateLimitGetArgs) {

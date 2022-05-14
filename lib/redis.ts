@@ -3,17 +3,11 @@ import { RedisClientType } from "@node-redis/client";
 import { createClient } from "redis";
 import { tweetIdsToSchema } from "./twitter/twitter";
 
-export async function getRedis(): Promise<
-  RedisClientType<any, any> | undefined
-> {
-  try {
-    const redis = createClient({ url: process.env.REDIS_URL });
-    redis.on("error", (err) => console.log("Redis Client Error", err));
-    await redis.connect();
-    return redis;
-  } catch (e) {
-    console.error("[redis] unable to connect to redis!");
-  }
+export async function getRedis(): Promise<RedisClientType<any, any>> {
+  const redis = createClient({ url: process.env.REDIS_URL });
+  redis.on("error", (err) => console.log("Redis Client Error", err));
+  await redis.connect();
+  return redis;
 }
 
 export async function useRedis<T>(
