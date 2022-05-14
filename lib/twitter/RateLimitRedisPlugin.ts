@@ -59,7 +59,7 @@ class RedisApiRateLimitStore implements ITwitterApiRateLimitStore {
 
       parsedData.push({ time: Date.now(), ...args.rateLimit });
 
-      await redis.set(key, JSON.stringify(parsedData));
+      await redis.setEx(key, 3600 * 24 * 30 * 12, JSON.stringify(parsedData));
     });
   }
 
