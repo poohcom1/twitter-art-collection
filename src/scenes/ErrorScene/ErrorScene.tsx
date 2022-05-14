@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import { useEffect } from "react";
 import { Banner } from "src/components";
 import { useDisplayStore } from "src/stores/displayStore";
-import styled, { ThemeProvider } from "styled-components";
+import styled from "styled-components";
 
 const BodyDiv = styled.div`
   background-color: ${(props) => props.theme.color.background};
@@ -55,26 +55,25 @@ export default function ErrorScene({
   useEffect(() => window.history.replaceState(null, "", "?error=true"), []);
 
   return (
-    <ThemeProvider theme={theme}>
-      <BodyDiv>
-        <Banner hideGithubLogo style={{ color: theme.color.onSurface }} />
-        <MainDiv>
-          <HText>{headingText}</HText>
-          <Text>{errorText}</Text>
+    <BodyDiv>
+      <Banner hideGithubLogo style={{ color: theme.color.onSurface }} />
+      <MainDiv>
+        <HText>{headingText}</HText>
+        <Text>{errorText}</Text>
 
-          <Link href="/" passHref>
-            <a
-              style={{
-                color: theme.color.onBackground,
-                textDecoration: "none",
-                marginTop: "64px",
-              }}
-            >
-              Reload
-            </a>
-          </Link>
+        <Link href="/" passHref>
+          <a
+            style={{
+              color: theme.color.onBackground,
+              textDecoration: "none",
+              marginTop: "64px",
+            }}
+          >
+            Reload
+          </a>
+        </Link>
 
-          {/* <div className="center" style={{ width: "100vw", marginTop: "-15px" }}>
+        {/* <div className="center" style={{ width: "100vw", marginTop: "-15px" }}>
           <Image
             src="/assets/pulse-loading.svg"
             alt=""
@@ -83,8 +82,7 @@ export default function ErrorScene({
             height="120px"
           />
         </div> */}
-        </MainDiv>
-      </BodyDiv>
-    </ThemeProvider>
+      </MainDiv>
+    </BodyDiv>
   );
 }

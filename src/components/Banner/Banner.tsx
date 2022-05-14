@@ -57,7 +57,7 @@ const Banner = withTheme(
         <h2>Twitter Art Collection</h2>
       </a>
       {!props.hideGithubLogo && (
-        <GithubLink type={props.theme === darkTheme ? "dark" : "light"} />
+        <GithubLink type={props.theme === darkTheme ? "light" : "dark"} />
       )}
     </HeaderDiv>
   )

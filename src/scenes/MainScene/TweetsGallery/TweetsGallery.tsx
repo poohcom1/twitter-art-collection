@@ -78,8 +78,6 @@ export default function TweetsGallery({
     containerRef.current?.scrollTo(0, 0);
   }, [selectedList]);
 
-  console.log(galleryMessage);
-
   return (
     <MainDiv ref={containerRef}>
       {galleryMessage && (
