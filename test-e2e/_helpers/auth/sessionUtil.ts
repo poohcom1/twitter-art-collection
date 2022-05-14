@@ -39,6 +39,14 @@ export async function mockSession(
     })
   );
 
+  const feedRoute = page.route("**/api/feed-tweets", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ tweets: TWEETS.slice(0, 100), next_token: "" }),
+    })
+  );
+
   const tweetsRoute = page.route("**/api/liked-tweets", (route) =>
     route.fulfill({
       status: 200,
@@ -88,6 +96,7 @@ export async function mockSession(
     addCookies,
     sessionRoute,
     userRoute,
+    feedRoute,
     tweetsRoute,
     tagsRoute,
     imageRoute,
