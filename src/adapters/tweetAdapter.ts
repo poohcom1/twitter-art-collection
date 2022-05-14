@@ -1,6 +1,6 @@
 import { jsonOrError } from "./adapter";
 
-const MAX_AGE = 60 * 60;
+const HOUR = 60 * 60; // 1 hour
 
 export type TweetAdapter = (
   tweetIds: string[]
@@ -15,7 +15,7 @@ export const fetchTweetData: TweetAdapter = async (tweetIds: string[]) => {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      "Cache-Control": `public, max-age=${MAX_AGE}`,
+      "Cache-Control": `public, max-age=${HOUR}`,
     },
   });
 
@@ -33,7 +33,7 @@ export const fetchLikedTweets: PaginatedTweetAdapter = async (
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": `public, max-age=${MAX_AGE}`,
+        "Cache-Control": `public, max-age=${HOUR * 24}`,
       },
     }
   );
@@ -50,7 +50,7 @@ export const fetchFeedTweets: PaginatedTweetAdapter = async (
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      "Cache-Control": `public, max-age=${MAX_AGE}`,
+      "Cache-Control": `public, max-age=${60 * 15}`,
     },
   });
 
