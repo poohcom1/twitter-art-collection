@@ -123,6 +123,7 @@ export default function Tweet(props: {
               onClick={() => onImageClick(index)}
               quality={DEFAULT_QUALITY}
               lazyBoundary="400px"
+              unoptimized={true}
             />
           ))}
         </div>

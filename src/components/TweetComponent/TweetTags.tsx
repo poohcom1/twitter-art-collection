@@ -194,6 +194,7 @@ function PreviewImage(
           objectFit="contain"
           priority={true}
           quality={DEFAULT_QUALITY}
+          unoptimized={true}
         />
       </div>
       <ModalClickableDiv
