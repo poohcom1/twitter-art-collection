@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import TwitterApi, {
   ITwitterApiClientPlugin,
   TweetV2,
@@ -12,7 +11,6 @@ import type TwitterApiv2ReadOnly from "twitter-api-v2/dist/v2/client.v2.read";
 import TwitterApiCachePluginRedis from "@twitter-api-v2/plugin-cache-redis";
 import { getRedis, getTweetCache, storeTweetCache } from "../redis";
 import RateLimitRedisPlugin from "./RateLimitRedisPlugin";
-import { getMongoConnection, removeDeletedTweets } from "lib/mongodb";
 
 let cachedApi: TwitterApiReadOnly | null = null;
 let cachePlugin: TwitterApiCachePluginRedis | null = null;
@@ -197,9 +195,14 @@ export async function tweetExpansions(
         if (deletedTweets.length > 0) {
           console.log("Deleting tweets: " + deletedTweetIds);
 
-          await getMongoConnection();
+          const mongoLib = await import("lib/mongodb");
 
-          await removeDeletedTweets(userIdToCheckDeleted, deletedTweetIds);
+          await mongoLib.getMongoConnection();
+
+          await mongoLib.removeDeletedTweets(
+            userIdToCheckDeleted,
+            deletedTweetIds
+          );
         }
       }
 
