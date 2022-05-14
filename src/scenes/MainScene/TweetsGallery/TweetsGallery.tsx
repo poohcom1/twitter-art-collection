@@ -46,12 +46,6 @@ export default function TweetsGallery({
 
   const setError = useStore((state) => state.setError);
 
-  useEffect(() => {
-    if (images.length === 0 && maxItems !== 0) {
-      fetchItems().then().catch(setError);
-    }
-  }, [fetchItems, images.length, maxItems, setError]);
-
   const fetchMoreItems = async (
     _startIndex: number,
     _stopIndex: number,
@@ -70,13 +64,27 @@ export default function TweetsGallery({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedList = useStore((state) => state.selectedLists);
+  const galleryMessage = useStore(
+    (state) => state.galleryErrors[state.selectedLists[0]] ?? ""
+  );
+
+  useEffect(() => {
+    if (images.length === 0 && maxItems !== 0) {
+      fetchItems().then().catch(setError);
+    }
+  }, [fetchItems, images.length, maxItems, setError, selectedList]);
 
   useEffect(() => {
     containerRef.current?.scrollTo(0, 0);
   }, [selectedList]);
 
+  console.log(galleryMessage);
+
   return (
     <MainDiv ref={containerRef}>
+      {galleryMessage && (
+        <h4 style={{ textAlign: "center" }}>{galleryMessage}</h4>
+      )}
       {maxItems === 0 && (
         <h4 style={{ textAlign: "center" }}>Nothing to see here!</h4>
       )}
@@ -89,7 +97,7 @@ export default function TweetsGallery({
         columnGutter={columnGutter}
         columnCount={columnCount}
       />
-      {images.length < maxItems && (
+      {!galleryMessage && images.length < maxItems && (
         <div className="center" style={{ marginTop: "32px" }}>
           <Image
             src="/assets/pulse-loading.svg"
@@ -100,11 +108,11 @@ export default function TweetsGallery({
           />
         </div>
       )}
-      {maxItems > 0 && maxItems === images.length && (
+      {/* {maxItems > 0 && maxItems === images.length && (
         <h4 style={{ textAlign: "center" }}>
           {"That's all the tweets for now!"}
         </h4>
-      )}
+      )} */}
     </MainDiv>
   );
 }

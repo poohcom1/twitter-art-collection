@@ -42,6 +42,7 @@ const initialState = {
   editMode: <"add" | "delete">"add",
   errorMessage: "",
   warningMessage: "",
+  galleryErrors: <Record<string, string>>{},
 
   // Tags
   pinnedTags: <string[]>[],
@@ -139,7 +140,8 @@ const store = combine(initialState, (set, get) => ({
       get().selectedLists.length === 1 &&
       get().searchTerm === ""
     ) {
-      const tweetList = get().imageLists.get(get().selectedLists[0]);
+      const list = get().selectedLists[0];
+      const tweetList = get().imageLists.get(list);
 
       if (tweetList) {
         if (tweetList.fetchState === "fetched") {
@@ -148,9 +150,14 @@ const store = combine(initialState, (set, get) => ({
           if (res.error === null) {
             cacheTweets(get().tweetMap, res.data);
 
-            set({ imageLists: new Map(get().imageLists) });
+            set({
+              imageLists: new Map(get().imageLists),
+              galleryErrors: { ...get().galleryErrors, [list]: "" },
+            });
           } else {
-            set({ errorMessage: res.error });
+            set({
+              galleryErrors: { ...get().galleryErrors, [list]: res.error },
+            });
           }
         }
       } else {

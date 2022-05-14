@@ -61,10 +61,7 @@ export default function MainScene() {
     else return "all_fetched" as FetchState;
   });
 
-  const searchTerm = useStore((state) => state.searchTerm);
-
   // Loading
-  const [tweetsLoaded, setTweetsLoaded] = useState(false);
   const [userLoaded, setUserLoaded] = useState(false);
 
   const [errorMessage, setError] = useStore((state) => [
@@ -75,7 +72,6 @@ export default function MainScene() {
   useEffect(() => {
     if (
       session.status === "authenticated" &&
-      !tweetsLoaded &&
       !userLoaded &&
       errorMessage === ""
     ) {
@@ -85,23 +81,12 @@ export default function MainScene() {
           else setUserLoaded(true);
         })
         .catch((e) => setError(e.toString()));
-
-      fetchTweets()
-        .then(() => setTweetsLoaded(true))
-        .catch((e) => setError(e.toString()));
     }
-  }, [
-    session.status,
-    fetchTweets,
-    fetchUser,
-    setError,
-    errorMessage,
-    tweetsLoaded,
-    userLoaded,
-  ]);
+  }, [errorMessage, fetchUser, session.status, setError, userLoaded]);
 
   // Filtering and rendering
   const selectedList = useStore((state) => state.selectedLists);
+  const searchTerm = useStore((state) => state.searchTerm);
 
   // Key controls
   const [editMode, toggledEditMode] = useStore((state) => [
@@ -127,7 +112,7 @@ export default function MainScene() {
       <GlobalStyle />
       <Overlay />
       <ContextMenu />
-      <LoadingScene display={!tweetsLoaded || !userLoaded} />
+      <LoadingScene display={!userLoaded} />
       <AppDiv className="App">
         <Header />
 

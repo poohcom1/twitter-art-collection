@@ -19,16 +19,16 @@ export default async function handler(
     return;
   }
 
-  const twitterApi = await getUserTwitterApi({
-    appKey: process.env.TWITTER_API_KEY!,
-    appSecret: process.env.TWITTER_API_SECRET!,
-    accessToken: user.twitter?.oauth_token as string,
-    accessSecret: user.twitter?.oauth_token_secret as string,
-  });
-
-  const max_id = (req.query.token as string) ?? undefined;
-
   try {
+    const twitterApi = await getUserTwitterApi({
+      appKey: process.env.TWITTER_API_KEY!,
+      appSecret: process.env.TWITTER_API_SECRET!,
+      accessToken: user.twitter?.oauth_token as string,
+      accessSecret: user.twitter?.oauth_token_secret as string,
+    });
+
+    const max_id = (req.query.token as string) ?? undefined;
+
     const payload = await twitterApi.v1.homeTimeline({ max_id, count: 200 });
 
     const tweetsV1 = payload.tweets.filter((tweet) =>
@@ -52,6 +52,6 @@ export default async function handler(
     }
     console.error(e);
 
-    res.status(500).send("Server Error");
+    res.status(500).send("Something went wrong :(");
   }
 }
