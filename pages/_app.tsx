@@ -1,5 +1,6 @@
 import { SessionProvider } from "next-auth/react";
 import type { AppProps } from "next/app";
+import Head from "next/head";
 import Router from "next/router";
 import { useEffect, useState } from "react";
 import { LoadingScene } from "src/scenes";
@@ -34,15 +35,20 @@ function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
   }, [initDisplay]);
 
   return (
-    <SessionProvider session={session}>
-      <ThemeProvider theme={theme}>
-        {pageLoading ? (
-          <LoadingScene display={true} />
-        ) : (
-          <Component {...pageProps} />
-        )}
-      </ThemeProvider>
-    </SessionProvider>
+    <>
+      <Head>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+      </Head>
+      <SessionProvider session={session}>
+        <ThemeProvider theme={theme}>
+          {pageLoading ? (
+            <LoadingScene display={true} />
+          ) : (
+            <Component {...pageProps} />
+          )}
+        </ThemeProvider>
+      </SessionProvider>
+    </>
   );
 }
 

@@ -41,7 +41,7 @@ export const MainDiv = styled.div`
   @media only screen and (min-width: 768px) {
     padding: 0 150px;
   }
-  margin-top: 0;
+  margin-top: -32px;
 `;
 
 const FlexDiv = styled.div`
@@ -167,10 +167,10 @@ export default function Index() {
       <MainDiv>
         <FlexDiv>
           <TextDiv>
-            <h1>A place to organize artworks from Twitter!</h1>
+            <h1>Organize artworks from Twitter!</h1>
             <p style={{ fontSize: "larger", marginBottom: "50px" }}>
-              Having trouble finding that one Tweet artwork? Organize your
-              Tweets into tags so you can come back for them later!
+              Having trouble finding that one Tweet artwork? Group Tweets into
+              tags so you can come back for them later!
             </p>
             <h3>Just sign in with Twitter!</h3>
             <TwitterLogin />

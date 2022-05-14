@@ -114,7 +114,7 @@ export default function Tweet(props: {
             <Image
               className="tweet__image"
               src={im.url}
-              alt="Twitter Image"
+              alt=""
               key={im.url}
               layout="responsive"
               objectFit={data.content.media!.length > 1 ? "cover" : "contain"}
@@ -122,6 +122,7 @@ export default function Tweet(props: {
               height={im.height}
               onClick={() => onImageClick(index)}
               quality={DEFAULT_QUALITY}
+              lazyBoundary="400px"
             />
           ))}
         </div>
