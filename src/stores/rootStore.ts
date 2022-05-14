@@ -41,12 +41,10 @@ const initialState = {
 
   editMode: <"add" | "delete">"add",
   errorMessage: "",
+  warningMessage: "",
 
   // Tags
   pinnedTags: <string[]>[],
-
-  // User
-  newUser: false,
 
   // Twitter
   tweetMap: <Map<string, TweetSchema>>new Map(),
@@ -368,6 +366,9 @@ const store = combine(initialState, (set, get) => ({
   /* ---------------------------------- Error --------------------------------- */
   setError(message: string) {
     set({ errorMessage: message });
+  },
+  setWarning(message: string) {
+    set({ warningMessage: message });
   },
 }));
 

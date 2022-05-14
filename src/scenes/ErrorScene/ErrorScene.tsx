@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 import { Banner } from "src/components";
 import { useDisplayStore } from "src/stores/displayStore";
 import styled, { ThemeProvider } from "styled-components";
@@ -21,7 +24,6 @@ const MainDiv = styled.div`
   font-weight: 800;
 
   transition: opacity 0.5s;
-  pointer-events: none;
 `;
 
 const HText = styled.h1`
@@ -39,14 +41,24 @@ const Text = styled.p`
 
 export default function ErrorScene({ errorText = "" }) {
   const theme = useDisplayStore((state) => state.theme);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (router.query.error === "true") {
+      router.push("/").then().catch(alert);
+    }
+  }, [router]);
+
+  useEffect(() => window.history.replaceState(null, "", "?error=true"), []);
 
   return (
     <ThemeProvider theme={theme}>
       <BodyDiv>
-        <Banner hideGithubLogo />
+        <Banner hideGithubLogo style={{ color: theme.color.onSurface }} />
         <MainDiv>
           <HText>Oh noes... something went wrong</HText>
           <Text>{errorText}</Text>
+          <Link href="/">Reload</Link>
           {/* <div className="center" style={{ width: "100vw", marginTop: "-15px" }}>
           <Image
             src="/assets/pulse-loading.svg"

@@ -159,15 +159,39 @@ button.blank {
 }
 
 .tweet__footer {
-  margin-top: 15px;
+  margin-top: 8px;
+  height: fit-content;
   display: flex;
-  font-size: 0.8em;
+  justify-content: space-between;
+  font-size: 16px;
+}
+
+.tweet__footer > a {
+  text-decoration: none;
+}
+.tweet__footer > a:hover {
+  text-decoration: underline;
+}
+
+.tweet__footer-actions {
+  fill: grey;
+  width: 128px;
+
+  display: flex;
+  align-items: center;
+}
+
+.tweet__footer-actions > svg {
+  height: 24px;
+  margin-right: 16px;
 }
 
 .tweet__footer-date {
   color: grey;
   margin-left: auto;
   text-align: right;
+  flex: 0 0 auto;
+  font-size: 16px;
 }
 
 .tweet__content-media {

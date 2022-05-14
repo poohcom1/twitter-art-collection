@@ -101,7 +101,6 @@ export default function MainScene() {
   ]);
 
   // Filtering and rendering
-  const newUser = useStore((state) => state.newUser);
   const selectedList = useStore((state) => state.selectedLists);
 
   // Key controls
@@ -128,10 +127,7 @@ export default function MainScene() {
       <GlobalStyle />
       <Overlay />
       <ContextMenu />
-      <LoadingScene
-        display={!tweetsLoaded || !userLoaded || newUser}
-        text={newUser ? "Creating new user..." : ""}
-      />
+      <LoadingScene display={!tweetsLoaded || !userLoaded} />
       <AppDiv className="App">
         <Header />
 
