@@ -10,30 +10,38 @@ import { LoadingScene } from "src/scenes";
 import { CANONICAL_URL, COLLECTION_URL } from "types/constants";
 
 const GlobalCSS = createGlobalStyle`
+  html {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
   body {
+
+    margin: 0;
+    padding: 0;
+
     background-image: linear-gradient(
       135deg,
       ${(props) => props.theme.color.primary} 15%,
       ${(props) => props.theme.color.surface} 145%
     );
     background-repeat: no-repeat;
-    background-attachment: fixed;
-
 
     color: white;
 
     min-height: 100vh;
-    width: 100vw;
+    width: 100%;
 
     overflow-x: hidden;
+
   }
 `;
 
 export const MainDiv = styled.div`
-  padding: 25px 25px;
   @media only screen and (min-width: 768px) {
-    padding: 16px 150px;
+    padding: 0 150px;
   }
+  margin-top: 0;
 `;
 
 const FlexDiv = styled.div`
@@ -43,15 +51,18 @@ const FlexDiv = styled.div`
     flex-wrap: nowrap;
   }
   margin-bottom: 32px;
+  margin-top: 0;
+  justify-content: center;
+  align-items: center;
 `;
 
 export const TextDiv = styled.div`
-  padding: 15px;
+  padding: 32px;
   margin-right: 25px;
 `;
 
 const SampleImageDiv = styled.div`
-  width: fit-content;
+  width: 70vw;
   height: fit-content;
   overflow: hidden;
   border-radius: 15px;
@@ -60,13 +71,11 @@ const SampleImageDiv = styled.div`
 `;
 
 const FooterDiv = styled.div`
-  position: absolute;
-  top: 100vh;
-
   color: ${(props) => props.theme.color.onPrimary};
 
   width: 100%;
   margin: 32px;
+  margin-top: 64px;
   padding-bottom: 64px;
 `;
 
@@ -160,24 +169,25 @@ export default function Index() {
           <TextDiv>
             <h1>A place to organize artworks from Twitter!</h1>
             <p style={{ fontSize: "larger", marginBottom: "50px" }}>
-              Having trouble finding that one Tweet artwork? Organize your liked
+              Having trouble finding that one Tweet artwork? Organize your
               Tweets into tags so you can come back for them later!
             </p>
+            <h3>Just sign in with Twitter!</h3>
+            <TwitterLogin />
           </TextDiv>
           <SampleImageDiv>
             <Image
               style={{ backgroundColor: "rgba(255, 255, 255, 0.5)" }}
-              src="/assets/sample_image.png"
+              src="/assets/sample_image.jpeg"
               alt="Sample image"
-              width={1901}
-              height={904}
+              layout="responsive"
+              width={1005}
+              height={888}
               placeholder="blur"
-              blurDataURL="sample_image_small.png"
+              blurDataURL="sample_image_small.jpeg"
             />
           </SampleImageDiv>
         </FlexDiv>
-        <h3>Just sign in with Twitter!</h3>
-        <TwitterLogin />
       </MainDiv>
       <FooterDiv>
         <div style={{ display: "flex", flexWrap: "wrap" }}></div>
