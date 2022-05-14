@@ -43,10 +43,7 @@ export default async function handler(
       }
     }
 
-    const tweets = await tweetExpansions(
-      tweetsV1.map((t) => t.id_str),
-      user.uid
-    );
+    const tweets = await tweetExpansions(tweetsV1.map((t) => t.id_str));
 
     const response: TweetsResponse = {
       nextToken: tweets.length > 0 ? tweets[tweets.length - 1].id : undefined,

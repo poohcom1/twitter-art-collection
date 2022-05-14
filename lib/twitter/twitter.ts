@@ -12,6 +12,7 @@ import type TwitterApiv2ReadOnly from "twitter-api-v2/dist/v2/client.v2.read";
 import TwitterApiCachePluginRedis from "@twitter-api-v2/plugin-cache-redis";
 import { getRedis, getTweetCache, storeTweetCache } from "../redis";
 import RateLimitRedisPlugin from "./RateLimitRedisPlugin";
+import { getMongoConnection, removeDeletedTweets } from "lib/mongodb";
 
 let cachedApi: TwitterApiReadOnly | null = null;
 let cachePlugin: TwitterApiCachePluginRedis | null = null;
@@ -158,9 +159,15 @@ export function createTweetObjects(tweetPayloadData: Tweetv2ListResult) {
   return tweetSchemas;
 }
 
+/**
+ * Given the tweetIds, fetch and create TweetSchema objects
+ * @param tweetIds
+ * @param userIdToCheckDeleted Pass the userId to check remove tweets that has been deleted from user's tags
+ * @returns
+ */
 export async function tweetExpansions(
   tweetIds: string[],
-  id: string
+  userIdToCheckDeleted?: string
 ): Promise<TweetSchema[]> {
   const redis = await getRedis();
 
@@ -182,6 +189,19 @@ export async function tweetExpansions(
         partialTweetIds,
         TWEET_OPTIONS
       );
+
+      if (userIdToCheckDeleted) {
+        const deletedTweets = findDeletedTweets(partialTweet, payload.data);
+        const deletedTweetIds = deletedTweets.map((t) => t.id);
+
+        if (deletedTweets.length > 0) {
+          console.log("Deleting tweets: " + deletedTweetIds);
+
+          await getMongoConnection();
+
+          await removeDeletedTweets(userIdToCheckDeleted, deletedTweetIds);
+        }
+      }
 
       completeTweetFields(tweets, payload);
     } catch (e) {
@@ -317,15 +337,21 @@ export async function fetchAndMergeTweets(
   return { tweetIds, results: lookupResults };
 }
 
+/**
+ * Returns list of tweets found in databaseTweets that are not found in fetchedTweets
+ * @param databaseTweets
+ * @param fetchedTweets
+ * @returns
+ */
 export function findDeletedTweets(
   databaseTweets: TweetSchema[],
-  apiFetchedTweet: TweetV2[] | undefined
+  fetchedTweets: TweetV2[] | undefined
 ): TweetSchema[] {
-  if (!apiFetchedTweet) {
+  if (!fetchedTweets) {
     return databaseTweets;
   } else {
     return databaseTweets.filter(
-      (t_database) => !apiFetchedTweet.find((t_up) => t_up.id === t_database.id)
+      (t_database) => !fetchedTweets.find((t_up) => t_up.id === t_database.id)
     );
   }
 }
