@@ -39,7 +39,10 @@ const Text = styled.p`
   font-weight: 600;
 `;
 
-export default function ErrorScene({ errorText = "" }) {
+export default function ErrorScene({
+  headingText = "Oh noes... something went wrong",
+  errorText = "",
+}) {
   const theme = useDisplayStore((state) => state.theme);
   const router = useRouter();
 
@@ -56,9 +59,21 @@ export default function ErrorScene({ errorText = "" }) {
       <BodyDiv>
         <Banner hideGithubLogo style={{ color: theme.color.onSurface }} />
         <MainDiv>
-          <HText>Oh noes... something went wrong</HText>
+          <HText>{headingText}</HText>
           <Text>{errorText}</Text>
-          <Link href="/">Reload</Link>
+
+          <Link href="/" passHref>
+            <a
+              style={{
+                color: theme.color.onBackground,
+                textDecoration: "none",
+                marginTop: "64px",
+              }}
+            >
+              Reload
+            </a>
+          </Link>
+
           {/* <div className="center" style={{ width: "100vw", marginTop: "-15px" }}>
           <Image
             src="/assets/pulse-loading.svg"
