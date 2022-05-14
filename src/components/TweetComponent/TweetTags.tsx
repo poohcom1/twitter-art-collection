@@ -25,7 +25,7 @@ import { useOverflowDetector } from "src/hooks/useOverflowDetector";
 import Image from "next/image";
 import AddTag from "../AddTag/AddTag";
 import useContextMenu from "src/hooks/useContextMenus";
-import { BLACKLIST_TAG } from "types/constants";
+import { BLACKLIST_TAG, DEFAULT_QUALITY } from "types/constants";
 
 const BUTTON_SIZE = 25;
 
@@ -189,10 +189,11 @@ function PreviewImage(
       >
         <Image
           src={props.imageSrcs[imageIndex]}
-          alt="Tweet image"
+          alt=""
           layout="fill"
           objectFit="contain"
           priority={true}
+          quality={DEFAULT_QUALITY}
         />
       </div>
       <ModalClickableDiv
