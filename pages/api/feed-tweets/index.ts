@@ -35,6 +35,14 @@ export default async function handler(
       tweet.entities.media?.find((media) => media.type === "photo")
     );
 
+    // Replace retweet with original tweet
+    // FIXME Possibly against guidelines; might be better to create a retweet display on the frontend
+    for (const tweet of tweetsV1) {
+      if (tweet.retweeted_status!) {
+        tweet.id_str = tweet.retweeted_status.id_str;
+      }
+    }
+
     const tweets = await tweetExpansions(
       tweetsV1.map((t) => t.id_str),
       user.uid

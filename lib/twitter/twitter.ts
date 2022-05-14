@@ -166,7 +166,7 @@ export async function tweetExpansions(
 
   const tweets = await getTweetCache(tweetIds)(redis);
 
-  const twitterClient = await getTwitterApi();
+  const twitterApi = await getTwitterApi();
 
   // Tweets not in cache
   const partialTweet = tweets.filter((t) => !t.data);
@@ -178,7 +178,7 @@ export async function tweetExpansions(
 
   if (partialTweetIds.length > 0) {
     try {
-      const payload = await twitterClient.v2.tweets(
+      const payload = await twitterApi.v2.tweets(
         partialTweetIds,
         TWEET_OPTIONS
       );
