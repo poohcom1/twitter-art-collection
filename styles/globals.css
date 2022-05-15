@@ -202,12 +202,29 @@ button.blank {
   width: 100%;
 }
 
+.tweet__image-container img {
+  width: 100%;
+
+  object-fit: contain;
+  max-width: 100%;
+  max-height: 100%;
+  height: auto;
+}
+
 .tweet__image-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(50%, 1fr));
   overflow: hidden;
   width: fit-content;
   height: fit-content;
+}
+
+.tweet__image-grid img {
+  object-fit: cover;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: 100%;
 }
 
 .tweet__image:hover {

@@ -1,4 +1,4 @@
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
 import { useCallback } from "react";
 import { useDisplayStore } from "src/stores/displayStore";
 import { injectTweetLink } from "src/util/tweetUtil";
@@ -65,7 +65,7 @@ export default function Tweet(props: {
           rel="noreferrer"
           tabIndex={-1}
         >
-          <Image
+          <img
             className="tweet__header-avatar-img"
             src={data.avatar!}
             alt={`${data.username} profile`}
@@ -93,12 +93,11 @@ export default function Tweet(props: {
           rel="noreferrer"
           tabIndex={-1}
         >
-          <Image
+          <img
             src={"/assets/twitter/twitter_logo_blue.svg"}
             alt="Twitter Logo"
             height="30px"
             width="30px"
-            objectFit="contain"
           />
         </a>
       </div>
@@ -113,24 +112,15 @@ export default function Tweet(props: {
           }`}
         >
           {data.content.media?.map((im, index) => (
-            <div key={im.url} style={{ width: "100%", height: "100%" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                style={{
-                  objectFit: "contain",
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  height: "auto",
-                }}
-                className="tweet__image"
-                src={im.url}
-                key={im.url}
-                alt=""
-                width={im.width}
-                height={im.height}
-                onClick={() => onImageClick(index)}
-              />
-            </div>
+            <img
+              className="tweet__image"
+              src={im.url}
+              key={im.url}
+              alt=""
+              width={im.width}
+              height={im.height}
+              onClick={() => onImageClick(index)}
+            />
           ))}
         </div>
       </div>
