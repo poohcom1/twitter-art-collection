@@ -125,7 +125,7 @@ export default function Tweet(props: {
               height={im.height}
               onClick={() => onImageClick(index)}
               quality={DEFAULT_QUALITY}
-              lazyBoundary="400px"
+              lazyBoundary="800px"
               lazyRoot={imageLazyRoot}
             />
           ))}
