@@ -206,6 +206,8 @@ button.blank {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(50%, 1fr));
   overflow: hidden;
+  width: fit-content;
+  height: fit-content;
 }
 
 .tweet__image:hover {

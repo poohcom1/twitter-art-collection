@@ -2,7 +2,6 @@ import Image from "next/image";
 import { useCallback } from "react";
 import { useDisplayStore } from "src/stores/displayStore";
 import { injectTweetLink } from "src/util/tweetUtil";
-import { DEFAULT_QUALITY } from "types/constants";
 
 const ReplyIcon = () => (
   <svg
@@ -114,20 +113,24 @@ export default function Tweet(props: {
           }`}
         >
           {data.content.media?.map((im, index) => (
-            <Image
-              className="tweet__image"
-              src={im.url}
-              alt=""
-              key={im.url}
-              layout="responsive"
-              objectFit={data.content.media!.length > 1 ? "cover" : "contain"}
-              width={im.width}
-              height={im.height}
-              onClick={() => onImageClick(index)}
-              quality={DEFAULT_QUALITY}
-              lazyBoundary="800px"
-              lazyRoot={imageLazyRoot}
-            />
+            <div key={im.url} style={{ width: "100%", height: "100%" }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                style={{
+                  objectFit: "contain",
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                  height: "auto",
+                }}
+                className="tweet__image"
+                src={im.url}
+                key={im.url}
+                alt=""
+                width={im.width}
+                height={im.height}
+                onClick={() => onImageClick(index)}
+              />
+            </div>
           ))}
         </div>
       </div>
