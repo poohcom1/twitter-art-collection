@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import { useCallback } from "react";
-import { useDisplayStore } from "src/stores/displayStore";
 import { injectTweetLink } from "src/util/tweetUtil";
 
 const ReplyIcon = () => (
@@ -51,8 +50,6 @@ export default function Tweet(props: {
     },
     [data.url]
   );
-
-  const imageLazyRoot = useDisplayStore((state) => state.galleryRoot);
 
   return (
     <div className={`tweet ${props.darkMode ? "dark" : ""}`}>

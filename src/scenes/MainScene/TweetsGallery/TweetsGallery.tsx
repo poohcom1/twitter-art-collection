@@ -76,7 +76,6 @@ export default function TweetsGallery({
 
   useEffect(() => {
     containerRef.current?.scrollTo(0, 0);
-    useDisplayStore.setState({ galleryRoot: containerRef });
   }, [selectedList]);
 
   return (
