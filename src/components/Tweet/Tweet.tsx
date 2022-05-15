@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { useCallback } from "react";
+import { useDisplayStore } from "src/stores/displayStore";
 import { injectTweetLink } from "src/util/tweetUtil";
 import { DEFAULT_QUALITY } from "types/constants";
 
@@ -51,6 +52,8 @@ export default function Tweet(props: {
     },
     [data.url]
   );
+
+  const imageLazyRoot = useDisplayStore((state) => state.galleryRoot);
 
   return (
     <div className={`tweet ${props.darkMode ? "dark" : ""}`}>
@@ -123,7 +126,7 @@ export default function Tweet(props: {
               onClick={() => onImageClick(index)}
               quality={DEFAULT_QUALITY}
               lazyBoundary="400px"
-              unoptimized={true}
+              lazyRoot={imageLazyRoot}
             />
           ))}
         </div>

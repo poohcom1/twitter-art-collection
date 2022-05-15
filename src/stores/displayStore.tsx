@@ -2,6 +2,7 @@ import create from "zustand";
 import { combine } from "zustand/middleware";
 import { darkTheme, lightTheme } from "src/themes";
 import { DefaultTheme } from "styled-components";
+import { RefObject } from "react";
 
 const THEME_KEY = "theme";
 const THEME_KEY__DARK = "dark";
@@ -28,6 +29,8 @@ const displayState = {
   contextMenuComponents: <></>,
 
   showOverlay: true,
+
+  galleryRoot: null as unknown as RefObject<HTMLDivElement>,
 };
 
 const displayStore = combine(displayState, (set, get) => ({
