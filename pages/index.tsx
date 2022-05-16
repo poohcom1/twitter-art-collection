@@ -3,11 +3,25 @@ import styled, { createGlobalStyle } from "styled-components";
 import Image from "next/image";
 // Next SSR
 import { Banner, TwitterLogin } from "src/components";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { LoadingScene } from "src/scenes";
 import { CANONICAL_URL, COLLECTION_URL } from "types/constants";
+import type { GetServerSidePropsContext } from "next";
+import { getServerSession } from "next-auth";
+import { authOptions } from "lib/nextAuth";
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const session = await getServerSession(context, authOptions);
+
+  if (session) {
+    return {
+      redirect: {
+        destination: "/" + COLLECTION_URL,
+        permanent: false,
+      },
+    };
+  }
+
+  return { props: {} };
+}
 
 const GlobalCSS = createGlobalStyle`
   html {
@@ -139,18 +153,6 @@ const Badge = styled.a<{ badgeColor?: string }>`
 `;
 
 export default function Index() {
-  const session = useSession();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (session.status === "authenticated") {
-      router
-        .push("/" + COLLECTION_URL)
-        .then()
-        .catch(alert);
-    }
-  });
-
   return (
     <>
       <Head>
@@ -161,7 +163,6 @@ export default function Index() {
         />
         <link rel="canonical" href={CANONICAL_URL} />
       </Head>
-      <LoadingScene display={session.status === "loading"} />
       <GlobalCSS />
       <Banner style={{ backgroundColor: "transparent" }} />
       <MainDiv>
@@ -184,7 +185,8 @@ export default function Index() {
               width={1005}
               height={888}
               placeholder="blur"
-              blurDataURL="sample_image_small.jpeg"
+              blurDataURL="/assets/sample_image_small.jpeg"
+              priority={true}
             />
           </SampleImageDiv>
         </FlexDiv>

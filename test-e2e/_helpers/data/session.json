@@ -2,9 +2,11 @@
   "user": {
     "id": "nevergonnagiveuup",
     "name": "amogus",
-    "email": "red@imposter.sus",
     "image": "/assets/github/GitHub-Mark-32px.png"
   },
+  "uid": "nevergonnagiveuup",
+  "name": "amogus",
+  "image": "/assets/github/GitHub-Mark-32px.png",
   "expires": "3000-01-01T00:00:00.000Z",
   "accessToken": "abcdefghijklmnopqrst"
 }

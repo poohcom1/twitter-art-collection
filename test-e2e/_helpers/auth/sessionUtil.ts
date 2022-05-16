@@ -1,12 +1,11 @@
-import { BrowserContext, Page, test } from "@playwright/test";
-import hkdf from "@panva/hkdf";
-import { EncryptJWT } from "jose";
+import { BrowserContext, Page } from "@playwright/test";
 
 import SESSION from "../data/session.json";
 import TWEETS from "../data/tweets.json";
 import { COLLECTION_URL } from "types/constants";
+import { encode } from "next-auth/jwt";
 
-const BASE_URL = "http://localhost:3000";
+export const PAGE_URL = "http://localhost:3000/" + COLLECTION_URL;
 export const SESSION_SECRET = process.env.NEXTAUTH_SECRET;
 
 export async function mockSession(
@@ -14,16 +13,22 @@ export async function mockSession(
   page: Page,
   context: BrowserContext
 ) {
-  const addCookies = context.addCookies([
+  await context.addCookies([
     {
       name: "next-auth.session-token",
-      value: await encode(SESSION, SESSION_SECRET!),
-      path: "/",
-      domain: "localhost",
+      value: await encode({ token: SESSION, secret: SESSION_SECRET! }),
+      url: "https://localhost:3000",
+      sameSite: "Lax",
+    },
+    {
+      name: "next-auth.callback-url",
+      value: "http%3A%2F%2Flocalhost%3A3000%2Fcollection",
+      url: "https://localhost:3000",
+      sameSite: "Lax",
     },
   ]);
 
-  const sessionRoute = page.route("**/api/auth/session", (route) =>
+  await page.route("**/api/auth/session", (route) =>
     route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -31,7 +36,7 @@ export async function mockSession(
     })
   );
 
-  const userRoute = page.route("**/api/user", (route) =>
+  await page.route("**/api/user", (route) =>
     route.fulfill({
       status: 200,
       contentType: "application/json; charset=utf-8",
@@ -39,7 +44,7 @@ export async function mockSession(
     })
   );
 
-  const feedRoute = page.route("**/api/feed-tweets", (route) =>
+  await page.route("**/api/feed-tweets", (route) =>
     route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -47,7 +52,7 @@ export async function mockSession(
     })
   );
 
-  const tweetsRoute = page.route("**/api/liked-tweets", (route) =>
+  await page.route("**/api/liked-tweets", (route) =>
     route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -56,84 +61,40 @@ export async function mockSession(
   );
 
   // TODO Finish this
-  const tweetExpansionsRoute = page.route(
-    "**/api/tweet-expansions",
-    (route) => {
-      return route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({
-          tweets: TWEETS.slice(0, 100),
-          next_token: "",
-        }),
-      });
-    }
-  );
+  await page.route("**/api/tweet-expansions", (route) => {
+    return route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        tweets: TWEETS.slice(0, 100),
+        next_token: "",
+      }),
+    });
+  });
 
-  const tagsRoute = page.route("**/api/tags/*", (route) =>
+  await page.route("**/api/tags/*", (route) =>
     route.fulfill({
       status: 200,
       body: "Ok",
     })
   );
 
-  const imageRoute = page.route(
-    (url) => url.pathname.includes("_next/image"),
+  await page.route(
+    (url) => url.pathname.includes("pbs.twimg.com"),
     (route) => route.fulfill({ status: 200 })
   );
 
-  const renameRoute = page.route(
+  await page.route(
     (url) => url.pathname.includes("api/rename-tag"),
     (route) => route.fulfill({ status: 200 })
   );
 
-  const pinRoute = page.route(
+  await page.route(
     (url) => url.pathname.includes("api/pinned-tag"),
     (route) => route.fulfill({ status: 200 })
   );
 
-  await Promise.all([
-    addCookies,
-    sessionRoute,
-    userRoute,
-    feedRoute,
-    tweetsRoute,
-    tagsRoute,
-    imageRoute,
-    tweetExpansionsRoute,
-    renameRoute,
-    pinRoute,
-  ]);
+  await page.goto(PAGE_URL);
 
-  await page.goto(BASE_URL + "/" + COLLECTION_URL);
-}
-
-export const beforeEachSession =
-  (user: RawUserSchema): Parameters<typeof test.beforeEach>[0] =>
-  async ({ page, context }) => {
-    await mockSession(user, page, context);
-  };
-
-// Function logic derived from https://github.com/nextauthjs/next-auth/blob/5c1826a8d1f8d8c2d26959d12375704b0a693bfc/packages/next-auth/src/jwt/index.ts#L113-L121
-async function getDerivedEncryptionKey(secret: string) {
-  return await hkdf(
-    "sha256",
-    secret,
-    "",
-    "NextAuth.js Generated Encryption Key",
-    32
-  );
-}
-
-// Function logic derived from https://github.com/nextauthjs/next-auth/blob/5c1826a8d1f8d8c2d26959d12375704b0a693bfc/packages/next-auth/src/jwt/index.ts#L16-L25
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function encode(token: any, secret: string) {
-  const maxAge = 30 * 24 * 60 * 60; // 30 days
-  const encryptionSecret = await getDerivedEncryptionKey(secret);
-  return await new EncryptJWT(token)
-    .setProtectedHeader({ alg: "dir", enc: "A256GCM" })
-    .setIssuedAt()
-    .setExpirationTime(Date.now() / 1000 + maxAge)
-    .setJti("test")
-    .encrypt(encryptionSecret);
+  await page.waitForURL(PAGE_URL);
 }

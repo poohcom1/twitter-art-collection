@@ -1,4 +1,4 @@
-import { useState, useLayoutEffect } from "react";
+import { useState, useEffect } from "react";
 
 const defaultSize = { width: 0, height: 0 };
 
@@ -9,7 +9,7 @@ export const useSize = <T extends HTMLElement = HTMLElement>(
   const [size, setSize] =
     useState<{ width: number; height: number }>(defaultSize);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const { current } = ref;
 
     if (current) {
@@ -47,7 +47,7 @@ export const useScroller = <T extends HTMLElement = HTMLElement>(
   const [isScrolling, setIsScrolling] = useState(false);
   const [scrollTop, setScrollTop] = useState(0);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const { current } = ref;
     let tick: number | undefined;
 
@@ -69,7 +69,7 @@ export const useScroller = <T extends HTMLElement = HTMLElement>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ref.current]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     setIsScrolling(true);
     const to = window.setTimeout(() => {
       // This is here to prevent premature bail outs while maintaining high resolution

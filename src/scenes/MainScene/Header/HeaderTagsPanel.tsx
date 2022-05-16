@@ -2,7 +2,6 @@ import React, {
   forwardRef,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -604,7 +603,7 @@ function TagsSection(props: WithTheme) {
   }, []);
 
   // On first layout update
-  useLayoutEffect(() => {
+  useEffect(() => {
     const ref = tagsContainerRef.current;
     if (ref) {
       updateScrollMarkers(ref);

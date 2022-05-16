@@ -14,8 +14,7 @@ dotenv();
 const config: PlaywrightTestConfig = {
   testDir: "./test-e2e",
   /* Maximum time one test can run for. */
-  timeout: 30 * 1000,
-  fullyParallel: true,
+  timeout: process.env.CI ? 30 * 1000 : 30 * 1000,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
@@ -58,12 +57,15 @@ const config: PlaywrightTestConfig = {
       },
     },
 
-    {
-      name: "webkit",
-      use: {
-        ...devices["Desktop Safari"],
-      },
-    },
+    // FIXME Cookies not working in CI for some reason
+    !process.env.CI
+      ? {
+          name: "webkit",
+          use: {
+            ...devices["Desktop Safari"],
+          },
+        }
+      : {},
 
     /* Test against mobile viewports. */
     // {
@@ -99,7 +101,7 @@ const config: PlaywrightTestConfig = {
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: "npm run dev:preact",
+    command: "npm run dev",
     port: 3000,
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,

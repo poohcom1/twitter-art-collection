@@ -6,7 +6,6 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import { useSession } from "next-auth/react";
 import { BiTrashAlt as TrashIcon } from "react-icons/bi";
 import {
   MdBookmarkAdd as AddIcon,
@@ -115,16 +114,13 @@ function AddImagesPopupListItem(
     keyNum: string | number;
   } & HTMLAttributes<HTMLButtonElement>
 ) {
-  const session = useSession();
   const addImage = useStore((state) => state.addImage);
 
   const onClick = useCallback(() => {
-    if (session.data) {
-      props.close();
+    props.close();
 
-      addImage(props.tag, props.image);
-    }
-  }, [addImage, props, session.data]);
+    addImage(props.tag, props.image);
+  }, [addImage, props]);
 
   return (
     <PopupItem key={props.keyNum} onClick={onClick} {...props}>

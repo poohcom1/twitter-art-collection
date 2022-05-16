@@ -7,9 +7,11 @@ on:
 
 env:
   NEXTAUTH_SECRET: sus
+  NEXTAUTH_URL: http://localhost:3000
   TWITTER_AUTH_VER: ${{ secrets.TWITTER_AUTH_VER }}
-  TWITTER_CLIENT_ID: ${{ secrets.TWITTER_CLIENT_ID }}
-  TWITTER_CLIENT_SECRET: ${{ secrets.TWITTER_CLIENT_SECRET }}
+  TWITTER_API_KEY: ${{ secrets.TWITTER_API_KEY }}
+  TWITTER_API_SECRET: ${{ secrets.TWITTER_API_SECRET }}
+  
 
 jobs:
   test:
@@ -25,7 +27,7 @@ jobs:
     - name: Install Playwright
       run: npx playwright install --with-deps
     - name: Run Playwright tests
-      run: npx playwright test
+      run: DEBUG=pw:api npx playwright test
     - uses: actions/upload-artifact@v2
       if: always()
       with:

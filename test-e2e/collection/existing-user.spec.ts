@@ -1,5 +1,5 @@
 import { BrowserContext, expect, Page, test } from "@playwright/test";
-import { mockSession } from "test-e2e/_helpers/auth/sessionUtil";
+import { mockSession, PAGE_URL } from "test-e2e/_helpers/auth/sessionUtil";
 import USER1 from "../_helpers/data/user1.json";
 
 /**
@@ -11,9 +11,11 @@ test.describe("user #1", () => {
   let context: BrowserContext;
 
   test.beforeAll(async ({ browser }) => {
-    page = await browser.newPage();
     context = await browser.newContext();
+    page = await context.newPage();
     await mockSession(USER1, page, context);
+
+    expect(page.url()).toBe(PAGE_URL);
   });
 
   const TAGS_COUNT = Object.values(USER1.tags).length - 1;
@@ -21,8 +23,6 @@ test.describe("user #1", () => {
   const TAG_2 = "tag2";
 
   test("should load existing tag(s)", async () => {
-    await page.locator(".loadingScreen").waitFor({ state: "hidden" });
-
     const selector = `.header__tag`;
 
     await page.waitForSelector(selector);
@@ -31,8 +31,6 @@ test.describe("user #1", () => {
   });
 
   test("should delete a tag with right-click", async () => {
-    await page.locator(".loadingScreen").waitFor({ state: "hidden" });
-
     const tagSelector = `.header__tag`;
 
     await page.waitForSelector(tagSelector);

@@ -4,7 +4,6 @@ import { LoadingScene } from "..";
 import Overlay from "./Overlay";
 import { ContextMenu } from "../../components";
 import TweetsGallery from "./TweetsGallery/TweetsGallery";
-import { useSession } from "next-auth/react";
 import { useStore } from "src/stores/rootStore";
 import styled, { createGlobalStyle } from "styled-components";
 import { FetchState } from "src/stores/ImageList";
@@ -34,7 +33,6 @@ const AppDiv = styled.div`
 `;
 
 export default function MainScene() {
-  const session = useSession();
   const router = useRouter();
 
   // Load URL params
@@ -70,11 +68,7 @@ export default function MainScene() {
   ]);
 
   useEffect(() => {
-    if (
-      session.status === "authenticated" &&
-      !userLoaded &&
-      errorMessage === ""
-    ) {
+    if (!userLoaded && errorMessage === "") {
       fetchUser()
         .then((res) => {
           if (res.error) setError(res.error);
@@ -82,7 +76,7 @@ export default function MainScene() {
         })
         .catch((e) => setError(e.toString()));
     }
-  }, [errorMessage, fetchUser, session.status, setError, userLoaded]);
+  }, [errorMessage, fetchUser, setError, userLoaded]);
 
   // Filtering and rendering
   const selectedList = useStore((state) => state.selectedLists);

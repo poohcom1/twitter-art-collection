@@ -1,17 +1,20 @@
 import { BrowserContext, expect, Page, test } from "@playwright/test";
 import NEW_USER from "../_helpers/data/newUser.json";
-import { mockSession } from "test-e2e/_helpers/auth/sessionUtil";
+import { mockSession, PAGE_URL } from "test-e2e/_helpers/auth/sessionUtil";
 
 let page: Page;
 let context: BrowserContext;
 
 test.beforeAll(async ({ browser }) => {
-  page = await browser.newPage();
   context = await browser.newContext();
+  page = await context.newPage();
+
   await mockSession(NEW_USER, page, context);
+
+  expect(page.url()).toBe(PAGE_URL);
 });
 
-test("should create a tag and delete a tag", async () => {
+test("should create a tag and delete a tag @basic", async () => {
   const tagName = "new tag";
   await test.step("Create a tag", async () => {
     await page.click(".header__addTag");
