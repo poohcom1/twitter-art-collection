@@ -91,6 +91,9 @@ button.blank {
   border-radius: 10px;
   padding: 5%;
   border: 1px solid white;
+
+  min-width: 200px;
+  overflow: hidden;
 }
 
 .tweet.dark {
@@ -110,7 +113,9 @@ button.blank {
 }
 
 .tweet__header-avatar {
-  margin-right: 15px;
+  margin-right: 8px;
+  width: 52px;
+  height: 52px;
 }
 
 .tweet__header-avatar-img {
@@ -118,6 +123,7 @@ button.blank {
   border-radius: 50%;
   width: 52px;
   height: 52px;
+  margin: 0;
 }
 
 .tweet__header-name {
