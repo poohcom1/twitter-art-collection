@@ -14,6 +14,7 @@ export const lightTheme: DefaultTheme = {
 
     popup: "white",
     onPopup: "rgb(40, 40, 40)",
+    popupBorder: "white",
 
     // Text
     onPrimary: "white",

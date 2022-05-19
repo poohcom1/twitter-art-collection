@@ -17,6 +17,7 @@ declare module "styled-components" {
 
       popup: string;
       onPopup: string;
+      popupBorder: string;
 
       // Text
       onPrimary: string;

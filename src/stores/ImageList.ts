@@ -92,7 +92,7 @@ export class TagList implements ImageList {
       }
     }
 
-    return this._tweets.filter((t) => !!t.data);
+    return this._tweets.filter((t) => !!t.data).reverse();
   }
 
   constructor(

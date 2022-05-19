@@ -14,6 +14,7 @@ export const darkTheme: DefaultTheme = {
 
     popup: "white",
     onPopup: "black",
+    popupBorder: "rgb(90, 90, 96)",
 
     // Text
     onPrimary: "white",

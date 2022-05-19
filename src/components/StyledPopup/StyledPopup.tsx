@@ -21,7 +21,8 @@ const StyledPopup = styled(Popup)`
     padding: 10px;
     background: ${(props) => props.theme.color.popup};
     color: ${(props) => props.theme.color.onPopup};
-    border-radius: 5px;
+    border: 1px solid ${(props) => props.theme.color.popupBorder};
+    border-radius: 10px;
     box-shadow: 0 0 5px ${(props) => props.theme.color.shadow};
     animation: anvil 0.15s cubic-bezier(0.38, 0.1, 0.36, 0.9) forwards;
   }

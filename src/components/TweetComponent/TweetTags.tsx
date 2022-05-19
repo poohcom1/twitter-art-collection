@@ -260,7 +260,7 @@ function NewTag(props: { image: TweetSchema; theme: DefaultTheme }) {
     <>
       {!blacklistMode ? (
         <StyledPopup
-          position={["bottom center", "bottom left", "bottom right"]}
+          position="right top"
           trigger={
             <Tab
               className="tweetComp__tagEdit tweetComp__addImage"
@@ -297,16 +297,24 @@ function NewTag(props: { image: TweetSchema; theme: DefaultTheme }) {
                 />
               </PopupItem>
 
-              {addTagList.map((tag) => (
-                <AddImagesPopupListItem
-                  className="tweetComp__addImageItem"
-                  key={tag.name}
-                  keyNum={tag.name}
-                  tag={tag}
-                  image={props.image}
-                  close={close}
-                />
-              ))}
+              <div
+                style={{
+                  maxHeight: "300px",
+                  overflowY: "scroll",
+                  scrollbarWidth: "thin",
+                }}
+              >
+                {addTagList.map((tag) => (
+                  <AddImagesPopupListItem
+                    className="tweetComp__addImageItem"
+                    key={tag.name}
+                    keyNum={tag.name}
+                    tag={tag}
+                    image={props.image}
+                    close={close}
+                  />
+                ))}
+              </div>
               {/* Blacklist Section. Show if not in any tags */}
               {showBlacklist && (
                 <>
