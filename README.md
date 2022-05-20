@@ -34,17 +34,21 @@ This app is designed for those who have this issue, whether you're an art connoi
 
 1. Clone the repository.
 2. Install the project dependencies:
+
 ```sh
 npm run install
 ```
-3. Copy [`sample.env`](./sample.env) and rename it to `.env` and fill in the [environment variables](#environment-variables).
+
+3. Copy [`.sample.env`](./.sample.env) and rename it to `.env` and fill in the [environment variables](#environment-variables).
 
 #### Running
 
 1. Run `npm run dev` to start the web app for development.
+
 ```sh
 npm run dev
 ```
+
 2. View the app on `http://localhost:3000`.
 
 #### Environment Variables
