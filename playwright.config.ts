@@ -85,6 +85,7 @@ const config: PlaywrightTestConfig = {
   testDir: "./test-e2e",
   /* Maximum time one test can run for. */
   timeout: process.env.CI ? 30 * 1000 : 30 * 1000,
+  fullyParallel: true,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.
@@ -171,7 +172,7 @@ const config: PlaywrightTestConfig = {
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: "npm run dev",
+    command: "npm run start",
     port: 3000,
     timeout: 120 * 1000,
     reuseExistingServer: !process.env.CI,
