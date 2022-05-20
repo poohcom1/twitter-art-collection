@@ -1,5 +1,4 @@
 import React, {
-  forwardRef,
   useCallback,
   useEffect,
   useMemo,
@@ -48,7 +47,7 @@ import {
 const DEFAULT_TAG_WIDTH = "75px";
 
 const Tag = styled(StyledTab)`
-  margin: 5px;
+  margin: 3px;
   padding: 3px 10px;
   height: 3em;
 
@@ -372,205 +371,230 @@ function PinButton(props: { active: boolean; tag: TagSchema } & WithTheme) {
   );
 }
 
-const SCROLL_AMOUNT = 500;
+function TagButton(props: { tag: TagSchema } & WithTheme) {
+  const { tag } = props;
 
-const TagButton = forwardRef<HTMLButtonElement, { tag: TagSchema } & WithTheme>(
-  function TagButton(props, ref) {
-    const { tag } = props;
+  const ref = useRef<HTMLButtonElement>(null);
 
-    const [renaming, _setRenaming] = useState(false);
-    const [name, _setName] = useState(tag.name);
-
-    const setRenaming = useStore(
-      useCallback(
-        (state) => (renaming: boolean) => {
-          // Auto select tag that is being renamed
-          if (renaming) state.setSelectedList([tag.name]);
-          _setRenaming(renaming);
-        },
-        [tag.name]
-      )
-    );
-
-    const setName = useCallback((name: string) => {
-      _setName(standardizeTagName(name));
-    }, []);
-
-    const onRenameCancel = useCallback(() => {
-      setRenaming(false);
-      setName(tag.name);
-    }, [setName, setRenaming, tag.name]);
-
-    const tagList = useStore((state) => state.getTagList().map((t) => t.name));
-
-    const onRename = useStore(
-      useCallback(
-        (state) => () => {
-          if (tag.name !== name && validateTagName(name, tagList) === "") {
-            setRenaming(false);
-            state.renameTag(tag.name, name);
-          } else {
-            onRenameCancel();
-          }
-        },
-        [name, onRenameCancel, setRenaming, tag.name, tagList]
-      )
-    );
-
-    const editMode = useStore((state) => state.editMode);
-    const setSelectedList = useStore(
+  const onlySelected = useStore(
+    useCallback(
       (state) =>
-        (tag: string) =>
-        (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-          if (e.shiftKey) {
-            state.addToSelectedList(tag);
-          } else {
-            state.setSelectedList([tag]);
-          }
+        state.selectedLists.length === 1 && state.selectedLists[0] === tag.name,
+      [tag.name]
+    )
+  );
+  const active = useStore(
+    useCallback((state) => state.selectedLists.includes(tag.name), [tag.name])
+  );
+
+  // Scroll into view on selected
+  useEffect(() => {
+    if (ref.current) {
+      const elementRect = ref.current.getBoundingClientRect();
+      const parentRect = (
+        ref.current.parentNode! as HTMLElement
+      ).getBoundingClientRect();
+
+      // Timeout to fix half scroll on page load
+      if (
+        onlySelected &&
+        (elementRect.left < parentRect.left ||
+          elementRect.right > parentRect.right)
+      ) {
+        const timeout = setTimeout(
+          () => ref.current?.scrollIntoView({ inline: "center" }),
+          10
+        );
+
+        return () => clearTimeout(timeout);
+      }
+    }
+  }, [onlySelected, tag.name]);
+
+  const [renaming, _setRenaming] = useState(false);
+  const [name, _setName] = useState(tag.name);
+
+  const setRenaming = useStore(
+    useCallback(
+      (state) => (renaming: boolean) => {
+        // Auto select tag that is being renamed
+        if (renaming) {
+          state.setSelectedList([tag.name]);
         }
-    );
-    const pinnedTags = useStore((state) => state.pinnedTags);
-    const selectedLists = useStore((state) => state.selectedLists);
+        _setRenaming(renaming);
+      },
+      [tag.name]
+    )
+  );
 
-    // Context Menu
-    const [pinTag, unpinTag] = useStore((state) => [
-      state.pinTag,
-      state.unpinTag,
-    ]);
+  const setName = useCallback((name: string) => {
+    _setName(standardizeTagName(name));
+  }, []);
 
-    const removeTag = useStore((state) => state.removeTag);
+  const onRenameCancel = useCallback(() => {
+    setRenaming(false);
+    setName(tag.name);
+  }, [setName, setRenaming, tag.name]);
 
-    const [showContextMenu, hideContextMenu] = useContextMenu(() => (
-      <>
-        {!pinnedTags.includes(tag.name) ? (
-          <ContextMenuIcon
-            className="header__tags__context-pin"
-            icon={<AddPinIcon />}
-            body={"Pin"}
-            onClick={() => pinTag(tag.name)}
-          />
-        ) : (
-          <ContextMenuIcon
-            className="header__tags__context-pin"
-            icon={<UnpinIcon />}
-            body={"Unpin"}
-            onClick={() => unpinTag(tag.name)}
-          />
-        )}
+  const tagList = useStore((state) => state.getTagList().map((t) => t.name));
+
+  const onRename = useStore(
+    useCallback(
+      (state) => () => {
+        if (tag.name !== name && validateTagName(name, tagList) === "") {
+          setRenaming(false);
+          state.renameTag(tag.name, name);
+        } else {
+          onRenameCancel();
+        }
+      },
+      [name, onRenameCancel, setRenaming, tag.name, tagList]
+    )
+  );
+
+  const editMode = useStore((state) => state.editMode);
+  const setSelectedList = useStore(
+    (state) =>
+      (tag: string) =>
+      (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+        if (e.shiftKey) {
+          state.addToSelectedList(tag);
+        } else {
+          state.setSelectedList([tag]);
+        }
+      }
+  );
+  const pinnedTags = useStore((state) => state.pinnedTags);
+
+  // Context Menu
+  const [pinTag, unpinTag] = useStore((state) => [
+    state.pinTag,
+    state.unpinTag,
+  ]);
+
+  const removeTag = useStore((state) => state.removeTag);
+
+  const [showContextMenu, hideContextMenu] = useContextMenu(() => (
+    <>
+      {!pinnedTags.includes(tag.name) ? (
         <ContextMenuIcon
-          icon={<PencilIcon />}
-          body="Rename"
-          onClick={() => setRenaming(true)}
+          className="header__tags__context-pin"
+          icon={<AddPinIcon />}
+          body={"Pin"}
+          onClick={() => pinTag(tag.name)}
         />
+      ) : (
+        <ContextMenuIcon
+          className="header__tags__context-pin"
+          icon={<UnpinIcon />}
+          body={"Unpin"}
+          onClick={() => unpinTag(tag.name)}
+        />
+      )}
+      <ContextMenuIcon
+        icon={<PencilIcon />}
+        body="Rename"
+        onClick={() => setRenaming(true)}
+      />
 
-        {tag.images.length === 0 ? (
-          <ContextMenuIcon
-            className="header__tags__context-delete"
-            icon={<TrashIcon />}
-            body="Delete"
-            onClick={() => removeTag(tag)}
-          />
-        ) : (
-          <StyledModal
-            modal
-            onClose={hideContextMenu}
-            trigger={
-              <ContextMenuIcon
-                className="header__tags__context-delete"
-                icon={<TrashIcon />}
-                body="Delete"
-              />
-            }
-          >
-            {(close) => (
-              <DeleteTag tag={tag} onClose={close} theme={props.theme} />
-            )}
-          </StyledModal>
-        )}
-      </>
-    ));
-
-    const active = useMemo(
-      () => selectedLists.includes(tag.name),
-      [selectedLists, tag.name]
-    );
-
-    if (editMode === "add") {
-      if (!renaming)
-        return (
-          <Tag
-            ref={ref}
-            className="header__tag"
-            style={{ whiteSpace: "nowrap" }}
-            onClick={setSelectedList(tag.name)}
-            active={active}
-            onContextMenu={showContextMenu()}
-          >
-            {pinnedTags.includes(tag.name) && (
-              <PinButton tag={tag} active={active} theme={props.theme} />
-            )}
-            {tag.name}
-          </Tag>
-        );
-      else
-        return (
-          <Tag
-            ref={ref}
-            className="header__tag"
-            style={{ whiteSpace: "nowrap" }}
-            onClick={setSelectedList(tag.name)}
-            active={active}
-            onContextMenu={showContextMenu()}
-          >
-            <ExpandingInput
-              autoFocus
-              autoSelect
-              style={{
-                color: props.theme.color.onAccent,
-                outline: "1px dotted grey",
-              }}
-              className="blank header__context-rename"
-              value={name}
-              onInput={(e) => setName((e.target as HTMLInputElement).value)}
-              onKeyUp={(e) => {
-                if (e.key === "Enter") onRename();
-                else if (e.key === "Escape") onRenameCancel();
-              }}
-              onBlur={onRenameCancel}
-            />
-          </Tag>
-        );
-    } else {
-      return (
+      {tag.images.length === 0 ? (
+        <ContextMenuIcon
+          className="header__tags__context-delete"
+          icon={<TrashIcon />}
+          body="Delete"
+          onClick={() => removeTag(tag)}
+        />
+      ) : (
         <StyledModal
-          trigger={
-            <Tag
-              className="header__tag"
-              color={props.theme.color.danger}
-              borderColor={"transparent"}
-            >
-              {tag.name}
-              <TrashIcon
-                size={20}
-                style={{ marginLeft: "8px", marginRight: "-3px" }}
-              />
-            </Tag>
-          }
           modal
+          onClose={hideContextMenu}
+          trigger={
+            <ContextMenuIcon
+              className="header__tags__context-delete"
+              icon={<TrashIcon />}
+              body="Delete"
+            />
+          }
         >
           {(close) => (
             <DeleteTag tag={tag} onClose={close} theme={props.theme} />
           )}
         </StyledModal>
-      );
-    }
+      )}
+    </>
+  ));
+
+  const renameInputRef = useRef<HTMLInputElement>(null);
+
+  if (editMode === "add") {
+    return (
+      <Tag
+        ref={ref}
+        className="header__tag"
+        style={{ whiteSpace: "nowrap" }}
+        onClick={setSelectedList(tag.name)}
+        active={active}
+        onContextMenu={showContextMenu()}
+        data-state="add"
+      >
+        {!renaming ? (
+          <>
+            {pinnedTags.includes(tag.name) && (
+              <PinButton tag={tag} active={active} theme={props.theme} />
+            )}
+            {tag.name}
+          </>
+        ) : (
+          <ExpandingInput
+            autoSelect
+            ref={renameInputRef}
+            style={{
+              color: props.theme.color.onAccent,
+              outline: "1px dotted grey",
+            }}
+            className="blank header__context-rename"
+            value={name}
+            onInput={(e) => setName((e.target as HTMLInputElement).value)}
+            onKeyUp={(e) => {
+              if (e.key === "Enter") onRename();
+              else if (e.key === "Escape") onRenameCancel();
+            }}
+            onBlur={onRenameCancel}
+          />
+        )}
+      </Tag>
+    );
+  } else {
+    return (
+      <StyledModal
+        trigger={
+          <Tag
+            className="header__tag"
+            color={props.theme.color.danger}
+            borderColor={"transparent"}
+            data-state="remove"
+          >
+            {tag.name}
+            <TrashIcon
+              size={20}
+              style={{ marginLeft: "8px", marginRight: "-3px" }}
+            />
+          </Tag>
+        }
+        modal
+      >
+        {(close) => <DeleteTag tag={tag} onClose={close} theme={props.theme} />}
+      </StyledModal>
+    );
   }
-);
+}
+
+const SCROLL_AMOUNT = 500;
+const SCROLL_MIN = 100;
 
 function TagsSection(props: WithTheme) {
   const tagList = useStore((state) => state.getTagList());
 
-  const selectedLists = useStore((state) => state.selectedLists);
   const setSelectedList = useStore(
     (state) =>
       (tag: string) =>
@@ -615,7 +639,7 @@ function TagsSection(props: WithTheme) {
     if (ref) {
       const scrollTo = ref.scrollLeft - SCROLL_AMOUNT;
 
-      ref.scrollTo(scrollTo >= SCROLL_AMOUNT ? scrollTo : 0, 0);
+      ref.scrollTo(scrollTo >= SCROLL_MIN ? scrollTo : 0, 0);
     }
   }, [tagsContainerRef]);
 
@@ -632,20 +656,6 @@ function TagsSection(props: WithTheme) {
       );
     }
   }, [tagsContainerRef]);
-
-  const tagRefs = useRef<Record<string, HTMLButtonElement | null>>({});
-
-  useEffect(() => {
-    if (tagsContainerRef.current && selectedLists.length === 1) {
-      const tag = selectedLists[0];
-
-      const element = tagRefs.current[tag];
-
-      if (element) {
-        element.scrollIntoView({ inline: "center" });
-      }
-    }
-  }, [selectedLists, tagsContainerRef]);
 
   return (
     <>
@@ -667,12 +677,7 @@ function TagsSection(props: WithTheme) {
           onScroll={(e) => updateScrollMarkers(e.target as HTMLElement)}
         >
           {tagList.map((tag) => (
-            <TagButton
-              ref={(el) => (tagRefs.current[tag.name] = el)}
-              tag={tag}
-              key={tag.name}
-              {...props}
-            />
+            <TagButton tag={tag} key={tag.name} {...props} />
           ))}
         </TagsContainer>
       </div>

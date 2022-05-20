@@ -60,22 +60,28 @@ export default forwardRef<
     onInput(props.value as string);
   }, [onInput, props.value]);
 
-  const { containerStyle, ...passProps } = props;
+  const { containerStyle, autoSelect, ...htmlProps } = props;
 
   useEffect(() => {
-    if (props.autoSelect) {
+    if (autoSelect) {
       if (internalRef && internalRef.current) {
-        internalRef.current.select();
+        // Use settimeout to prevent auto scroll on focus
+        const selectTimeout = setTimeout(
+          () => internalRef.current?.select(),
+          10
+        );
+
+        return () => clearTimeout(selectTimeout);
       }
     }
-  }, [props.autoSelect]);
+  }, [autoSelect, text.length]);
 
   return (
     <Container ref={parentRef} style={containerStyle}>
       <input
         ref={internalRef}
         type="text"
-        {...passProps}
+        {...htmlProps}
         onInput={(e) => {
           if (props.onInput) props.onInput(e);
           onInput((e.target as HTMLInputElement).value);

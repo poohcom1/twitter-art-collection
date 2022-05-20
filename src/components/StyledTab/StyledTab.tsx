@@ -47,7 +47,5 @@ const StyledTab = styled.button<TabProps>`
     border-color: ${props.theme.color.onAccent};
     `
       : ""}
-
-  transition: color 0.1s, background-color 0.1s, border-color 0.1s;
 `;
 export default StyledTab;

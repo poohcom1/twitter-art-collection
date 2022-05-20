@@ -114,6 +114,13 @@ const store = combine(initialState, (set, get) => ({
     return tweets;
   },
   setSelectedList: (list: string[]) => {
+    if (
+      list.length === 1 &&
+      get().selectedLists.length === 1 &&
+      list[0] === get().selectedLists[0]
+    )
+      return;
+
     setURLParam(list[0]);
     set({ selectedLists: list });
   },
@@ -230,7 +237,13 @@ const store = combine(initialState, (set, get) => ({
     }
   },
   pinTag: (tagName: string) => {
-    const pinnedTags = get().pinnedTags;
+    const pinnedTags = get().pinnedTags.filter((tag) =>
+      // Remove non-existent tags
+      Array.from(get().imageLists.entries())
+        .filter(([, list]) => isTagList(list))
+        .map(([key]) => key)
+        .includes(tag)
+    );
     if (pinnedTags.includes(tagName)) return;
 
     pinnedTags.push(tagName);
