@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { AiFillCloseCircle as CloseCircle } from "react-icons/ai";
-import TagsPanel from "./HeaderTagsPanel";
-import UserSection from "./HeaderUserPanel";
+import TagsPanel from "./TagsPanel";
+import UserSection from "./UserPanel";
 import { useStore } from "src/stores/rootStore";
 import { BLACKLIST_TAG, HOME_LIST } from "types/constants";
 import { applyOpacity } from "src/util/themeUtil";

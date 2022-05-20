@@ -45,6 +45,8 @@ import {
 } from "types/constants";
 
 const DEFAULT_TAG_WIDTH = "75px";
+const SCROLL_AMOUNT = 500;
+const SCROLL_MIN = 100;
 
 const Tag = styled(StyledTab)`
   margin: 3px;
@@ -134,9 +136,7 @@ const BasicFilterDiv = styled(Tag)`
   transition: width 0.1s color 0.1s;
 `;
 
-const StyledPinButton = styled.div<{
-  active: boolean;
-}>`
+const StyledPinButton = styled.div<{ active: boolean }>`
   cursor: pointer;
   flex: 0 0 auto;
 
@@ -248,7 +248,7 @@ function BasicFilter() {
 /**
  * Create new tag component
  */
-function AddTag() {
+function AddTag(props: { onTextChange?: (text: string) => void }) {
   const theme = useTheme();
   const setSelectedList = useStore((state) => state.setSelectedList);
 
@@ -267,7 +267,7 @@ function AddTag() {
         tagSetText("");
         break;
     }
-  });
+  }, props.onTextChange);
 
   return (
     <Tag
@@ -583,9 +583,6 @@ function TagButton(props: { tag: TagSchema }) {
   }
 }
 
-const SCROLL_AMOUNT = 500;
-const SCROLL_MIN = 100;
-
 function TagsSection() {
   const theme = useTheme();
   const tagList = useStore((state) => state.getTagList());
@@ -652,8 +649,12 @@ function TagsSection() {
     }
   }, [tagsContainerRef]);
 
+  // Filter
+  const [filter, setFilter] = useState("");
+
   return (
     <>
+      <AddTag onTextChange={setFilter} />
       <div
         style={{
           position: "relative",
@@ -672,9 +673,11 @@ function TagsSection() {
           ref={tagsContainerRef}
           onScroll={(e) => updateScrollMarkers(e.target as HTMLElement)}
         >
-          {tagList.map((tag) => (
-            <TagButton tag={tag} key={tag.name} />
-          ))}
+          {tagList
+            .filter((tag) => tag.name.includes(filter))
+            .map((tag) => (
+              <TagButton tag={tag} key={tag.name} />
+            ))}
         </TagsContainer>
       </div>
       {/* Tags popup menu */}
@@ -745,7 +748,7 @@ export default function TagsPanel() {
 
       <BasicFilter />
       <VerticalBar />
-      <AddTag />
+
       <TagsSection />
     </>
   );

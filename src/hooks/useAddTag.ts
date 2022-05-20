@@ -14,6 +14,7 @@ export function useAddTag<T extends HTMLElement>(
 
   const tagList = useStore((state) => state.getTagList());
   const addTag = useStore((state) => state.addTag);
+  const setSelectedList = useStore((state) => state.setSelectedList);
 
   const [tagName, setTagName] = useState("");
 
@@ -43,18 +44,18 @@ export function useAddTag<T extends HTMLElement>(
       return;
     }
 
-    const body: TagSchema = {
+    const newTag: TagSchema = {
       name: tagName,
       images: [],
     };
 
-    addTag(body);
+    addTag(newTag);
+    setSelectedList([tagName]);
 
     setTagName("");
-    if (onFinish) {
-      onFinish("", tagName);
-    }
-  }, [addTag, onFinish, tagList, tagName]);
+    if (onTextChanged) onTextChanged("");
+    if (onFinish) onFinish("", tagName);
+  }, [addTag, onFinish, onTextChanged, setSelectedList, tagList, tagName]);
 
   const inputHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => tagSetText(e.target.value),

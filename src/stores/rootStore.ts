@@ -207,7 +207,18 @@ const store = combine(initialState, (set, get) => ({
       const imageLists = state.imageLists;
       imageLists.delete(tag.name);
 
-      return { ...state, imageLists: new Map(imageLists) };
+      if (
+        state.selectedLists.length === 1 &&
+        state.selectedLists[0] === tag.name
+      ) {
+        state.selectedLists = [HOME_LIST];
+      }
+
+      return {
+        ...state,
+        imageLists: new Map(imageLists),
+        selectedLists: state.selectedLists,
+      };
     }),
   renameTag: (oldName: string, newName: string) => {
     const imageLists = get().imageLists;

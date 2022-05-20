@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Header from "./Header/Header";
+import Header from "./Header";
 import { LoadingScene } from "..";
 import Overlay from "./Overlay";
 import { ContextMenu } from "../../components";
