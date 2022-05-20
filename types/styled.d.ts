@@ -48,8 +48,4 @@ declare module "styled-components" {
 
     bgActiveHover: string;
   }
-
-  export interface WithTheme {
-    theme: DefaultTheme;
-  }
 }

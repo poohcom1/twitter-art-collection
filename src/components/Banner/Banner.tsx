@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { HTMLAttributes } from "react";
 import { darkTheme, lightTheme } from "src/themes";
-import styled, { DefaultTheme, WithTheme, withTheme } from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { CANONICAL_URL } from "types/constants";
 
 const HeaderDiv = styled.div`
@@ -18,12 +18,11 @@ const GithubLinkA = styled.a`
   text-decoration: none;
 `;
 
-const GithubLink = withTheme(function GithubLink(props: {
-  theme: DefaultTheme;
-  type?: "dark" | "light";
-}) {
+function GithubLink(props: { type?: "dark" | "light" }) {
   const darkImg = "/assets/github/GitHub-Mark-32px.png";
   const lightImg = "/assets/github/GitHub-Mark-Light-32px.png";
+
+  const theme = useTheme();
 
   let img = darkImg;
 
@@ -31,7 +30,7 @@ const GithubLink = withTheme(function GithubLink(props: {
     img = props.type === "dark" ? darkImg : lightImg;
   } else {
     img =
-      props.theme === lightTheme
+      theme === lightTheme
         ? "/assets/github/GitHub-Mark-32px.png"
         : "/assets/github/GitHub-Mark-Light-32px.png";
   }
@@ -41,26 +40,30 @@ const GithubLink = withTheme(function GithubLink(props: {
       <Image src={img} alt="Github Link" width={32} height={32} />
     </GithubLinkA>
   );
-});
+}
+function Banner(
+  props: HTMLAttributes<HTMLDivElement> & {
+    hideGithubLogo?: boolean;
+    logoTheme?: undefined | "light" | "dark";
+  }
+) {
+  const theme = useTheme();
 
-const Banner = withTheme(
-  (
-    props: HTMLAttributes<HTMLDivElement> & {
-      hideGithubLogo?: boolean;
-    } & WithTheme
-  ) => (
-    <HeaderDiv {...props}>
+  return (
+    <HeaderDiv theme={theme} {...props}>
       <a
-        style={{ textDecoration: "none", color: props.theme.color.onSecondary }}
+        style={{ textDecoration: "none", color: theme.color.onSecondary }}
         href={CANONICAL_URL}
       >
         <h2>Twitter Art Collection</h2>
       </a>
       {!props.hideGithubLogo && (
-        <GithubLink type={props.theme === darkTheme ? "light" : "dark"} />
+        <GithubLink
+          type={props.hideGithubLogo ?? theme === darkTheme ? "light" : "dark"}
+        />
       )}
     </HeaderDiv>
-  )
-);
+  );
+}
 
 export default Banner;

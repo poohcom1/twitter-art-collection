@@ -22,7 +22,7 @@ export default function Privacy() {
         />
       </Head>
       <GlobalStyle />
-      <Banner />
+      <Banner logoTheme="dark" />
       <div className="container" style={{ marginTop: "0", paddingTop: "0" }}>
         <h1 style={{ marginBottom: "0" }}>Privacy Policy</h1>
         <p style={{ color: "grey", marginTop: "0" }}>Last updated: 4/16/2022</p>

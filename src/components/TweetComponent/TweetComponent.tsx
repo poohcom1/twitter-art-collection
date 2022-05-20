@@ -1,9 +1,8 @@
 import React, { useRef } from "react";
 import TweetTags from "./TweetTags";
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes, useTheme } from "styled-components";
 import { Tweet } from "..";
 import { darkTheme } from "src/themes";
-import { useDisplayStore } from "src/stores/displayStore";
 
 const fadeIn = keyframes`
   from {
@@ -32,7 +31,7 @@ function TweetComponent(props: {
   index: number;
 }) {
   const tweetRef = useRef<HTMLDivElement>(null);
-  const theme = useDisplayStore((state) => state.theme);
+  const theme = useTheme();
 
   return (
     <TweetDiv

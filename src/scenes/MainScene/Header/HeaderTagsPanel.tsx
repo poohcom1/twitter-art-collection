@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import styled, { WithTheme, withTheme } from "styled-components";
+import styled, { useTheme } from "styled-components";
 import {
   ConfirmationDialogue,
   ContextMenuIcon,
@@ -248,7 +248,8 @@ function BasicFilter() {
 /**
  * Create new tag component
  */
-function AddTag(props: WithTheme) {
+function AddTag() {
+  const theme = useTheme();
   const setSelectedList = useStore((state) => state.setSelectedList);
 
   const addTagRef = useRef<HTMLInputElement>(null);
@@ -271,9 +272,9 @@ function AddTag(props: WithTheme) {
   return (
     <Tag
       tabIndex={-1}
-      color={props.theme.color.primary}
+      color={theme.color.primary}
       borderColor="transparent"
-      textColor={props.theme.color.onPrimary}
+      textColor={theme.color.onPrimary}
       onClick={onClick}
     >
       <ExpandingInput
@@ -296,12 +297,8 @@ function AddTag(props: WithTheme) {
   );
 }
 
-function DeleteTag(
-  props: {
-    tag: TagSchema;
-    onClose: () => void;
-  } & WithTheme
-) {
+function DeleteTag(props: { tag: TagSchema; onClose: () => void }) {
+  const theme = useTheme();
   const selectedLists = useStore((state) => state.selectedLists);
   const removeTag = useStore((state) => state.removeTag);
   const setSelectedList = useStore((state) => state.setSelectedList);
@@ -312,7 +309,7 @@ function DeleteTag(
       text={`Are you sure you want to delete this tag? This tag contains ${props.tag.images.length} image(s).`}
       acceptText="Delete"
       cancelText="Cancel"
-      acceptColor={props.theme.color.danger}
+      acceptColor={theme.color.danger}
       closeCallback={props.onClose}
       onAccept={() => {
         removeTag(props.tag);
@@ -328,7 +325,9 @@ function DeleteTag(
   );
 }
 
-function PinButton(props: { active: boolean; tag: TagSchema } & WithTheme) {
+function PinButton(props: { active: boolean; tag: TagSchema }) {
+  const theme = useTheme();
+
   const [hover, setHover] = useState(false);
 
   const onClickCallback: React.MouseEventHandler<HTMLDivElement> = useStore(
@@ -361,18 +360,15 @@ function PinButton(props: { active: boolean; tag: TagSchema } & WithTheme) {
     >
       <Icon
         size="15px"
-        color={
-          props.active
-            ? props.theme.color.onAccent
-            : props.theme.color.onSecondary
-        }
+        color={props.active ? theme.color.onAccent : theme.color.onSecondary}
       />
     </StyledPinButton>
   );
 }
 
-function TagButton(props: { tag: TagSchema } & WithTheme) {
+function TagButton(props: { tag: TagSchema }) {
   const { tag } = props;
+  const theme = useTheme();
 
   const ref = useRef<HTMLButtonElement>(null);
 
@@ -516,9 +512,7 @@ function TagButton(props: { tag: TagSchema } & WithTheme) {
             />
           }
         >
-          {(close) => (
-            <DeleteTag tag={tag} onClose={close} theme={props.theme} />
-          )}
+          {(close) => <DeleteTag tag={tag} onClose={close} />}
         </StyledModal>
       )}
     </>
@@ -540,7 +534,7 @@ function TagButton(props: { tag: TagSchema } & WithTheme) {
         {!renaming ? (
           <>
             {pinnedTags.includes(tag.name) && (
-              <PinButton tag={tag} active={active} theme={props.theme} />
+              <PinButton tag={tag} active={active} />
             )}
             {tag.name}
           </>
@@ -549,7 +543,7 @@ function TagButton(props: { tag: TagSchema } & WithTheme) {
             autoSelect
             ref={renameInputRef}
             style={{
-              color: props.theme.color.onAccent,
+              color: theme.color.onAccent,
               outline: "1px dotted grey",
             }}
             className="blank header__context-rename"
@@ -570,7 +564,7 @@ function TagButton(props: { tag: TagSchema } & WithTheme) {
         trigger={
           <Tag
             className="header__tag"
-            color={props.theme.color.danger}
+            color={theme.color.danger}
             borderColor={"transparent"}
             data-state="remove"
           >
@@ -583,7 +577,7 @@ function TagButton(props: { tag: TagSchema } & WithTheme) {
         }
         modal
       >
-        {(close) => <DeleteTag tag={tag} onClose={close} theme={props.theme} />}
+        {(close) => <DeleteTag tag={tag} onClose={close} />}
       </StyledModal>
     );
   }
@@ -592,7 +586,8 @@ function TagButton(props: { tag: TagSchema } & WithTheme) {
 const SCROLL_AMOUNT = 500;
 const SCROLL_MIN = 100;
 
-function TagsSection(props: WithTheme) {
+function TagsSection() {
+  const theme = useTheme();
   const tagList = useStore((state) => state.getTagList());
 
   const setSelectedList = useStore(
@@ -678,7 +673,7 @@ function TagsSection(props: WithTheme) {
           onScroll={(e) => updateScrollMarkers(e.target as HTMLElement)}
         >
           {tagList.map((tag) => (
-            <TagButton tag={tag} key={tag.name} {...props} />
+            <TagButton tag={tag} key={tag.name} />
           ))}
         </TagsContainer>
       </div>
@@ -691,10 +686,7 @@ function TagsSection(props: WithTheme) {
               className="blank header__tag-menu"
               style={{ margin: "0 8px", cursor: "pointer" }}
             >
-              <HamburgerMenu
-                size={"24px"}
-                color={props.theme.color.onSurface}
-              />
+              <HamburgerMenu size={"24px"} color={theme.color.onSurface} />
             </button>
           }
           closeOnDocumentClick
@@ -725,7 +717,7 @@ function TagsSection(props: WithTheme) {
 
 /* ----------------------------- Main Component ----------------------------- */
 
-export default withTheme(function TagsPanel(props) {
+export default function TagsPanel() {
   // Special Tags
   const selectedLists = useStore((state) => state.selectedLists);
   const setSpecialSelectedList = useStore((state) => (tag: string) => () => {
@@ -753,8 +745,8 @@ export default withTheme(function TagsPanel(props) {
 
       <BasicFilter />
       <VerticalBar />
-      <AddTag {...props} />
-      <TagsSection {...props} />
+      <AddTag />
+      <TagsSection />
     </>
   );
-});
+}
