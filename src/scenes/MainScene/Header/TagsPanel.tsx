@@ -722,7 +722,12 @@ function TagsSection() {
 
 export default function TagsPanel() {
   // Special Tags
-  const selectedLists = useStore((state) => state.selectedLists);
+  const timelineSelected = useStore((state) =>
+    state.selectedLists.includes(TIMELINE_TWEET_LIST)
+  );
+  const likesSelected = useStore((state) =>
+    state.selectedLists.includes(LIKED_TWEET_LIST)
+  );
   const setSpecialSelectedList = useStore((state) => (tag: string) => () => {
     state.setSelectedList([tag]);
   });
@@ -733,14 +738,20 @@ export default function TagsPanel() {
         {/* Special filters Section */}
         <Tag
           onClick={setSpecialSelectedList(TIMELINE_TWEET_LIST)}
-          active={selectedLists.includes(TIMELINE_TWEET_LIST)}
+          active={timelineSelected}
+          className={`header__sp-tag ${
+            timelineSelected && "header__sp-tag-active"
+          }`}
         >
           Timeline
         </Tag>
         <Tag
           style={{ width: DEFAULT_TAG_WIDTH }}
           onClick={setSpecialSelectedList(LIKED_TWEET_LIST)}
-          active={selectedLists.includes(LIKED_TWEET_LIST)}
+          active={likesSelected}
+          className={`header__sp-tag ${
+            likesSelected && "header__sp-tag-active"
+          }`}
         >
           Likes
         </Tag>

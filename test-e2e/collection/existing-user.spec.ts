@@ -4,8 +4,9 @@ import USER1 from "../_helpers/data/user1.json";
 import USER2 from "../_helpers/data/user2.json";
 
 /**
- * Test user 1: Has two tags: tag1 has 2 images and tag2 has 2 images; no overlaps
- *  Has 1 image in blacklist
+ * Test user 1: For testing general tag and image usage
+ *  - Has two tags: tag1 has 2 images and tag2 has 2 images; no overlaps
+ *  - Has 1 image in blacklist
  */
 test.describe("user #1", () => {
   let page: Page;
@@ -31,11 +32,12 @@ test.describe("user #1", () => {
     await expect(page.locator(selector)).toHaveCount(TAGS_COUNT);
   });
 
-  test("should delete a tag with right-click", async () => {
+  test("should delete the current tag with right-click and auto select the timeline list", async () => {
     const tagSelector = `.header__tag`;
 
     await page.waitForSelector(tagSelector);
 
+    await page.click(tagSelector, { button: "left" });
     await page.click(tagSelector, { button: "right" });
 
     await page.locator("text=Delete").click();
@@ -43,37 +45,35 @@ test.describe("user #1", () => {
     await page.click(".confirm-accept");
 
     await expect(page.locator(tagSelector)).toHaveCount(TAGS_COUNT - 1);
+
+    await expect(page.locator(".header__sp-tag-active")).toHaveText("Timeline");
   });
 
   test("should delete images with right click", async () => {
-    await test.step("Delete 1 image", async () => {
-      await page
-        .locator(".tweetComp__tag >> nth=0", { hasText: TAG_1 })
-        .click({ button: "right" });
+    await page
+      .locator(".tweetComp__tag >> nth=0", { hasText: TAG_1 })
+      .click({ button: "right" });
 
-      await page.locator("text=Remove tag from image").click();
+    await page.locator("text=Remove tag from image").click();
 
-      await page.click("text=" + TAG_1);
+    await page.click("text=" + TAG_1);
 
-      await expect(page.locator(".tweetComp")).toHaveCount(1);
-    });
+    await expect(page.locator(".tweetComp")).toHaveCount(1);
   });
 
   test("should delete images without throwing a masonic error", async () => {
     const tagName = USER1["tags"][TAG_1].name;
 
-    await test.step("Delete 1 image", async () => {
-      await page.click(`.header__tag:has-text('${tagName}')`);
+    await page.click(`.header__tag:has-text('${tagName}')`);
 
-      await expect(page.locator(".tweetComp")).toHaveCount(2);
+    await expect(page.locator(".tweetComp")).toHaveCount(2);
 
-      await page.click(".overlay__deleteMode");
-      await page.click(".tweetComp__tag >> nth=0");
-      await page.click(".overlay__deleteMode");
+    await page.click(".overlay__deleteMode");
+    await page.click(".tweetComp__tag >> nth=0");
+    await page.click(".overlay__deleteMode");
 
-      await page.locator(".tweetComp").waitFor({ state: "visible" });
-      await expect(page.locator(".tweetComp")).toHaveCount(1);
-    });
+    await page.locator(".tweetComp").waitFor({ state: "visible" });
+    await expect(page.locator(".tweetComp")).toHaveCount(1);
   });
 
   test("should show blacklist options when blacklist tags are loaded", async () => {
@@ -131,9 +131,10 @@ test.describe("user #1", () => {
 });
 
 /**
- * Test user 2: Has 13 tags, all with the same single image.
- *  Tag are named with "tag" and 3 underscore to pad out the name and fill the header
- *  Has 1 pinned tag, which is the 13th tag (tag____l)
+ * Test user 2: For testing the tag header with large amount of tags
+ *  - Has 13 tags, all with the same single image.
+ *  - Tag are named with "tag" and 3 underscore to pad out the name and fill the header
+ *  - Has 1 pinned tag, which is the 13th tag (tag____l)
  */
 test.describe("user #2", () => {
   let page: Page;
