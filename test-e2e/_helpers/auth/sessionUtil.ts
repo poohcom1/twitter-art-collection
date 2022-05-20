@@ -61,16 +61,16 @@ export async function mockSession(
   );
 
   // TODO Finish this
-  await page.route("**/api/tweet-expansions", (route) => {
-    return route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        tweets: TWEETS.slice(0, 100),
-        next_token: "",
-      }),
-    });
-  });
+  await page.route(
+    (url) => url.pathname.includes("/api/tweet-expansions"),
+    (route) => {
+      return route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(TWEETS),
+      });
+    }
+  );
 
   await page.route("**/api/tags/*", (route) =>
     route.fulfill({

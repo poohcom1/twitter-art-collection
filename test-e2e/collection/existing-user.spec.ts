@@ -1,6 +1,7 @@
 import { BrowserContext, expect, Page, test } from "@playwright/test";
 import { mockSession, PAGE_URL } from "test-e2e/_helpers/auth/sessionUtil";
 import USER1 from "../_helpers/data/user1.json";
+import USER2 from "../_helpers/data/user2.json";
 
 /**
  * Test user 1: Has two tags: tag1 has 2 images and tag2 has 2 images; no overlaps
@@ -126,5 +127,66 @@ test.describe("user #1", () => {
     await expect(
       page.locator(".header__tag", { hasText: NEW_NAME })
     ).toHaveCount(1);
+  });
+});
+
+/**
+ * Test user 2: Has 13 tags, all with the same single image.
+ *  Tag are named with "tag" and 3 underscore to pad out the name and fill the header
+ *  Has 1 pinned tag, which is the 13th tag (tag____l)
+ */
+test.describe("user #2", () => {
+  let page: Page;
+  let context: BrowserContext;
+
+  test.beforeAll(async ({ browser }) => {
+    context = await browser.newContext();
+    page = await context.newPage();
+    await mockSession(USER2, page, context);
+
+    expect(page.url()).toBe(PAGE_URL);
+  });
+
+  test("should order pinned tag first", async () => {
+    const PINNED_TAG_NAME = "tag____l";
+
+    const firstTag = page.locator(".header__tag >> nth=0");
+
+    expect(await firstTag.textContent()).toBe(PINNED_TAG_NAME);
+  });
+
+  test("should select tag based on URL query param", async () => {
+    const QUERIED_TAG = "tag____c";
+
+    await page.goto(PAGE_URL + `?tag=${QUERIED_TAG}`);
+
+    const queryTag = page.locator(".header__tag-active");
+
+    expect(await queryTag.textContent()).toBe(QUERIED_TAG);
+  });
+
+  test("should set URL query param based on selected tag", async () => {
+    const QUERIED_TAG = "tag____c";
+
+    await page.click(`text=${QUERIED_TAG}`);
+
+    expect(page.url()).toBe(PAGE_URL + `?tag=${QUERIED_TAG}`);
+  });
+
+  test("should scroll to selected tag", async () => {
+    const TAG_NAME = "tag____j";
+
+    const tagLocator = page.locator(`.header__tag:has-text("${TAG_NAME}")`);
+    const containerLocator = page.locator(".header__tags-container");
+
+    await expect(tagLocator).not.isVisibleIn(containerLocator, {
+      timeout: 500,
+    });
+
+    await page.click(".header__tag-menu");
+
+    await page.click(`.header__tag-menu__item:has-text("${TAG_NAME}")`);
+
+    await expect(tagLocator).isVisibleIn(containerLocator);
   });
 });

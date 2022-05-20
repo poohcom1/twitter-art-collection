@@ -530,7 +530,7 @@ function TagButton(props: { tag: TagSchema } & WithTheme) {
     return (
       <Tag
         ref={ref}
-        className="header__tag"
+        className={`header__tag ${active && "header__tag-active"}`}
         style={{ whiteSpace: "nowrap" }}
         onClick={setSelectedList(tag.name)}
         active={active}
@@ -673,6 +673,7 @@ function TagsSection(props: WithTheme) {
           <Right size="30px" />
         </ArrowDiv>
         <TagsContainer
+          className="header__tags-container"
           ref={tagsContainerRef}
           onScroll={(e) => updateScrollMarkers(e.target as HTMLElement)}
         >
@@ -687,7 +688,7 @@ function TagsSection(props: WithTheme) {
           position={"bottom right"}
           trigger={
             <button
-              className="blank"
+              className="blank header__tag-menu"
               style={{ margin: "0 8px", cursor: "pointer" }}
             >
               <HamburgerMenu
@@ -702,6 +703,7 @@ function TagsSection(props: WithTheme) {
             tagList.length > 0 ? (
               tagList.map((tag) => (
                 <PopupItem
+                  className="header__tag-menu__item"
                   key={tag.name}
                   onClick={(e) => {
                     close();

@@ -43,3 +43,12 @@ declare module "reactjs-popup" {
 
   export = Popup;
 }
+
+declare global {
+  namespace PlaywrightTest {
+    // eslint-disable-next-line unused-imports/no-unused-vars
+    interface Matchers<R, T> {
+      isVisibleIn(parent: Locator, options?: { timeout: number }): Promise<R>;
+    }
+  }
+}

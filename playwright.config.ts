@@ -1,5 +1,75 @@
-import type { PlaywrightTestConfig } from "@playwright/test";
+import { expect, Locator, PlaywrightTestConfig } from "@playwright/test";
 import { devices } from "@playwright/test";
+
+function sleep(ms: number) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+expect.extend({
+  async isVisibleIn(
+    received: Locator,
+    parent: Locator,
+    options: { timeout: number; frame: number } = { timeout: 5000, frame: 250 }
+  ) {
+    let leftMatch = false,
+      rightMatch = false,
+      topMatch = false,
+      bottomMatch = false;
+
+    let pass = false;
+
+    for (let i = 0; i < Math.max(options.timeout / options.frame, 1); i++) {
+      const elemRect = await received.boundingBox();
+      const parentRect = await parent.boundingBox();
+
+      if (!elemRect || !parentRect) return false;
+
+      leftMatch = elemRect.x >= parentRect.x;
+      rightMatch =
+        elemRect.x + elemRect.width <= parentRect.x + parentRect.width;
+      topMatch = elemRect.y >= parentRect.y;
+      bottomMatch =
+        elemRect.y + elemRect.height <= parentRect.y + parentRect.height;
+
+      pass = leftMatch && rightMatch && topMatch && bottomMatch;
+
+      if (pass) break;
+
+      await sleep(options.frame);
+    }
+
+    if (pass) {
+      return {
+        pass,
+        message: () => "passed",
+      };
+    } else {
+      return {
+        pass,
+        message: () => {
+          let message = "";
+
+          if (!leftMatch) {
+            message += "Left boundary outside of container";
+          }
+          if (!rightMatch) {
+            message += "; Right boundary outside of container";
+          }
+          if (!topMatch) {
+            message += "; Top boundary outside of container";
+          }
+          if (!bottomMatch) {
+            message += "; Right boundary outside of container";
+          }
+
+          return message;
+        },
+      };
+    }
+  },
+});
 
 /**
  * Read environment variables from file.

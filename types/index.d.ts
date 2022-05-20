@@ -61,6 +61,7 @@ interface Settings {
 interface RawUserSchema {
   uid: string;
   tags: Record<string, TagSchema>;
+  pinnedTags?: string[];
 }
 
 interface DBUserSchema {
