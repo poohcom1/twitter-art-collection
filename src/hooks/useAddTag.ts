@@ -18,20 +18,20 @@ export function useAddTag<T extends HTMLElement>(
 
   const [text, _setText] = useState("");
 
-  const setTagName = useCallback(
-    (text) => {
-      _setText(text);
-      onTextChanged && onTextChanged(text);
+  const setText = useCallback(
+    (_text) => {
+      _setText(_text);
+      onTextChanged && onTextChanged(_text);
     },
     [onTextChanged]
   );
 
   const tagSetText = useCallback(
-    (text) => {
-      const standardizedText = standardizeTagName(text);
-      setTagName(standardizedText);
+    (_text) => {
+      const standardizedText = standardizeTagName(_text);
+      setText(standardizedText);
     },
-    [setTagName]
+    [setText]
   );
 
   const submit = useCallback(() => {
@@ -46,6 +46,8 @@ export function useAddTag<T extends HTMLElement>(
         onFinish(tagError, text);
       }
 
+      console.warn(tagError);
+
       return;
     }
 
@@ -57,9 +59,9 @@ export function useAddTag<T extends HTMLElement>(
     addTag(newTag);
     setSelectedList([text]);
 
-    setTagName("");
+    setText("");
     if (onFinish) onFinish("", text);
-  }, [addTag, onFinish, setSelectedList, setTagName, tagList, text]);
+  }, [addTag, onFinish, setSelectedList, setText, tagList, text]);
 
   const inputHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => tagSetText(e.target.value),
@@ -71,11 +73,11 @@ export function useAddTag<T extends HTMLElement>(
       if (e.key === "Enter") {
         submit();
       } else if (e.key === "Escape") {
-        setTagName("");
+        setText("");
         tagRef?.current?.blur();
       }
     },
-    [setTagName, submit]
+    [setText, submit]
   );
 
   return {

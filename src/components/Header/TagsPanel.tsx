@@ -273,35 +273,21 @@ function AddTag(props: { onTextChange?: (text: string) => void }) {
   const theme = useTheme();
   const setSelectedList = useStore((state) => state.setSelectedList);
 
-  const {
-    tagRef: addTagRef,
-    inputProps,
-    tagSetText,
-    tagText,
-  } = useAddTag<HTMLInputElement>((e) => {
-    switch (e) {
-      case "EXISTING_TAG":
-        setSelectedList([tagText]);
-        tagSetText("");
-        break;
-    }
-  }, props.onTextChange);
+  const { tagRef, inputProps, tagSetText, tagText } =
+    useAddTag<HTMLInputElement>((e) => {
+      switch (e) {
+        case "EXISTING_TAG":
+          setSelectedList([tagText]);
+          tagSetText("");
+          break;
+      }
+    }, props.onTextChange);
 
   const onClick = useCallback(() => {
-    if (addTagRef.current !== document.activeElement) {
-      addTagRef.current?.select();
+    if (tagRef.current !== document.activeElement) {
+      tagRef.current?.select();
     }
-  }, [addTagRef]);
-
-  useEffect(() => {
-    function clearOnClick() {
-      tagSetText("");
-    }
-
-    document.addEventListener("click", clearOnClick);
-
-    return () => document.removeEventListener("click", clearOnClick);
-  }, [tagSetText]);
+  }, [tagRef]);
 
   return (
     <Tag
@@ -316,7 +302,7 @@ function AddTag(props: { onTextChange?: (text: string) => void }) {
       <ExpandingInput
         id="headerAddTag"
         className="light-placeholder header__addTag"
-        ref={addTagRef}
+        ref={tagRef}
         placeholder="Add Tag"
         style={{
           textAlign: "center",
@@ -764,7 +750,7 @@ function TagsSection() {
           ))}
         </TagsContainer>
       </div>
-      {filter !== "" && (
+      {filter !== "" && tagList.length < 5 && (
         <h5 style={{ margin: 0, marginLeft: "8px", textOverflow: "clip" }}>
           {tagList.length === 0 ? "Press " : "...or press "}
           <strong style={{ color: theme.color.accent }}>Enter </strong>
