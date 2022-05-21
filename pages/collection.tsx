@@ -208,7 +208,7 @@ function MainScene() {
 
         <TweetsGallery
           columnCount={isMobile ? 1 : columnCount}
-          columnGutter={columnGutter}
+          columnGutter={isMobile ? 10 : columnGutter}
           masonryKey={selectedList.join(",") + "-" + searchTerm}
           images={tweets}
           fetchItems={fetchTweets}

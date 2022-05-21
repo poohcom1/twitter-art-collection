@@ -25,6 +25,7 @@ import Image from "next/image";
 import AddTag from "../AddTag/AddTag";
 import useContextMenu from "src/hooks/useContextMenus";
 import { BLACKLIST_TAG, DEFAULT_QUALITY } from "types/constants";
+import useMediaQuery from "src/hooks/useMediaQuery";
 
 const BUTTON_SIZE = 25;
 
@@ -365,6 +366,8 @@ const TweetTags = withTheme(function TweetTags(props: {
   tweetRef: RefObject<HTMLDivElement>;
   imageSrcs: string[];
 }) {
+  const isMobile = useMediaQuery();
+
   const editMode = useStore((state) => state.editMode);
 
   // Get filter
@@ -462,21 +465,23 @@ const TweetTags = withTheme(function TweetTags(props: {
         ))}
       </TabContainer>
 
-      <StyledModal
-        trigger={
-          <StyledMenuIcon title="View image">
-            <MenuIcon size={30} color={props.theme.color.onBackground} />
-          </StyledMenuIcon>
-        }
-        modal
-        closeOnDocumentClick
-      >
-        {(close) =>
-          props.imageSrcs.length > 0 && (
-            <PreviewImage imageSrcs={props.imageSrcs} onClick={close} />
-          )
-        }
-      </StyledModal>
+      {!isMobile && (
+        <StyledModal
+          trigger={
+            <StyledMenuIcon title="View image">
+              <MenuIcon size={30} color={props.theme.color.onBackground} />
+            </StyledMenuIcon>
+          }
+          modal
+          closeOnDocumentClick
+        >
+          {(close) =>
+            props.imageSrcs.length > 0 && (
+              <PreviewImage imageSrcs={props.imageSrcs} onClick={close} />
+            )
+          }
+        </StyledModal>
+      )}
     </MainContainer>
   );
 });
