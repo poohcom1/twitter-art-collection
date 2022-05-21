@@ -16,46 +16,50 @@ export function useAddTag<T extends HTMLElement>(
   const addTag = useStore((state) => state.addTag);
   const setSelectedList = useStore((state) => state.setSelectedList);
 
-  const [tagName, setTagName] = useState("");
+  const [text, _setText] = useState("");
+
+  const setTagName = useCallback(
+    (text) => {
+      _setText(text);
+      onTextChanged && onTextChanged(text);
+    },
+    [onTextChanged]
+  );
 
   const tagSetText = useCallback(
     (text) => {
       const standardizedText = standardizeTagName(text);
-      if (onTextChanged) {
-        onTextChanged(standardizedText);
-      }
       setTagName(standardizedText);
     },
-    [onTextChanged]
+    [setTagName]
   );
 
   const submit = useCallback(() => {
     let tagError: TagErrors = "";
     tagError = validateTagName(
-      tagName,
+      text,
       tagList.map((t) => t.name)
     );
 
     if (tagError) {
       if (onFinish) {
-        onFinish(tagError, tagName);
+        onFinish(tagError, text);
       }
 
       return;
     }
 
     const newTag: TagSchema = {
-      name: tagName,
+      name: text,
       images: [],
     };
 
     addTag(newTag);
-    setSelectedList([tagName]);
+    setSelectedList([text]);
 
     setTagName("");
-    if (onTextChanged) onTextChanged("");
-    if (onFinish) onFinish("", tagName);
-  }, [addTag, onFinish, onTextChanged, setSelectedList, tagList, tagName]);
+    if (onFinish) onFinish("", text);
+  }, [addTag, onFinish, setSelectedList, setTagName, tagList, text]);
 
   const inputHandler = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => tagSetText(e.target.value),
@@ -67,21 +71,22 @@ export function useAddTag<T extends HTMLElement>(
       if (e.key === "Enter") {
         submit();
       } else if (e.key === "Escape") {
+        setTagName("");
         tagRef?.current?.blur();
       }
     },
-    [tagRef, submit]
+    [setTagName, submit]
   );
 
   return {
     tagRef,
-    tagText: tagName,
+    tagText: text,
     tagSetText,
     tagInputHandler: inputHandler,
     tagSubmitHandler: submit,
     tagKeyHandler: onKeyUpHandler,
     inputProps: {
-      value: tagName,
+      value: text,
       onInput: inputHandler,
       onKeyUp: onKeyUpHandler,
     },

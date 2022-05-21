@@ -9,6 +9,7 @@ export {
 export { default as ErrorScene } from "./ErrorScene/ErrorScene";
 export { default as ExpandingInput } from "./ExpandingInput/ExpandingInput";
 export { default as Header, TagTitleHeader } from "./Header";
+export { default as Highlighted } from "./Highlighted/Highlighted";
 export {
   OverlayContainer,
   OverlayItem,

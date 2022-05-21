@@ -42,6 +42,7 @@ import ExpandingInput from "../ExpandingInput/ExpandingInput";
 import StyledModal from "../StyledModel/StyledModel";
 import StyledPopup, { PopupItem } from "../StyledPopup/StyledPopup";
 import StyledTab from "../StyledTab/StyledTab";
+import Highlighted from "../Highlighted/Highlighted";
 
 const SCROLL_AMOUNT = 500;
 const SCROLL_MIN = 100;
@@ -280,6 +281,16 @@ function AddTag(props: { onTextChange?: (text: string) => void }) {
     }
   }, [addTagRef]);
 
+  useEffect(() => {
+    function clearOnClick() {
+      tagSetText("");
+    }
+
+    document.addEventListener("click", clearOnClick);
+
+    return () => document.removeEventListener("click", clearOnClick);
+  }, [tagSetText]);
+
   return (
     <Tag
       tabIndex={-1}
@@ -287,6 +298,7 @@ function AddTag(props: { onTextChange?: (text: string) => void }) {
       borderColor="transparent"
       textColor={theme.color.onPrimary}
       onClick={onClick}
+      title="Add or filter current tags"
     >
       <ExpandingInput
         id="headerAddTag"
@@ -301,7 +313,6 @@ function AddTag(props: { onTextChange?: (text: string) => void }) {
           border: "none",
         }}
         containerStyle={{ minWidth: "5em" }}
-        onBlur={() => tagSetText("")}
         {...inputProps}
       />
     </Tag>
@@ -377,7 +388,7 @@ function PinButton(props: { active: boolean; tag: TagSchema }) {
   );
 }
 
-function TagButton(props: { tag: TagSchema }) {
+function TagButton(props: { tag: TagSchema; highlight: string }) {
   const { tag } = props;
   const theme = useTheme();
 
@@ -547,7 +558,7 @@ function TagButton(props: { tag: TagSchema }) {
             {pinnedTags.includes(tag.name) && (
               <PinButton tag={tag} active={active} />
             )}
-            {tag.name}
+            <Highlighted text={tag.name} highlight={props.highlight} />
           </>
         ) : (
           <ExpandingInput
@@ -726,7 +737,7 @@ function TagsSection() {
           {tagList
             .filter((tag) => tag.name.includes(filter))
             .map((tag) => (
-              <TagButton tag={tag} key={tag.name} />
+              <TagButton tag={tag} key={tag.name} highlight={filter} />
             ))}
         </TagsContainer>
       </div>
