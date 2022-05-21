@@ -1,7 +1,7 @@
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { ErrorScene } from "src/scenes";
+import { ErrorScene } from "src/components";
 
 export default function Error() {
   const router = useRouter();

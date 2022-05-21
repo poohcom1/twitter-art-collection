@@ -3,7 +3,7 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import Router from "next/router";
 import { useEffect, useState } from "react";
-import { LoadingScene } from "src/scenes";
+import { LoadingScene } from "src/components";
 import { useDisplayStore } from "src/stores/displayStore";
 import { ThemeProvider } from "styled-components";
 import "../styles/globals.css";

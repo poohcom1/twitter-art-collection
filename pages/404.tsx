@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { ErrorScene } from "src/scenes";
+import { ErrorScene } from "src/components";
 
 export default function Error() {
   return (

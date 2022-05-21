@@ -32,7 +32,7 @@ const HeaderFlex = styled.div`
   padding: 10px 30px;
 `;
 
-const BlacklistHeader = styled.div`
+export const TagTitleHeader = styled.div`
   display: flex;
 
   text-align: center;
@@ -75,13 +75,13 @@ export default function Header() {
       </HeaderFlex>
 
       {blacklist && (
-        <BlacklistHeader>
+        <TagTitleHeader>
           <CloseButton className="blank" onClick={closeBlacklist}>
             <CloseCircle size="20px" />
           </CloseButton>
 
           <h3>Blacklist</h3>
-        </BlacklistHeader>
+        </TagTitleHeader>
       )}
     </HeaderDiv>
   );

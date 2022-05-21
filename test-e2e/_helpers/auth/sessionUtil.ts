@@ -93,8 +93,12 @@ export async function mockSession(
     (url) => url.pathname.includes("api/pinned-tag"),
     (route) => route.fulfill({ status: 200 })
   );
+}
 
-  await page.goto(PAGE_URL);
-
-  await page.waitForURL(PAGE_URL);
+export function reloadPage(page: Page) {
+  return async () => {
+    await page.goto(PAGE_URL);
+    await page.waitForURL(PAGE_URL);
+    expect(page.url()).toBe(PAGE_URL);
+  };
 }

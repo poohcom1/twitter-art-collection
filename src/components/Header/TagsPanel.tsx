@@ -6,17 +6,8 @@ import React, {
   useState,
 } from "react";
 import styled, { useTheme } from "styled-components";
-import {
-  ConfirmationDialogue,
-  ContextMenuIcon,
-  ExpandingInput,
-  PopupItem,
-  StyledModel as StyledModal,
-  StyledPopup,
-  StyledTab,
-} from "src/components";
 import { FiFilter as FilterIcon } from "react-icons/fi";
-import { AiOutlineClose as Cross } from "react-icons/ai";
+import { AiFillHome, AiOutlineClose as Cross } from "react-icons/ai";
 import {
   BiTrashAlt as TrashIcon,
   BiPencil as PencilIcon,
@@ -25,6 +16,7 @@ import {
   BsPin as AddPinIcon,
   BsPinFill as PinnedIcon,
   BsPinAngle as UnpinIcon,
+  BsHeartFill,
 } from "react-icons/bs";
 import {
   RiArrowLeftSLine as Left,
@@ -43,8 +35,14 @@ import {
   SPECIAL_LIST_KEYS,
   TIMELINE_TWEET_LIST,
 } from "types/constants";
+import useMediaQuery from "src/hooks/useMediaQuery";
+import ConfirmationDialogue from "../ConfirmationDialogue/ConfirmationDialogue";
+import { ContextMenuIcon } from "../ContextMenu/ContextMenu";
+import ExpandingInput from "../ExpandingInput/ExpandingInput";
+import StyledModal from "../StyledModel/StyledModel";
+import StyledPopup, { PopupItem } from "../StyledPopup/StyledPopup";
+import StyledTab from "../StyledTab/StyledTab";
 
-const DEFAULT_TAG_WIDTH = "75px";
 const SCROLL_AMOUNT = 500;
 const SCROLL_MIN = 100;
 
@@ -54,6 +52,9 @@ const Tag = styled(StyledTab)`
   height: 3em;
 
   border-radius: 1.5em;
+
+  display: flex;
+  align-items: center;
 
   & p {
     margin: auto;
@@ -160,6 +161,13 @@ const StyledPinButton = styled.div<{ active: boolean }>`
         ? applyOpacity(props.theme.color.onAccent, 0.15)
         : "transparent"};
   }
+`;
+
+const TagMenuDiv = styled.div`
+  max-height: 70vh;
+
+  scrollbar-width: thin;
+  overflow-y: auto;
 `;
 
 /* ------------------------------- Components ------------------------------- */
@@ -583,10 +591,9 @@ function TagButton(props: { tag: TagSchema }) {
   }
 }
 
-function TagsSection() {
+function TagMenu() {
   const theme = useTheme();
   const tagList = useStore((state) => state.getTagList());
-
   const setSelectedList = useStore(
     (state) =>
       (tag: string) =>
@@ -606,6 +613,46 @@ function TagsSection() {
         }
       }
   );
+
+  return (
+    <StyledPopup
+      position={"bottom right"}
+      trigger={
+        <button
+          className="blank header__tag-menu"
+          style={{ margin: "0 8px", cursor: "pointer", marginLeft: "auto" }}
+        >
+          <HamburgerMenu size={"24px"} color={theme.color.onSurface} />
+        </button>
+      }
+      closeOnDocumentClick
+    >
+      {(close: () => void) =>
+        tagList.length > 0 ? (
+          <TagMenuDiv>
+            {tagList.map((tag) => (
+              <PopupItem
+                className="header__tag-menu__item"
+                key={tag.name}
+                onClick={(e) => {
+                  close();
+                  setSelectedList(tag.name)(e);
+                }}
+              >
+                {tag.name}
+              </PopupItem>
+            ))}
+          </TagMenuDiv>
+        ) : (
+          <p style={{ margin: "4px" }}>No tags yet!</p>
+        )
+      }
+    </StyledPopup>
+  );
+}
+
+function TagsSection() {
+  const tagList = useStore((state) => state.getTagList());
 
   const [tagsContainerRef, overflow] = useOverflowDetector();
 
@@ -681,39 +728,7 @@ function TagsSection() {
         </TagsContainer>
       </div>
       {/* Tags popup menu */}
-      {overflow && (
-        <StyledPopup
-          position={"bottom right"}
-          trigger={
-            <button
-              className="blank header__tag-menu"
-              style={{ margin: "0 8px", cursor: "pointer" }}
-            >
-              <HamburgerMenu size={"24px"} color={theme.color.onSurface} />
-            </button>
-          }
-          closeOnDocumentClick
-        >
-          {(close: () => void) =>
-            tagList.length > 0 ? (
-              tagList.map((tag) => (
-                <PopupItem
-                  className="header__tag-menu__item"
-                  key={tag.name}
-                  onClick={(e) => {
-                    close();
-                    setSelectedList(tag.name)(e);
-                  }}
-                >
-                  {tag.name}
-                </PopupItem>
-              ))
-            ) : (
-              <p style={{ margin: "4px" }}>No tags yet!</p>
-            )
-          }
-        </StyledPopup>
-      )}
+      {overflow && <TagMenu />}
     </>
   );
 }
@@ -721,6 +736,8 @@ function TagsSection() {
 /* ----------------------------- Main Component ----------------------------- */
 
 export default function TagsPanel() {
+  const isMobile = useMediaQuery();
+
   // Special Tags
   const timelineSelected = useStore((state) =>
     state.selectedLists.includes(TIMELINE_TWEET_LIST)
@@ -743,24 +760,28 @@ export default function TagsPanel() {
             timelineSelected && "header__sp-tag-active"
           }`}
         >
-          Timeline
+          <AiFillHome size="18px" style={{ marginRight: "8px" }} /> Timeline
         </Tag>
         <Tag
-          style={{ width: DEFAULT_TAG_WIDTH }}
           onClick={setSpecialSelectedList(LIKED_TWEET_LIST)}
           active={likesSelected}
           className={`header__sp-tag ${
             likesSelected && "header__sp-tag-active"
           }`}
         >
-          Likes
+          <BsHeartFill size="18" style={{ marginRight: "8px" }} /> Likes
         </Tag>
       </StyledTagsPanel>
 
-      <BasicFilter />
-      <VerticalBar />
-
-      <TagsSection />
+      {!isMobile ? (
+        <>
+          <BasicFilter />
+          <VerticalBar />
+          <TagsSection />
+        </>
+      ) : (
+        <TagMenu />
+      )}
     </>
   );
 }

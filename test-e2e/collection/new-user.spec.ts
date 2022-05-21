@@ -10,7 +10,11 @@ test.beforeAll(async ({ browser }) => {
   page = await context.newPage();
 
   await mockSession(NEW_USER, page, context);
+});
 
+test.beforeEach(async () => {
+  await page.goto(PAGE_URL);
+  await page.waitForURL(PAGE_URL);
   expect(page.url()).toBe(PAGE_URL);
 });
 

@@ -16,7 +16,11 @@ test.describe("user #1", () => {
     context = await browser.newContext();
     page = await context.newPage();
     await mockSession(USER1, page, context);
+  });
 
+  test.beforeEach(async () => {
+    await page.goto(PAGE_URL);
+    await page.waitForURL(PAGE_URL);
     expect(page.url()).toBe(PAGE_URL);
   });
 
@@ -144,7 +148,11 @@ test.describe("user #2", () => {
     context = await browser.newContext();
     page = await context.newPage();
     await mockSession(USER2, page, context);
+  });
 
+  test.beforeEach(async () => {
+    await page.goto(PAGE_URL);
+    await page.waitForURL(PAGE_URL);
     expect(page.url()).toBe(PAGE_URL);
   });
 

@@ -85,7 +85,7 @@ const config: PlaywrightTestConfig = {
   testDir: "./test-e2e",
   /* Maximum time one test can run for. */
   timeout: process.env.CI ? 30 * 1000 : 30 * 1000,
-  fullyParallel: true,
+  fullyParallel: !!process.env.CI,
   expect: {
     /**
      * Maximum time expect() should wait for the condition to be met.

@@ -1,18 +1,20 @@
 import styled from "styled-components";
-import React, { RefObject, useEffect, useRef } from "react";
+import React, { ComponentType, useEffect, useRef } from "react";
 import Image from "next/image";
 import {
   LoadMoreItemsCallback,
   MasonryProps,
+  RenderComponentProps,
   useInfiniteLoader,
   useMasonry,
-  useResizeObserver,
   useScrollToIndex,
+  useScroller,
+  useContainerPosition,
+  useResizeObserver,
 } from "masonic";
-import { TweetComponent } from "../../../components";
+import { TweetComponent } from "..";
 import useShrinkingPositioner from "./useShrinkingPositioner";
-import { useSize, useScroller } from "./miniVirtualList";
-import { useDisplayStore } from "src/stores/displayStore";
+import { useWindowSize } from "@react-hook/window-size";
 import { useStore } from "src/stores/rootStore";
 
 const MainDiv = styled.div`
@@ -27,23 +29,20 @@ interface TweetsGalleryProps {
   images: TweetSchema[];
   fetchItems: () => Promise<void>;
   maxItems: number;
-  columnWidth?: number;
+  columnCount?: number;
   columnGutter?: number;
 
   masonryKey: string;
+  render?: ComponentType<RenderComponentProps<TweetSchema>>;
 }
 
-export default function TweetsGallery({
+export default function MobileTweetsGallery({
   images,
   fetchItems,
   masonryKey,
   maxItems,
+  render = MasonryCard,
 }: TweetsGalleryProps) {
-  const [columnCount, columnGutter] = useDisplayStore((state) => [
-    state.columnCount,
-    state.getColumnGutter(),
-  ]);
-
   const setError = useStore((state) => state.setError);
 
   const fetchMoreItems = async (
@@ -61,8 +60,6 @@ export default function TweetsGallery({
     threshold: 16,
   });
 
-  const containerRef = useRef<HTMLDivElement>(null);
-
   const selectedList = useStore((state) => state.selectedLists);
   const galleryMessage = useStore(
     (state) => state.galleryErrors[state.selectedLists[0]] ?? ""
@@ -74,12 +71,8 @@ export default function TweetsGallery({
     }
   }, [fetchItems, images.length, maxItems, setError, selectedList]);
 
-  useEffect(() => {
-    containerRef.current?.scrollTo(0, 0);
-  }, [selectedList]);
-
   return (
-    <MainDiv ref={containerRef}>
+    <MainDiv>
       {galleryMessage && (
         <h4 style={{ textAlign: "center" }}>{galleryMessage}</h4>
       )}
@@ -87,13 +80,12 @@ export default function TweetsGallery({
         <h4 style={{ textAlign: "center" }}>Nothing to see here!</h4>
       )}
       <ShrinkingMasonry
-        containerDivRef={containerRef}
         items={images}
         onRender={maybeLoadMore}
-        render={MasonryCard}
+        render={render}
         key={masonryKey}
-        columnGutter={columnGutter}
-        columnCount={columnCount}
+        columnCount={1}
+        columnGutter={20}
       />
       {!galleryMessage && images.length < maxItems && (
         <div className="center" style={{ marginTop: "32px" }}>
@@ -106,29 +98,26 @@ export default function TweetsGallery({
           />
         </div>
       )}
-      {/* {maxItems > 0 && maxItems === images.length && (
-        <h4 style={{ textAlign: "center" }}>
-          {"That's all the tweets for now!"}
-        </h4>
-      )} */}
     </MainDiv>
   );
 }
 
-function ShrinkingMasonry(
-  props: MasonryProps<TweetSchema> & {
-    containerDivRef: RefObject<HTMLDivElement>;
-  }
-) {
-  const { items: images, containerDivRef } = props;
+function ShrinkingMasonry(props: MasonryProps<TweetSchema>) {
+  const { items: images } = props;
 
-  const { width, height } = useSize(containerDivRef);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const { scrollTop, isScrolling } = useScroller(containerDivRef);
+  const [windowWidth, height] = useWindowSize();
+  const { offset, width } = useContainerPosition(containerRef, [
+    windowWidth,
+    height,
+  ]);
+  const { scrollTop, isScrolling } = useScroller(offset);
   const positioner = useShrinkingPositioner({ width, ...props }, images);
 
-  const resizeObserver = useResizeObserver(positioner);
   const scrollToIndex = useScrollToIndex(positioner, {});
+
+  const resizeObserver = useResizeObserver(positioner);
 
   React.useEffect(() => {
     if (props.scrollToIndex) {
@@ -137,12 +126,13 @@ function ShrinkingMasonry(
   }, [props.scrollToIndex, scrollToIndex]);
 
   return useMasonry({
+    containerRef,
     positioner,
     scrollTop,
     isScrolling,
     height,
-    resizeObserver,
     scrollToIndex,
+    resizeObserver,
     tabIndex: -1,
     ...props,
   });

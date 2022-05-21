@@ -1,13 +1,27 @@
+import { useEffect, useState } from "react";
 import Head from "next/head";
-import { MainScene } from "src/scenes";
-// Next SSR
 import { useRouter } from "next/router";
-import { useEffect } from "react";
-import { CANONICAL_URL } from "types/constants";
-import { useStore } from "src/stores/rootStore";
+import { CANONICAL_URL, SPECIAL_LIST_KEYS } from "types/constants";
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
+import { useStore } from "src/stores/rootStore";
+import {
+  ContextMenu,
+  DeleteOverlay,
+  GitterOverlay,
+  Header,
+  LoadingScene,
+  OverlayContainer,
+  TagTitleHeader,
+  ThemeOverlay,
+  TweetsGallery,
+  ZoomOverlay,
+} from "src/components";
+import { useDisplayStore } from "src/stores/displayStore";
+import { FetchState } from "src/stores/ImageList";
+import styled, { createGlobalStyle } from "styled-components";
+import useMediaQuery from "src/hooks/useMediaQuery";
 
 export async function getServerSideProps(
   context: GetServerSidePropsContext
@@ -67,6 +81,144 @@ export default function Index() {
       </Head>
 
       <MainScene />
+    </>
+  );
+}
+
+// Styles
+const GlobalStyle = createGlobalStyle`
+  html {
+      width: 100vw;
+  }
+  
+  body {
+    background-color: ${(props) => props.theme.color.background};
+    color: ${(props) => props.theme.color.onBackground};
+    width: 100vw;
+    overflow-x: hidden;
+
+    transition: background-color 0.1s;
+  }
+`;
+
+const AppDiv = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+`;
+
+function MainScene() {
+  const router = useRouter();
+  const isMobile = useMediaQuery();
+
+  const selectedLists = useStore((state) =>
+    state.selectedLists.filter((list) => !SPECIAL_LIST_KEYS.includes(list))
+  );
+
+  // Load URL params
+  const setSelectedList = useStore((state) => state.setSelectedList);
+
+  useEffect(() => {
+    const tags = router.query.tag;
+
+    if (tags) setSelectedList(typeof tags === "string" ? [tags] : tags);
+  }, [router.query.tag, setSelectedList]);
+
+  // Data
+  const tweets = useStore((state) =>
+    state.getTweets().filter(state.searchFilter)
+  );
+
+  const fetchUser = useStore((state) => state.fetchUser);
+  const fetchTweets = useStore((state) => state.fetchMoreTweets);
+
+  const fetchState = useStore((state) => {
+    const tweetList = state.imageLists.get(state.selectedLists[0]);
+    if (tweetList) return tweetList.fetchState;
+    else return "all_fetched" as FetchState;
+  });
+
+  // Loading
+  const [userLoaded, setUserLoaded] = useState(false);
+
+  const [errorMessage, setError] = useStore((state) => [
+    state.errorMessage,
+    state.setError,
+  ]);
+
+  useEffect(() => {
+    if (!userLoaded && errorMessage === "") {
+      fetchUser()
+        .then((res) => {
+          if (res.error) setError(res.error);
+          else setUserLoaded(true);
+        })
+        .catch((e) => setError(e.toString()));
+    }
+  }, [errorMessage, fetchUser, setError, userLoaded]);
+
+  // Filtering and rendering
+  const selectedList = useStore((state) => state.selectedLists);
+  const searchTerm = useStore((state) => state.searchTerm);
+
+  // Key controls
+  const [editMode, toggledEditMode] = useStore((state) => [
+    state.editMode,
+    state.toggleEditMode,
+  ]);
+
+  useEffect(() => {
+    const escape = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && editMode === "delete") {
+        toggledEditMode();
+      }
+    };
+    document.addEventListener("keyup", escape);
+
+    return () => {
+      document.removeEventListener("keyup", escape);
+    };
+  }, [editMode, toggledEditMode]);
+
+  // Masonry Style
+  const [columnCount, columnGutter] = useDisplayStore((state) => [
+    state.columnCount,
+    state.getColumnGutter(),
+  ]);
+
+  return (
+    <>
+      <GlobalStyle />
+      <OverlayContainer>
+        <DeleteOverlay />
+        {!isMobile && <ZoomOverlay />}
+        <ThemeOverlay />
+        {!isMobile && <GitterOverlay />}
+      </OverlayContainer>
+      <ContextMenu />
+      <LoadingScene display={!userLoaded} />
+      <AppDiv className="App">
+        <Header />
+        {isMobile && selectedLists.length > 0 && (
+          <TagTitleHeader>
+            <h3>{selectedLists[0]}</h3>
+          </TagTitleHeader>
+        )}
+
+        <TweetsGallery
+          columnCount={isMobile ? 1 : columnCount}
+          columnGutter={columnGutter}
+          masonryKey={selectedList.join(",") + "-" + searchTerm}
+          images={tweets}
+          fetchItems={fetchTweets}
+          maxItems={
+            fetchState === "all_fetched" || searchTerm !== ""
+              ? tweets.length
+              : 9e9
+          }
+        />
+      </AppDiv>
     </>
   );
 }
