@@ -10,6 +10,10 @@ interface TabProps extends HTMLAttributes<HTMLButtonElement> {
   color?: string;
   borderColor?: string;
   textColor?: string;
+
+  /**
+   * Opacity of element on hover. Range: 0-100
+   */
   hoverOpacity?: number;
 }
 
@@ -42,9 +46,9 @@ const StyledTab = styled.button<TabProps>`
   ${(props) =>
     props.active
       ? `
-    color: ${props.theme.color.onAccent};
-    background-color: ${props.theme.color.accent};
-    border-color: ${props.theme.color.onAccent};
+    color: ${props.theme.color.secondary};
+    background-color: ${props.theme.color.onSecondary};
+    border-color: ${props.theme.color.secondary};
     `
       : ""}
 `;

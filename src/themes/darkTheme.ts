@@ -4,7 +4,7 @@ export const darkTheme: DefaultTheme = {
   color: {
     primary: "rgb(89, 56, 167)",
     secondary: "rgb(30, 30, 35)",
-    accent: "white",
+    accent: "rgb(129, 96, 207)",
 
     danger: "rgb(255, 60, 60)",
 

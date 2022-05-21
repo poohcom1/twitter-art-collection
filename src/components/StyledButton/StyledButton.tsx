@@ -36,9 +36,9 @@ const StyledButton = styled.button<ButtonProps>`
   }
 
   &:active {
-    color: ${(props) => props.theme.color.onAccent};
-    background-color: ${(props) => props.theme.color.accent};
-    border-color: ${(props) => props.theme.color.onAccent};
+    color: ${(props) => props.theme.color.secondary};
+    background-color: ${(props) => props.theme.color.onSecondary};
+    border-color: ${(props) => props.theme.color.secondary};
   }
 `;
 

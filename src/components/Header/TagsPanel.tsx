@@ -203,6 +203,18 @@ function BasicFilter() {
     }
   }, [active]);
 
+  useEffect(() => {
+    function selectInput(e: KeyboardEvent) {
+      if (e.key === "/") {
+        e.preventDefault();
+
+        setActive(true);
+      }
+    }
+    document.addEventListener("keydown", selectInput);
+    return () => document.removeEventListener("keydown", selectInput);
+  }, [inputRef]);
+
   return (
     <BasicFilterDiv
       onClick={active ? () => inputRef.current?.focus() : () => setActive(true)}
@@ -291,6 +303,18 @@ function AddTag(props: { onTextChange?: (text: string) => void }) {
     return () => document.removeEventListener("click", clearOnClick);
   }, [tagSetText]);
 
+  useEffect(() => {
+    function selectInput(e: KeyboardEvent) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+
+        addTagRef?.current?.select();
+      }
+    }
+    document.addEventListener("keydown", selectInput);
+    return () => document.removeEventListener("keydown", selectInput);
+  }, [addTagRef]);
+
   return (
     <Tag
       tabIndex={-1}
@@ -299,6 +323,7 @@ function AddTag(props: { onTextChange?: (text: string) => void }) {
       textColor={theme.color.onPrimary}
       onClick={onClick}
       title="Add or filter current tags"
+      hoverOpacity={tagText === "" ? undefined : 100}
     >
       <ExpandingInput
         id="headerAddTag"
@@ -666,8 +691,7 @@ function TagMenu() {
 }
 
 function TagsSection() {
-  const tagList = useStore((state) => state.getTagList());
-
+  const theme = useTheme();
   const [tagsContainerRef, overflow] = useOverflowDetector();
 
   // Scrolling
@@ -713,6 +737,16 @@ function TagsSection() {
   // Filter
   const [filter, setFilter] = useState("");
 
+  const tagList = useStore(
+    useCallback(
+      (state) =>
+        state
+          .getTagList()
+          .filter((tag) => tag.name.includes(filter.toLocaleLowerCase())),
+      [filter]
+    )
+  );
+
   return (
     <>
       <AddTag onTextChange={setFilter} />
@@ -734,13 +768,28 @@ function TagsSection() {
           ref={tagsContainerRef}
           onScroll={(e) => updateScrollMarkers(e.target as HTMLElement)}
         >
-          {tagList
-            .filter((tag) => tag.name.includes(filter))
-            .map((tag) => (
-              <TagButton tag={tag} key={tag.name} highlight={filter} />
-            ))}
+          {tagList.map((tag) => (
+            <TagButton tag={tag} key={tag.name} highlight={filter} />
+          ))}
         </TagsContainer>
       </div>
+      {filter !== "" && (
+        <h5 style={{ margin: 0, marginLeft: "8px", textOverflow: "clip" }}>
+          {tagList.length === 0 ? "Press " : "...or press "}
+          <strong style={{ color: theme.color.accent }}>Enter </strong>
+          to
+          {tagList.length === 1 && tagList.map((t) => t.name).includes(filter)
+            ? " select the "
+            : ` create a${
+                ["a", "e", "i", "o", "u"].includes(
+                  filter.toLocaleLowerCase()[0]
+                )
+                  ? "n"
+                  : ""
+              } `}
+          <strong style={{ color: theme.color.accent }}>{filter}</strong> tag
+        </h5>
+      )}
       {/* Tags popup menu */}
       {overflow && <TagMenu />}
     </>
