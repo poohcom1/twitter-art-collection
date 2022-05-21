@@ -260,15 +260,12 @@ function AddTag(props: { onTextChange?: (text: string) => void }) {
   const theme = useTheme();
   const setSelectedList = useStore((state) => state.setSelectedList);
 
-  const addTagRef = useRef<HTMLInputElement>(null);
-
-  const onClick = useCallback(() => {
-    if (addTagRef.current !== document.activeElement) {
-      addTagRef.current?.select();
-    }
-  }, []);
-
-  const { inputProps, tagSetText, tagText } = useAddTag((e) => {
+  const {
+    tagRef: addTagRef,
+    inputProps,
+    tagSetText,
+    tagText,
+  } = useAddTag<HTMLInputElement>((e) => {
     switch (e) {
       case "EXISTING_TAG":
         setSelectedList([tagText]);
@@ -276,6 +273,12 @@ function AddTag(props: { onTextChange?: (text: string) => void }) {
         break;
     }
   }, props.onTextChange);
+
+  const onClick = useCallback(() => {
+    if (addTagRef.current !== document.activeElement) {
+      addTagRef.current?.select();
+    }
+  }, [addTagRef]);
 
   return (
     <Tag

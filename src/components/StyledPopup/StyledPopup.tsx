@@ -1,4 +1,5 @@
 import Popup from "reactjs-popup";
+import { applyOpacity } from "src/util/themeUtil";
 import styled from "styled-components";
 
 const StyledPopup = styled(Popup)`
@@ -33,7 +34,7 @@ const StyledPopup = styled(Popup)`
   }
 `;
 
-export const PopupItem = styled.button`
+export const PopupItem = styled.button<{ active?: boolean }>`
   color: ${(props) => props.theme.color.onPopup};
 
   display: block;
@@ -50,9 +51,15 @@ export const PopupItem = styled.button`
   cursor: pointer;
   font-size: 17px;
 
-  &:hover {
-    background-color: #00000019;
+  &:hover,
+  &:focus {
+    background-color: ${(props) =>
+      applyOpacity(props.theme.color.onPopup, 0.2)};
   }
+
+  outline: none;
+
+  ${(props) => props.active && applyOpacity(props.theme.color.onPopup, 0.2)};
 
   font-weight: 590;
 `;

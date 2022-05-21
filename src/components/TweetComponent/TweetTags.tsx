@@ -26,6 +26,7 @@ import AddTag from "../AddTag/AddTag";
 import useContextMenu from "src/hooks/useContextMenus";
 import { BLACKLIST_TAG, DEFAULT_QUALITY } from "types/constants";
 import useMediaQuery from "src/hooks/useMediaQuery";
+import { tabIndexOnKeyDown } from "src/util/domUtil";
 
 const BUTTON_SIZE = 25;
 
@@ -113,6 +114,7 @@ function AddImagesPopupListItem(
     image: TweetSchema;
     close: () => void;
     keyNum: string | number;
+    active: boolean;
   } & HTMLAttributes<HTMLButtonElement>
 ) {
   const addImage = useStore((state) => state.addImage);
@@ -295,6 +297,7 @@ function NewTag(props: { image: TweetSchema; theme: DefaultTheme }) {
                     close();
                   }}
                   onTextChanged={setSearch}
+                  onKeyDown={tabIndexOnKeyDown}
                 />
               </PopupItem>
 
@@ -304,6 +307,7 @@ function NewTag(props: { image: TweetSchema; theme: DefaultTheme }) {
                   overflowY: "scroll",
                   scrollbarWidth: "thin",
                 }}
+                tabIndex={-1}
               >
                 {addTagList.map((tag) => (
                   <AddImagesPopupListItem
@@ -313,6 +317,8 @@ function NewTag(props: { image: TweetSchema; theme: DefaultTheme }) {
                     tag={tag}
                     image={props.image}
                     close={close}
+                    active={search === tag.name}
+                    onKeyDown={tabIndexOnKeyDown}
                   />
                 ))}
               </div>
@@ -330,6 +336,7 @@ function NewTag(props: { image: TweetSchema; theme: DefaultTheme }) {
                   <PopupItem
                     className="tweetComp__blacklist"
                     onClick={() => blacklistImage(props.image)}
+                    onKeyDown={tabIndexOnKeyDown}
                   >
                     <BlacklistButton>Blacklist</BlacklistButton>
                   </PopupItem>

@@ -169,15 +169,18 @@ function MainScene() {
   ]);
 
   useEffect(() => {
-    const escape = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && editMode === "delete") {
-        toggledEditMode();
+    const keyControls = (e: KeyboardEvent) => {
+      switch (e.key) {
+        case "Escape": {
+          if (editMode === "delete") toggledEditMode();
+          break;
+        }
       }
     };
-    document.addEventListener("keyup", escape);
+    document.addEventListener("keyup", keyControls);
 
     return () => {
-      document.removeEventListener("keyup", escape);
+      document.removeEventListener("keyup", keyControls);
     };
   }, [editMode, toggledEditMode]);
 
