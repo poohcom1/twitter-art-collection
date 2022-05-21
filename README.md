@@ -1,10 +1,8 @@
-# Twitter Art Collection
+# [Twitter Art Collection](https://twitter-art-collection.herokuapp.com)
 
 [![Join the chat at https://gitter.im/twitter-art-collection/community](https://badges.gitter.im/twitter-art-collection/community.svg)](https://gitter.im/twitter-art-collection/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 ![Sample image](public/assets/sample_image.jpeg)
-
-[twitter-art-collection.herokuapp.com](https://twitter-art-collection.herokuapp.com)
 
 A web app to organize arts and photos from your Twitter likes!
 
