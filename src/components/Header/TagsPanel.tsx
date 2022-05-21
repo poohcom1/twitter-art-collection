@@ -303,18 +303,6 @@ function AddTag(props: { onTextChange?: (text: string) => void }) {
     return () => document.removeEventListener("click", clearOnClick);
   }, [tagSetText]);
 
-  useEffect(() => {
-    function selectInput(e: KeyboardEvent) {
-      if (e.key === "Enter") {
-        e.preventDefault();
-
-        addTagRef?.current?.select();
-      }
-    }
-    document.addEventListener("keydown", selectInput);
-    return () => document.removeEventListener("keydown", selectInput);
-  }, [addTagRef]);
-
   return (
     <Tag
       tabIndex={-1}
@@ -454,9 +442,11 @@ function TagButton(props: { tag: TagSchema; highlight: string }) {
     }
   }, [onlySelected, tag.name]);
 
+  // Rename function
   const [renaming, _setRenaming] = useState(false);
   const [name, _setName] = useState(tag.name);
 
+  // Set renaming mode
   const setRenaming = useStore(
     useCallback(
       (state) => (renaming: boolean) => {
@@ -470,6 +460,7 @@ function TagButton(props: { tag: TagSchema; highlight: string }) {
     )
   );
 
+  // Standardize and set name
   const setName = useCallback((name: string) => {
     _setName(standardizeTagName(name));
   }, []);

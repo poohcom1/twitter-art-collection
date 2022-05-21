@@ -74,7 +74,7 @@ export default forwardRef<
         return () => clearTimeout(selectTimeout);
       }
     }
-  }, [autoSelect, text.length]);
+  }, [autoSelect]);
 
   return (
     <Container ref={parentRef} style={containerStyle}>
