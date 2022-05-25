@@ -59,7 +59,7 @@ function Banner(
       </a>
       {!props.hideGithubLogo && (
         <GithubLink
-          type={props.hideGithubLogo ?? theme === darkTheme ? "light" : "dark"}
+          type={props.logoTheme ?? theme === darkTheme ? "light" : "dark"}
         />
       )}
     </HeaderDiv>

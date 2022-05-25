@@ -1,5 +1,5 @@
 // URLs
-export const CANONICAL_URL = "https://twitter-art-collection.herokuapp.com";
+export const CANONICAL_URL = "https://www.twitter-art-collection.app";
 export const COLLECTION_URL = "collection";
 
 // Tags
