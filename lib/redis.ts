@@ -3,13 +3,28 @@ import { RedisClientType } from "@node-redis/client";
 import { createClient } from "redis";
 import { tweetIdsToSchema } from "./twitter/twitter";
 
-export async function getRedis(): Promise<RedisClientType<any, any>> {
+export async function getRedis(): Promise<RedisClientType<any, any> | null> {
   const redis = createClient({ url: process.env.REDIS_URL });
-  redis.on("error", (err) => console.log("Redis Client Error", err));
-  await redis.connect();
-  return redis;
+
+  try {
+    await redis.connect();
+
+    return redis;
+  } catch (e: any) {
+    if (e.code === "ECONNREFUSED") {
+      console.log("Cannot connect to Redis, disabling caching");
+    } else {
+      console.error(e);
+    }
+
+    return null;
+  }
 }
 
+/**
+ * Received a callback with redis as the parameter.
+ * The callback will only be call if there is redis can be connected to
+ */
 export async function useRedis<T>(
   callback: (redis: RedisClientType<any, any>) => Promise<T>
 ): Promise<T | void> {

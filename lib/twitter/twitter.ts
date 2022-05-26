@@ -14,31 +14,32 @@ import RateLimitRedisPlugin from "./RateLimitRedisPlugin";
 import { JWT } from "next-auth/jwt";
 
 let cachedApi: TwitterApiReadOnly | null = null;
-let cachePlugin: TwitterApiCachePluginRedis | null = null;
 
 const bearerToken = process.env.TWITTER_BEARER_TOKEN;
 
-async function getCachePlugin(): Promise<ITwitterApiClientPlugin> {
-  if (cachePlugin) return cachePlugin;
+async function getPlugins(userId?: string): Promise<ITwitterApiClientPlugin[]> {
+  const plugins = [];
 
   const redis = await getRedis();
 
-  cachePlugin = new TwitterApiCachePluginRedis(redis);
+  if (redis) {
+    plugins.push(new TwitterApiCachePluginRedis(redis));
+    plugins.push(
+      userId ? new RateLimitRedisPlugin(userId) : new RateLimitRedisPlugin()
+    );
+  }
 
-  return cachePlugin;
+  return plugins;
 }
 
 export async function getTwitterAppApi() {
-  if (cachedApi) {
-    return cachedApi;
-  }
+  if (cachedApi) return cachedApi;
 
-  if (!bearerToken) {
+  if (!bearerToken)
     throw new Error("Missing TWITTER_BEARER_TOKEN environment variables!");
-  }
 
   const twitterApi = new TwitterApi(bearerToken, {
-    plugins: [await getCachePlugin(), new RateLimitRedisPlugin()],
+    plugins: await getPlugins(),
   });
 
   cachedApi = twitterApi;
@@ -55,14 +56,14 @@ export async function getTwitterOAuth(user: JWT) {
       accessSecret: user.twitter?.oauth_token_secret as string,
     },
     {
-      plugins: [await getCachePlugin(), new RateLimitRedisPlugin(user.uid)],
+      plugins: await getPlugins(user.uid),
     }
   );
 
   return twitterApi;
 }
 
-// Helper functions
+/* ---------------------------- Helper functions ---------------------------- */
 
 /**
  * Predicate to filter for only tweets with photo media
@@ -153,7 +154,9 @@ export async function tweetExpansions(
 ): Promise<TweetSchema[]> {
   const redis = await getRedis();
 
-  const tweets = await getTweetCache(tweetIds)(redis);
+  const tweets = redis
+    ? await getTweetCache(tweetIds)(redis)
+    : tweetIdsToSchema(tweetIds);
 
   const twitterApi = await getTwitterAppApi();
 
@@ -195,7 +198,7 @@ export async function tweetExpansions(
       console.error("Twitter API error: " + e);
     }
 
-    await storeTweetCache(tweets)(redis);
+    redis && (await storeTweetCache(tweets)(redis));
   }
 
   await redis?.quit();
