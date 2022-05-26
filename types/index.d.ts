@@ -44,6 +44,8 @@ interface TweetExpansions {
     text: string | undefined;
     media: TweetImage[] | undefined;
   };
+
+  possibly_sensitive?: boolean;
 }
 
 // Data types

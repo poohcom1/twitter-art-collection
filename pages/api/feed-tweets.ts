@@ -1,7 +1,7 @@
 import { storeTweetCache, useRedis } from "lib/redis";
 import {
-  createTweetObjects,
   getTwitterOAuth,
+  tweetSchemasFromPayload,
   TWEET_OPTIONS,
 } from "lib/twitter/twitter";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -25,11 +25,13 @@ export default async function handler(
     const payload = await twitterApi.v2.homeTimeline({
       ...TWEET_OPTIONS,
       pagination_token,
+      // TODO: Add this to user options
+      exclude: ["replies", "retweets"],
     });
 
     const token = payload.data.meta?.next_token || undefined;
 
-    const tweets = createTweetObjects(payload.data);
+    const tweets = tweetSchemasFromPayload(payload.data);
 
     await useRedis(storeTweetCache(tweets));
 

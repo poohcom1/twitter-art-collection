@@ -1,6 +1,6 @@
 import { storeTweetCache, useRedis } from "lib/redis";
 import {
-  createTweetObjects,
+  tweetSchemasFromPayload,
   getTwitterOAuth,
   TWEET_OPTIONS,
 } from "lib/twitter/twitter";
@@ -29,7 +29,7 @@ export default async function handler(
 
     const token = payload.data.meta?.next_token || undefined;
 
-    const tweets = createTweetObjects(payload.data);
+    const tweets = tweetSchemasFromPayload(payload.data);
 
     await useRedis(storeTweetCache(tweets));
 

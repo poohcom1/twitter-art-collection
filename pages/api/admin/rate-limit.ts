@@ -46,8 +46,8 @@ export default async function handler(
         "users/:id/liked_tweets",
         "GET"
       ),
-      userRateLimitPlugin.v1.getRateLimitHistory(
-        "statuses/home_timeline.json",
+      userRateLimitPlugin.v2.getRateLimitHistory(
+        "users/:id/timelines/reverse_chronological",
         "GET"
       ),
     ]);

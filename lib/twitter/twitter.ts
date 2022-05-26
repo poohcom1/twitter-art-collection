@@ -93,56 +93,6 @@ export function tweetIdsToSchema(ids: string[]): TweetSchema[] {
 }
 
 /**
- * Generates TweetSchemas from a lookup payload
- * @param tweetPayloadData
- * @returns
- */
-export function createTweetObjects(tweetPayloadData: Tweetv2ListResult) {
-  if (!tweetPayloadData.includes) return [];
-
-  const tweetSchemas: TweetSchema[] = [];
-
-  const filteredTweetData = tweetPayloadData.data.filter(
-    filterTweets(tweetPayloadData)
-  );
-
-  for (const tweetData of filteredTweetData) {
-    const tweetSchema: TweetSchema = { id: tweetData.id, platform: "twitter" };
-
-    const user = tweetPayloadData.includes.users?.find(
-      (user) => user.id === tweetData.author_id
-    );
-
-    tweetSchema.data = {
-      id: tweetData.id,
-      url: `https://twitter.com/${user?.username}/status/${tweetData.id}`,
-      avatar: user?.profile_image_url,
-      name: user?.name,
-      username: user?.username,
-      date: tweetData.created_at,
-      content: {
-        text: tweetData.text,
-        media: tweetData.attachments?.media_keys?.map((key) => {
-          const img = tweetPayloadData.includes!.media!.find(
-            (m) => m.media_key === key
-          );
-
-          return {
-            url: img?.url ?? "",
-            width: img?.width ?? 0,
-            height: img?.height ?? 0,
-          };
-        }),
-      },
-    };
-
-    tweetSchemas.push(tweetSchema);
-  }
-
-  return tweetSchemas;
-}
-
-/**
  * Given the tweetIds, fetch and create TweetSchema objects
  * @param tweetIds
  * @param userIdToCheckDeleted Pass the userId to check remove tweets that has been deleted from user's tags
@@ -209,6 +159,18 @@ export async function tweetExpansions(
   );
 }
 
+export function tweetSchemasFromPayload(tweetPayloadData: Tweetv2ListResult) {
+  const tweetSchemas = tweetIdsToSchema(
+    tweetPayloadData.data
+      .filter(filterTweets(tweetPayloadData))
+      .map((t) => t.id)
+  );
+
+  completeTweetFields(tweetSchemas, tweetPayloadData);
+
+  return tweetSchemas;
+}
+
 /**
  * Complete missing data fields of tweets schemas with data from a lookup payload
  * @param tweets
@@ -219,7 +181,7 @@ export function completeTweetFields(
   tweets: TweetSchema[],
   tweetPayloadData: TweetV2LookupResult
 ) {
-  if (!tweetPayloadData.includes) {
+  if (!tweetPayloadData.includes || tweets.length === 0) {
     return;
   }
 
@@ -253,6 +215,7 @@ export function completeTweetFields(
           };
         }),
       },
+      possibly_sensitive: tweetData.possibly_sensitive,
     };
   }
 }

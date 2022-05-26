@@ -111,7 +111,8 @@ const store = combine(initialState, (set, get) => ({
       );
     }
 
-    return tweets;
+    // TODO: Set view sensitive tweets to user settings
+    return tweets.filter((t) => !t.data?.possibly_sensitive);
   },
   setSelectedList: (list: string[]) => {
     if (
