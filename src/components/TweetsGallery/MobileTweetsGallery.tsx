@@ -146,7 +146,7 @@ const MasonryCard = (props: {
   return (
     <TweetComponent
       id={props.data.id}
-      tweet={props.data}
+      tweetData={props.data.data}
       key={props.data.id}
       index={props.index}
     />

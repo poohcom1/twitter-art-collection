@@ -1,6 +1,11 @@
 import styled from "styled-components";
-import React, { ComponentType, RefObject, useEffect, useRef } from "react";
-import Image from "next/image";
+import React, {
+  ComponentType,
+  RefObject,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import {
   LoadMoreItemsCallback,
   MasonryProps,
@@ -55,7 +60,8 @@ export default function TweetsGallery({
     TweetSchema,
     LoadMoreItemsCallback<TweetSchema>
   >(fetchMoreItems, {
-    isItemLoaded: (index, items) => index < items.length && !!items[index],
+    isItemLoaded: (index, items) =>
+      index < items.length && !!items[index] && !!items[index].data,
     totalItems: maxItems,
     threshold: 16,
   });
@@ -77,6 +83,23 @@ export default function TweetsGallery({
     containerRef.current?.scrollTo(0, 0);
   }, [selectedList]);
 
+  const imagesOrLoaders = useMemo((): TweetSchema[] => {
+    if (maxItems > 0 && images.length === 0) {
+      const skeletonTweets: TweetSchema[] = [];
+
+      for (let i = 0; i < 50; i++) {
+        skeletonTweets.push({
+          id: i + "",
+          platform: "twitter",
+        });
+      }
+
+      return skeletonTweets;
+    } else {
+      return images;
+    }
+  }, [images, maxItems]);
+
   return (
     <MainDiv ref={containerRef}>
       {galleryMessage && (
@@ -87,29 +110,13 @@ export default function TweetsGallery({
       )}
       <ShrinkingMasonry
         containerDivRef={containerRef}
-        items={images}
+        items={imagesOrLoaders}
         onRender={maybeLoadMore}
         render={render}
         key={masonryKey}
         columnGutter={columnGutter}
         columnCount={columnCount}
       />
-      {!galleryMessage && images.length < maxItems && (
-        <div className="center" style={{ marginTop: "32px" }}>
-          <Image
-            src="/assets/pulse-loading.svg"
-            alt="Loader"
-            layout="fixed"
-            width="80px"
-            height="80px"
-          />
-        </div>
-      )}
-      {/* {maxItems > 0 && maxItems === images.length && (
-        <h4 style={{ textAlign: "center" }}>
-          {"That's all the tweets for now!"}
-        </h4>
-      )} */}
     </MainDiv>
   );
 }
@@ -155,7 +162,7 @@ const MasonryCard = (props: {
   return (
     <TweetComponent
       id={props.data.id}
-      tweet={props.data}
+      tweetData={props.data.data}
       key={props.data.id}
       index={props.index}
     />

@@ -2,7 +2,6 @@ import {
   fetchTweetData,
   PaginatedTweetAdapter,
 } from "src/adapters/tweetAdapter";
-import { imageEqual } from "src/util/objectUtil";
 import { fillCachedTweets } from "src/util/tweetUtil";
 
 /**
@@ -16,7 +15,8 @@ export type FetchState = "fetched" | "fetching" | "all_fetched" | "error";
 export interface ImageList {
   tweets: TweetSchema[];
   /**
-   * Should only be used inside rootStore to ensure that changes are propagated
+   * DON'T CALL THIS METHOD FROM THE UI!
+   * This should only be used inside rootStore to ensure that changes are propagated
    */
   _fetchMoreTweets: () => Promise<Result<TweetSchema[]>>;
 
@@ -92,7 +92,7 @@ export class TagList implements ImageList {
       }
     }
 
-    return this._tweets.filter((t) => !!t.data).reverse();
+    return [...this._tweets].reverse();
   }
 
   constructor(
@@ -142,13 +142,15 @@ export class TagList implements ImageList {
       const res = await fetchTweetData(imagesToFetch);
 
       if (res.error === null) {
+        const tweetIds = this._tweets.map((t) => t.id);
+
         res.data.forEach((t) => {
-          const tweet = this._tweets.find((current) => imageEqual(t, current));
+          const tweetIndex = tweetIds.indexOf(t.id);
 
-          if (tweet) {
-            tweet.data = t.data;
+          if (tweetIndex !== -1) {
+            this._tweets[tweetIndex] = t;
 
-            fetchedTweets.push(tweet);
+            fetchedTweets.push(t);
           }
         });
       } else {
