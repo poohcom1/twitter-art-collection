@@ -116,6 +116,8 @@ export default function TweetsGallery({
         key={masonryKey}
         columnGutter={columnGutter}
         columnCount={columnCount}
+        tabIndex={-1}
+        style={{ outline: "none" }}
       />
     </MainDiv>
   );
@@ -149,7 +151,6 @@ function ShrinkingMasonry(
     height,
     resizeObserver,
     scrollToIndex,
-    tabIndex: -1,
     ...props,
   });
 }

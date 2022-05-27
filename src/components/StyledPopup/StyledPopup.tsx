@@ -59,7 +59,9 @@ export const PopupItem = styled.button<{ active?: boolean }>`
 
   outline: none;
 
-  ${(props) => props.active && applyOpacity(props.theme.color.onPopup, 0.2)};
+  ${(props) =>
+    props.active &&
+    "background-color:" + applyOpacity(props.theme.color.onPopup, 0.2)};
 
   font-weight: 590;
 `;
