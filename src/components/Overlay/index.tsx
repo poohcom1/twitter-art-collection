@@ -23,6 +23,7 @@ import { DeleteOverlay } from "./DeleteOverlay";
 import useMediaQuery from "src/hooks/useMediaQuery";
 
 const OverlayContainerDiv = styled.div`
+  pointer-events: none;
   position: fixed;
 
   right: 32px;
@@ -41,6 +42,8 @@ const OverlayItemStyle = styled.button<{
   &:hover {
     cursor: pointer;
   }
+
+  pointer-events: all;
 
   position: relative;
   z-index: ${(props) => props.zIndex};

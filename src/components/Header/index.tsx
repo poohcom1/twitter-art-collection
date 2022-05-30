@@ -10,15 +10,17 @@ const HeaderDiv = styled.div`
   width: 100vw;
   height: fit-content;
 
-  background-color: ${(props) => applyOpacity(props.theme.color.surface, 0.85)};
+  position: fixed;
+
+  background-color: ${(props) => props.theme.color.surface};
 
   box-shadow: 0 0 10px ${(props) => props.theme.color.shadow};
 
-  @supports (backdrop-filter: blur(10px)) {
+  /* @supports (backdrop-filter: blur(10px)) {
     background-color: ${(props) =>
-      applyOpacity(props.theme.color.surface, 0.4)};
+    applyOpacity(props.theme.color.surface, 0.4)};
     backdrop-filter: blur(10px);
-  }
+  } */
 
   z-index: 10;
 

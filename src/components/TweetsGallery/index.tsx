@@ -1,31 +1,20 @@
 import styled from "styled-components";
-import React, {
-  ComponentType,
-  RefObject,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import React, { ComponentType, useEffect, useMemo, useRef } from "react";
 import {
   LoadMoreItemsCallback,
-  MasonryProps,
   RenderComponentProps,
   useInfiniteLoader,
-  useMasonry,
-  useResizeObserver,
-  useScrollToIndex,
 } from "masonic";
 import { TweetComponent } from "..";
-import useShrinkingPositioner from "./useShrinkingPositioner";
-import { useSize, useScroller } from "./miniVirtualList";
 import { useStore } from "src/stores/rootStore";
+import WindowMasonry from "./WindowMasonry";
 
 const MainDiv = styled.div`
   padding: 20px;
+  margin-top: 100px;
 
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
+  width: 100vw;
+  height: 100vh;
 `;
 
 interface TweetsGalleryProps {
@@ -80,7 +69,8 @@ export default function TweetsGallery({
   }, [fetchItems, images.length, maxItems, setError, selectedList]);
 
   useEffect(() => {
-    containerRef.current?.scrollTo(0, 0);
+    window.scrollTo(0, 0);
+    // containerRef.current?.scrollTo(0, 0); if masonic is in a container
   }, [selectedList]);
 
   const imagesOrLoaders = useMemo((): TweetSchema[] => {
@@ -108,7 +98,7 @@ export default function TweetsGallery({
       {maxItems === 0 && (
         <h4 style={{ textAlign: "center" }}>Nothing to see here!</h4>
       )}
-      <ShrinkingMasonry
+      <WindowMasonry
         containerDivRef={containerRef}
         items={imagesOrLoaders}
         onRender={maybeLoadMore}
@@ -121,38 +111,6 @@ export default function TweetsGallery({
       />
     </MainDiv>
   );
-}
-
-function ShrinkingMasonry(
-  props: MasonryProps<TweetSchema> & {
-    containerDivRef: RefObject<HTMLDivElement>;
-  }
-) {
-  const { items: images, containerDivRef } = props;
-
-  const { width, height } = useSize(containerDivRef);
-
-  const { scrollTop, isScrolling } = useScroller(containerDivRef);
-  const positioner = useShrinkingPositioner({ width, ...props }, images);
-
-  const resizeObserver = useResizeObserver(positioner);
-  const scrollToIndex = useScrollToIndex(positioner, {});
-
-  React.useEffect(() => {
-    if (props.scrollToIndex) {
-      scrollToIndex(props.scrollToIndex as number);
-    }
-  }, [props.scrollToIndex, scrollToIndex]);
-
-  return useMasonry({
-    positioner,
-    scrollTop,
-    isScrolling,
-    height,
-    resizeObserver,
-    scrollToIndex,
-    ...props,
-  });
 }
 
 const MasonryCard = (props: {

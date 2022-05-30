@@ -44,7 +44,6 @@ import StyledPopup, { PopupItem } from "../StyledPopup/StyledPopup";
 import StyledTab from "../StyledTab/StyledTab";
 import Highlighted from "../Highlighted/Highlighted";
 
-const SCROLL_AMOUNT = 500;
 const SCROLL_MIN = 100;
 
 const Tag = styled(StyledTab)`
@@ -113,14 +112,14 @@ const ArrowDiv = styled.div<{ show: boolean; direction: "left" | "right" }>`
 
   background-image: linear-gradient(
     to ${(props) => (props.direction === "left" ? "right" : "left")},
-    ${(props) => props.theme.color.surface},
+    ${(props) => props.theme.color.surface} 25%,
     transparent
   );
 
   &:hover {
     background-image: linear-gradient(
       to ${(props) => (props.direction === "left" ? "right" : "left")},
-      ${(props) => props.theme.color.surface} 25%,
+      ${(props) => props.theme.color.surface} 55%,
       transparent
     );
   }
@@ -691,7 +690,7 @@ function TagsSection() {
   const scrollLeft = useCallback(() => {
     const ref = tagsContainerRef.current;
     if (ref) {
-      const scrollTo = ref.scrollLeft - SCROLL_AMOUNT;
+      const scrollTo = ref.scrollLeft - ref.clientWidth - 100;
 
       ref.scrollTo(scrollTo >= SCROLL_MIN ? scrollTo : 0, 0);
     }
@@ -700,7 +699,7 @@ function TagsSection() {
   const scrollRight = useCallback(() => {
     const ref = tagsContainerRef.current;
     if (ref) {
-      const scrollTo = ref.scrollLeft + SCROLL_AMOUNT;
+      const scrollTo = ref.scrollLeft + ref.clientWidth - 100;
 
       ref.scrollTo(
         scrollTo < ref.scrollWidth - ref.offsetWidth
