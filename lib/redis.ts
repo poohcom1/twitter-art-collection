@@ -6,6 +6,8 @@ import { tweetIdsToSchema } from "./twitter/twitter";
 export async function getRedis(): Promise<RedisClientType<any, any> | null> {
   const redis = createClient({ url: process.env.REDIS_URL });
 
+  redis.on("error", (e) => console.error(e));
+
   try {
     await redis.connect();
 
