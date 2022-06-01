@@ -8,13 +8,15 @@ const SkeletonDiv = styled.div`
   border-radius: 10px;
 `;
 
+const COLOR = "#5b5b5b";
+
 export default function TweetSkeleton() {
   return (
     <SkeletonDiv>
       <Instagram
         animate={false}
-        foregroundColor="#7c7c7c2d"
-        backgroundColor="#7c7c7c2d"
+        foregroundColor={COLOR}
+        backgroundColor={COLOR}
         foregroundOpacity={0.3}
         backgroundOpacity={0.3}
       />
