@@ -73,6 +73,7 @@ export default function TweetsGallery({
     // containerRef.current?.scrollTo(0, 0); if masonic is in a container
   }, [selectedList]);
 
+  // For likes or timeline, display a bunch of partial tweets
   const imagesOrLoaders = useMemo((): TweetSchema[] => {
     if (maxItems > 0 && images.length === 0) {
       const skeletonTweets: TweetSchema[] = [];

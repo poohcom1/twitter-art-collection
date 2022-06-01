@@ -2,9 +2,6 @@ import { Instagram } from "react-content-loader";
 import styled from "styled-components";
 
 const SkeletonDiv = styled.div`
-  width: fit-content;
-  height: fit-content;
-
   padding: 15px;
 
   background-color: ${(props) => props.theme.color.surface};
@@ -15,7 +12,8 @@ export default function TweetSkeleton() {
   return (
     <SkeletonDiv>
       <Instagram
-        foregroundColor="#828282"
+        animate={false}
+        foregroundColor="#7c7c7c2d"
         backgroundColor="#7c7c7c2d"
         foregroundOpacity={0.3}
         backgroundOpacity={0.3}
