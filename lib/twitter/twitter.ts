@@ -9,7 +9,7 @@ import {
 } from "twitter-api-v2";
 import type TwitterApiv2ReadOnly from "twitter-api-v2/dist/v2/client.v2.read";
 import TwitterApiCachePluginRedis from "@twitter-api-v2/plugin-cache-redis";
-import { getRedis, getTweetCache, storeTweetCache } from "../redis";
+import { getTweetCache, RedisClient, storeTweetCache } from "../redis";
 import RateLimitRedisPlugin from "./RateLimitRedisPlugin";
 import { JWT } from "next-auth/jwt";
 
@@ -17,10 +17,11 @@ let cachedApi: TwitterApiReadOnly | null = null;
 
 const bearerToken = process.env.TWITTER_BEARER_TOKEN;
 
-async function getPlugins(userId?: string): Promise<ITwitterApiClientPlugin[]> {
+async function getPlugins(
+  redis: RedisClient | null,
+  userId?: string
+): Promise<ITwitterApiClientPlugin[]> {
   const plugins = [];
-
-  const redis = await getRedis();
 
   if (redis) {
     plugins.push(new TwitterApiCachePluginRedis(redis));
@@ -32,14 +33,14 @@ async function getPlugins(userId?: string): Promise<ITwitterApiClientPlugin[]> {
   return plugins;
 }
 
-export async function getTwitterAppApi() {
+export async function getTwitterAppApi(redis: RedisClient | null) {
   if (cachedApi) return cachedApi;
 
   if (!bearerToken)
     throw new Error("Missing TWITTER_BEARER_TOKEN environment variables!");
 
   const twitterApi = new TwitterApi(bearerToken, {
-    plugins: await getPlugins(),
+    plugins: await getPlugins(redis),
   });
 
   cachedApi = twitterApi;
@@ -47,7 +48,7 @@ export async function getTwitterAppApi() {
   return cachedApi;
 }
 
-export async function getTwitterOAuth(user: JWT) {
+export async function getTwitterOAuth(user: JWT, redis: RedisClient | null) {
   const twitterApi = new TwitterApi(
     {
       appKey: process.env.TWITTER_API_KEY!,
@@ -56,7 +57,7 @@ export async function getTwitterOAuth(user: JWT) {
       accessSecret: user.twitter?.oauth_token_secret as string,
     },
     {
-      plugins: await getPlugins(user.uid),
+      plugins: await getPlugins(redis, user.uid),
     }
   );
 
@@ -98,65 +99,63 @@ export function tweetIdsToSchema(ids: string[]): TweetSchema[] {
  * @param userIdToCheckDeleted Pass the userId to check remove tweets that has been deleted from user's tags
  * @returns
  */
-export async function tweetExpansions(
+export function tweetExpansions(
   tweetIds: string[],
   userIdToCheckDeleted?: string
-): Promise<TweetSchema[]> {
-  const redis = await getRedis();
+) {
+  return async (redis: RedisClient | null): Promise<TweetSchema[]> => {
+    const tweets = redis
+      ? await getTweetCache(tweetIds)(redis)
+      : tweetIdsToSchema(tweetIds);
 
-  const tweets = redis
-    ? await getTweetCache(tweetIds)(redis)
-    : tweetIdsToSchema(tweetIds);
+    const twitterApi = await getTwitterAppApi(redis);
 
-  const twitterApi = await getTwitterAppApi();
+    // Tweets not in cache
+    const partialTweet = tweets.filter((t) => !t.data);
+    const partialTweetIds = partialTweet.map((t) => t.id);
 
-  // Tweets not in cache
-  const partialTweet = tweets.filter((t) => !t.data);
-  const partialTweetIds = partialTweet.map((t) => t.id);
+    // console.log(
+    //   `Cache hit: ${tweets.length - partialTweetIds.length}/${tweetIds.length}`
+    // );
 
-  console.log(
-    `Cache hit: ${tweets.length - partialTweetIds.length}/${tweetIds.length}`
-  );
+    if (partialTweetIds.length > 0) {
+      try {
+        const payload = await twitterApi.v2.tweets(
+          partialTweetIds,
+          TWEET_OPTIONS
+        );
 
-  if (partialTweetIds.length > 0) {
-    try {
-      const payload = await twitterApi.v2.tweets(
-        partialTweetIds,
-        TWEET_OPTIONS
-      );
+        if (userIdToCheckDeleted) {
+          const deletedTweets = findDeletedTweets(partialTweet, payload.data);
+          const deletedTweetIds = deletedTweets.map((t) => t.id);
 
-      if (userIdToCheckDeleted) {
-        const deletedTweets = findDeletedTweets(partialTweet, payload.data);
-        const deletedTweetIds = deletedTweets.map((t) => t.id);
+          if (deletedTweets.length > 0) {
+            console.log("Deleting tweets: " + deletedTweetIds);
 
-        if (deletedTweets.length > 0) {
-          console.log("Deleting tweets: " + deletedTweetIds);
+            const mongoLib = await import("lib/mongodb");
 
-          const mongoLib = await import("lib/mongodb");
+            await mongoLib.getMongoConnection();
 
-          await mongoLib.getMongoConnection();
-
-          await mongoLib.removeDeletedTweets(
-            userIdToCheckDeleted,
-            deletedTweetIds
-          );
+            await mongoLib.removeDeletedTweets(
+              userIdToCheckDeleted,
+              deletedTweetIds
+            );
+          }
         }
+
+        completeTweetFields(tweets, payload);
+      } catch (e) {
+        console.error("Twitter API error: " + e);
       }
 
-      completeTweetFields(tweets, payload);
-    } catch (e) {
-      console.error("Twitter API error: " + e);
+      await storeTweetCache(tweets)(redis);
     }
 
-    redis && (await storeTweetCache(tweets)(redis));
-  }
-
-  await redis?.quit();
-
-  return tweets.filter(
-    (t) =>
-      t.data?.content.media && t.data.content.media.every((m) => m.url !== "")
-  );
+    return tweets.filter(
+      (t) =>
+        t.data?.content.media && t.data.content.media.every((m) => m.url !== "")
+    );
+  };
 }
 
 export function tweetSchemasFromPayload(tweetPayloadData: Tweetv2ListResult) {

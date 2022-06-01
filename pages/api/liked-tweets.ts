@@ -17,30 +17,32 @@ export default async function handler(
     return res.status(401).end();
   }
 
-  const twitterApi = await getTwitterOAuth(user);
+  await useRedis(async (redis) => {
+    const twitterApi = await getTwitterOAuth(user, redis);
 
-  const pagination_token = (req.query.token as string) ?? undefined;
+    const pagination_token = (req.query.token as string) ?? undefined;
 
-  try {
-    const payload = await twitterApi.v2.userLikedTweets(user.uid, {
-      ...TWEET_OPTIONS,
-      pagination_token,
-    });
+    try {
+      const payload = await twitterApi.v2.userLikedTweets(user.uid, {
+        ...TWEET_OPTIONS,
+        pagination_token,
+      });
 
-    const token = payload.data.meta?.next_token || undefined;
+      const token = payload.data.meta?.next_token || undefined;
 
-    const tweets = tweetSchemasFromPayload(payload.data);
+      const tweets = tweetSchemasFromPayload(payload.data);
 
-    await useRedis(storeTweetCache(tweets));
+      storeTweetCache(tweets);
 
-    const response: TweetsResponse = {
-      nextToken: token,
-      tweets,
-    };
+      const response: TweetsResponse = {
+        nextToken: token,
+        tweets,
+      };
 
-    res.send(response);
-  } catch (e) {
-    console.error(e);
-    res.status(500).send("Server error! Failed to fetch liked tweets!");
-  }
+      res.send(response);
+    } catch (e) {
+      console.error(e);
+      res.status(500).send("Server error! Failed to fetch liked tweets!");
+    }
+  });
 }

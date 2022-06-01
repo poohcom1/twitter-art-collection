@@ -53,6 +53,8 @@ class RedisApiRateLimitStore implements ITwitterApiRateLimitStore {
     const key = this.getKey(args);
 
     await useRedis(async (redis) => {
+      if (!redis) return;
+
       const data = await redis.get(key);
 
       const parsedData: RateLimitData = data ? JSON.parse(data) : [];
@@ -68,7 +70,7 @@ class RedisApiRateLimitStore implements ITwitterApiRateLimitStore {
   ): Promise<void | TwitterRateLimit> {
     if (args.method) {
       const rateLimit = await useRedis(
-        async (redis) => await redis.get(this.getKey(args))
+        async (redis) => await redis?.get(this.getKey(args))
       );
 
       if (rateLimit) {
@@ -83,7 +85,7 @@ class RedisApiRateLimitStore implements ITwitterApiRateLimitStore {
   ): Promise<void | RateLimitData> {
     if (args.method) {
       const rateLimit = await useRedis(
-        async (redis) => await redis.get(this.getKey(args))
+        async (redis) => await redis?.get(this.getKey(args))
       );
 
       if (rateLimit) {

@@ -2,6 +2,7 @@ import { tweetExpansions } from "lib/twitter/twitter";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
+import { useRedis } from "lib/redis";
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,6 +11,9 @@ export default async function handler(
   if (!req.query.ids) {
     return res.send([]);
   }
+
+  console.log("Tweet lookups!");
+
   const session = await getServerSession({ req, res }, authOptions);
 
   if (!session) {
@@ -18,8 +22,11 @@ export default async function handler(
 
   const tweetIds: string[] = (req.query.ids as string).split(",");
 
-  const tweets = await tweetExpansions(tweetIds, session.user.id);
-
-  // End
-  res.send(tweets);
+  try {
+    const tweets = await useRedis(tweetExpansions(tweetIds, session.user.id));
+    res.send(tweets);
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("Server error");
+  }
 }

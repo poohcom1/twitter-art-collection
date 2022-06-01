@@ -1,12 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { RedisClientType } from "@node-redis/client";
-import { createClient } from "redis";
+import { createClient, RedisClientType } from "redis";
 import { tweetIdsToSchema } from "./twitter/twitter";
 
-export async function getRedis(): Promise<RedisClientType<any, any> | null> {
-  const redis = createClient({ url: process.env.REDIS_URL });
+export type RedisClient = RedisClientType<any, any, any>;
 
-  redis.on("error", (e) => console.error(e));
+/**
+ *
+ * @returns Redis client or null if unable to connect
+ */
+async function initRedis(): Promise<RedisClient | null> {
+  const redis = createClient({
+    url: process.env.REDIS_URL,
+    socket: {
+      reconnectStrategy: (retries) => {
+        if (retries > 2) {
+          console.error("Cannot connect to Redis, disabling caching");
+          return new Error("Could not connect");
+        }
+
+        return 0;
+      },
+    },
+  });
 
   try {
     await redis.connect();
@@ -14,7 +29,7 @@ export async function getRedis(): Promise<RedisClientType<any, any> | null> {
     return redis;
   } catch (e: any) {
     if (e.code === "ECONNREFUSED") {
-      console.log("Cannot connect to Redis, disabling caching");
+      console.log("Attempting to reconnect...");
     } else {
       console.error(e);
     }
@@ -28,24 +43,20 @@ export async function getRedis(): Promise<RedisClientType<any, any> | null> {
  * The callback will only be call if there is redis can be connected to
  */
 export async function useRedis<T>(
-  callback: (redis: RedisClientType<any, any>) => Promise<T>
+  callback: (redis: RedisClient | null) => Promise<T>
 ): Promise<T | void> {
-  const redis = await getRedis();
+  const redis = await initRedis();
 
-  if (redis) {
-    const data = await callback(redis);
+  const data = await callback(redis);
 
-    await redis.quit();
+  await redis?.quit();
 
-    return data;
-  }
+  return data;
 }
 
 export const getTweetCache =
   (tweetIds: string[]) =>
-  async (
-    redis: RedisClientType<any, any> | undefined
-  ): Promise<TweetSchema[]> => {
+  async (redis: RedisClient | null): Promise<TweetSchema[]> => {
     const tweets = tweetIdsToSchema(tweetIds);
 
     if (!redis) {
@@ -71,8 +82,7 @@ export const getTweetCache =
 const TTL = 30 * 24 * 3600;
 
 export const storeTweetCache =
-  (tweets: TweetSchema[]) =>
-  async (redis: RedisClientType<any, any> | undefined) => {
+  (tweets: TweetSchema[]) => async (redis: RedisClient | null) => {
     if (!redis) {
       return;
     }
