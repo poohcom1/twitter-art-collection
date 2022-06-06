@@ -29,7 +29,7 @@ async function initRedis(): Promise<RedisClient | null> {
     return redis;
   } catch (e: any) {
     if (e.code === "ECONNREFUSED") {
-      console.log("Attempting to reconnect...");
+      console.log("[redis] Attempting to reconnect...");
     } else {
       console.error(e);
     }

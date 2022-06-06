@@ -1,9 +1,10 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import TweetTags from "./TweetTags";
 import styled, { keyframes, useTheme } from "styled-components";
 import { Tweet } from "..";
 import { darkTheme } from "src/themes";
-import Skeleton from "./Skeleton";
+import { SkeletonTheme } from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 const fadeIn = keyframes`
   from {
@@ -31,32 +32,26 @@ function TweetComponent(props: {
   tweetData: TweetExpansions | undefined;
   index: number;
 }) {
-  const tweetRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
 
-  const [loaded, setLoaded] = useState(!!props.tweetData);
-
-  useEffect(() => setLoaded(!!props.tweetData), [props.tweetData]);
-
-  if (loaded)
-    return (
-      <TweetDiv
-        id={`tweetComp${props.index}`}
-        className={`tweetComp`}
-        data-index={props.index}
-      >
-        <TweetTags
-          image={{
-            id: props.id,
-            platform: "twitter",
-          }}
-          tweetRef={tweetRef}
-          imageSrcs={props.tweetData?.content.media?.map((m) => m.url) ?? []}
-        />
-        <Tweet data={props.tweetData!} darkMode={theme === darkTheme} />
-      </TweetDiv>
-    );
-  else return <Skeleton />;
+  return (
+    <TweetDiv
+      id={`tweetComp${props.index}`}
+      className={`tweetComp`}
+      data-index={props.index}
+    >
+      <TweetTags
+        image={{
+          id: props.id,
+          platform: "twitter",
+        }}
+        imageSrcs={props.tweetData?.content.media?.map((m) => m.url) ?? []}
+      />
+      <SkeletonTheme baseColor="#3d3d3d" highlightColor="#818181">
+        <Tweet data={props.tweetData} darkMode={theme === darkTheme} />
+      </SkeletonTheme>
+    </TweetDiv>
+  );
 }
 
 export default TweetComponent;

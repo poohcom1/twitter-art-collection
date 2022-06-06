@@ -1,5 +1,4 @@
 import React, {
-  RefObject,
   HTMLAttributes,
   useCallback,
   useState,
@@ -219,7 +218,6 @@ function NewTag(props: { image: TweetSchema; theme: DefaultTheme }) {
   const ref = useRef<HTMLInputElement>(null);
 
   // Data store
-
   const [notIncludedTags, showBlacklist] = useStore((state) => {
     const tags = state.getTagList();
 
@@ -361,6 +359,20 @@ function NewTag(props: { image: TweetSchema; theme: DefaultTheme }) {
 }
 
 /* ----------------------------- Main Component ----------------------------- */
+export function SkeletonTweetTags() {
+  return (
+    <MainContainer style={{ opacity: "50%" }}>
+      <Tab
+        className="tweetComp__tagEdit tweetComp__addImage"
+        title={"Add image to tag"}
+        tabIndex={-1}
+        onClick={() => undefined}
+      >
+        <AddIcon size={BUTTON_SIZE} />
+      </Tab>
+    </MainContainer>
+  );
+}
 
 /**
  * Main Component
@@ -370,7 +382,6 @@ function NewTag(props: { image: TweetSchema; theme: DefaultTheme }) {
 const TweetTags = withTheme(function TweetTags(props: {
   image: TweetSchema;
   theme: DefaultTheme;
-  tweetRef: RefObject<HTMLDivElement>;
   imageSrcs: string[];
 }) {
   const isMobile = useMediaQuery();
