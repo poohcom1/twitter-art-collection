@@ -152,15 +152,36 @@ const Badge = styled.a<{ badgeColor?: string }>`
   }
 `;
 
+const TITLE = "Twitter Art Collection";
+const DESCRIPTION = "Organize your Twitter art and photos";
+
+const PREVIEW_IMAGE = "";
+const PREVIEW_IMAGE_WIDTH = "1005";
+const PREVIEW_IMAGE_HEIGHT = "888";
+
 export default function Index() {
   return (
     <>
       <Head>
         <title>Twitter Art Collection</title>
-        <meta
-          name="description"
-          content="Organize your Twitter art and photos."
-        />
+        <meta name="description" content={DESCRIPTION} />
+        <meta property="og:title" content={TITLE} />
+        <meta property="og:description" content={DESCRIPTION} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={CANONICAL_URL} />
+        <meta property="og:site_name" content={TITLE} />
+        <meta property="og:image" content={PREVIEW_IMAGE} />
+        <meta property="og:image:height" content={PREVIEW_IMAGE_HEIGHT} />
+        <meta property="og:image:width" content={PREVIEW_IMAGE_WIDTH} />
+        <meta property="og:image:type" content="image/jpeg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content={CANONICAL_URL} />
+        <meta name="twitter:site" content="@poohcom1" />
+        <meta name="twitter:creator" content="@poohcom1" />
+        <meta name="twitter:title" content={TITLE} />
+        <meta name="twitter:description" content={DESCRIPTION} />
+        <meta name="twitter:image" content={PREVIEW_IMAGE} />
+        <meta name="twitter:image:alt" content={TITLE} />
         <link rel="canonical" href={CANONICAL_URL} />
       </Head>
       <GlobalCSS />
@@ -179,11 +200,11 @@ export default function Index() {
           <SampleImageDiv>
             <Image
               style={{ backgroundColor: "rgba(255, 255, 255, 0.5)" }}
-              src="/assets/sample_image.jpeg"
+              src={PREVIEW_IMAGE}
               alt="Sample image"
               layout="responsive"
-              width={1005}
-              height={888}
+              width={PREVIEW_IMAGE_WIDTH}
+              height={PREVIEW_IMAGE_HEIGHT}
               placeholder="blur"
               blurDataURL="/assets/sample_image_small.jpeg"
               priority={true}
