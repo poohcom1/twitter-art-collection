@@ -168,14 +168,14 @@ export default function Index() {
         <meta property="og:title" content={TITLE} />
         <meta property="og:description" content={DESCRIPTION} />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content={CANONICAL_URL} />
+        <meta property="og:url" content={CANONICAL_URL + "/"} />
         <meta property="og:site_name" content={TITLE} />
         <meta property="og:image" content={CANONICAL_URL + PREVIEW_IMAGE} />
         <meta property="og:image:height" content={PREVIEW_IMAGE_HEIGHT} />
         <meta property="og:image:width" content={PREVIEW_IMAGE_WIDTH} />
         <meta property="og:image:type" content="image/jpeg" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:url" content={CANONICAL_URL} />
+        <meta name="twitter:url" content={CANONICAL_URL + "/"} />
         <meta name="twitter:site" content="@poohcom1" />
         <meta name="twitter:creator" content="@poohcom1" />
         <meta name="twitter:title" content={TITLE} />
