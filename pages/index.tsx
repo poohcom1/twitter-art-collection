@@ -155,7 +155,7 @@ const Badge = styled.a<{ badgeColor?: string }>`
 const TITLE = "Twitter Art Collection";
 const DESCRIPTION = "Organize your Twitter art and photos";
 
-const PREVIEW_IMAGE = "";
+const PREVIEW_IMAGE = "/assets/sample_image.jpeg";
 const PREVIEW_IMAGE_WIDTH = "1005";
 const PREVIEW_IMAGE_HEIGHT = "888";
 
@@ -170,7 +170,7 @@ export default function Index() {
         <meta property="og:type" content="website" />
         <meta property="og:url" content={CANONICAL_URL} />
         <meta property="og:site_name" content={TITLE} />
-        <meta property="og:image" content={PREVIEW_IMAGE} />
+        <meta property="og:image" content={CANONICAL_URL + PREVIEW_IMAGE} />
         <meta property="og:image:height" content={PREVIEW_IMAGE_HEIGHT} />
         <meta property="og:image:width" content={PREVIEW_IMAGE_WIDTH} />
         <meta property="og:image:type" content="image/jpeg" />
@@ -180,7 +180,7 @@ export default function Index() {
         <meta name="twitter:creator" content="@poohcom1" />
         <meta name="twitter:title" content={TITLE} />
         <meta name="twitter:description" content={DESCRIPTION} />
-        <meta name="twitter:image" content={PREVIEW_IMAGE} />
+        <meta name="twitter:image" content={CANONICAL_URL + PREVIEW_IMAGE} />
         <meta name="twitter:image:alt" content={TITLE} />
         <link rel="canonical" href={CANONICAL_URL} />
       </Head>
