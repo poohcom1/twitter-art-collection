@@ -3,7 +3,7 @@ import { authOptions } from "lib/nextAuth";
 import { validateTagName } from "lib/tagValidation";
 import UserModel from "models/User";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
+import { unstable_getServerSession } from "next-auth";
 
 /**
  *
@@ -15,7 +15,7 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const [session, _mongo] = await Promise.all([
-    getServerSession({ req, res }, authOptions),
+    unstable_getServerSession(req, res, authOptions),
     getMongoConnection(),
   ]);
 

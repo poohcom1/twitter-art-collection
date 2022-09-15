@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import UserModel from "models/User";
 import { dbMethodHandler } from "lib/apiHelper";
-import { getServerSession } from "next-auth";
+import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
 import { convertToDBTag, validateTagName } from "lib/tagValidation";
 
@@ -16,7 +16,7 @@ export default dbMethodHandler({
  * @deprecated All tags should be fetched from the user endpoint
  */
 async function getTags(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getServerSession({ req, res }, authOptions);
+  const session = await unstable_getServerSession(req, res, authOptions);
 
   if (session) {
     try {
@@ -35,7 +35,7 @@ async function getTags(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function postTag(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getServerSession({ req, res }, authOptions);
+  const session = await unstable_getServerSession(req, res, authOptions);
 
   if (!session) {
     return res.status(500).send("");
@@ -64,7 +64,7 @@ async function postTag(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function putTag(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getServerSession({ req, res }, authOptions);
+  const session = await unstable_getServerSession(req, res, authOptions);
   const tag: PutTagBody = req.body;
 
   console.info("[PUT tag] Tag set: " + tag.name);
@@ -86,7 +86,7 @@ async function putTag(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function deleteTag(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getServerSession({ req, res }, authOptions);
+  const session = await unstable_getServerSession(req, res, authOptions);
   try {
     await UserModel.updateOne(
       { uid: session!.user.id },

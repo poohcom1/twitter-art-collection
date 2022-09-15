@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { CANONICAL_URL } from "types/constants";
 import { useStore } from "src/stores/rootStore";
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
-import { getServerSession } from "next-auth";
+import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
 import { FetchState } from "src/stores/ImageList";
 import { createGlobalStyle, useTheme } from "styled-components";
@@ -16,7 +16,11 @@ import MobileTweetsGallery from "src/components/TweetsGallery/MobileTweetsGaller
 export async function getServerSideProps(
   context: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Record<string, unknown>>> {
-  const session = await getServerSession(context, authOptions);
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
 
   if (!session) {
     return {

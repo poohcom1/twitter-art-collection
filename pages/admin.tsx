@@ -18,7 +18,7 @@ import "chartjs-adapter-date-fns";
 import { useSession } from "next-auth/react";
 import styled from "styled-components";
 import { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
-import { getServerSession } from "next-auth";
+import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
 import { RateLimitResponse } from "./api/admin/rate-limit";
 import { darkTheme } from "src/themes";
@@ -112,7 +112,11 @@ function CustomLineChart(props: {
 export async function getServerSideProps(
   context: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Record<string, never>>> {
-  const session = await getServerSession(context, authOptions);
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
 
   if (!session || session.user.id !== process.env.ADMIN_ID) {
     return {

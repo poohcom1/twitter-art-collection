@@ -2,7 +2,7 @@ import { authOptions } from "lib/nextAuth";
 
 import UserModel from "models/User";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { getServerSession } from "next-auth";
+import { unstable_getServerSession } from "next-auth";
 import { dbMethodHandler } from "lib/apiHelper";
 import { convertDBTagToTag } from "lib/tagValidation";
 
@@ -11,7 +11,7 @@ export default dbMethodHandler({
 });
 
 async function getUser(req: NextApiRequest, res: NextApiResponse) {
-  const session = await getServerSession({ req, res }, authOptions);
+  const session = await unstable_getServerSession(req, res, authOptions);
 
   try {
     if (!session) {

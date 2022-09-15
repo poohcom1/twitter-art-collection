@@ -5,11 +5,15 @@ import Image from "next/image";
 import { Banner, TwitterLogin } from "src/components";
 import { CANONICAL_URL, COLLECTION_URL } from "types/constants";
 import type { GetServerSidePropsContext } from "next";
-import { getServerSession } from "next-auth";
+import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const session = await getServerSession(context, authOptions);
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
 
   if (session) {
     return {

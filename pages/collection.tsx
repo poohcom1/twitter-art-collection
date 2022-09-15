@@ -3,7 +3,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { CANONICAL_URL, SPECIAL_LIST_KEYS } from "types/constants";
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
-import { getServerSession } from "next-auth";
+import { unstable_getServerSession } from "next-auth";
 import { authOptions } from "lib/nextAuth";
 import { useStore } from "src/stores/rootStore";
 import {
@@ -26,7 +26,11 @@ import useMediaQuery from "src/hooks/useMediaQuery";
 export async function getServerSideProps(
   context: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Record<string, unknown>>> {
-  const session = await getServerSession(context, authOptions);
+  const session = await unstable_getServerSession(
+    context.req,
+    context.res,
+    authOptions
+  );
 
   if (!session) {
     return {
