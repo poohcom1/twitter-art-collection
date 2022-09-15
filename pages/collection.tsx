@@ -3,8 +3,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { CANONICAL_URL, SPECIAL_LIST_KEYS } from "types/constants";
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
-import { unstable_getServerSession } from "next-auth";
-import { authOptions } from "lib/nextAuth";
+import { getUserId } from "lib/nextAuth";
 import { useStore } from "src/stores/rootStore";
 import {
   ContextMenu,
@@ -26,13 +25,9 @@ import useMediaQuery from "src/hooks/useMediaQuery";
 export async function getServerSideProps(
   context: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Record<string, unknown>>> {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions
-  );
+  const uid = await getUserId(context.req);
 
-  if (!session) {
+  if (!uid) {
     return {
       redirect: {
         destination: "/",
@@ -40,7 +35,6 @@ export async function getServerSideProps(
       },
     };
   }
-  session.user.email = null;
 
   return { props: {} };
 }

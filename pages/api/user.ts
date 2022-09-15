@@ -1,8 +1,7 @@
-import { authOptions } from "lib/nextAuth";
+import { getUserId } from "lib/nextAuth";
 
 import UserModel from "models/User";
 import type { NextApiRequest, NextApiResponse } from "next";
-import { unstable_getServerSession } from "next-auth";
 import { dbMethodHandler } from "lib/apiHelper";
 import { convertDBTagToTag } from "lib/tagValidation";
 
@@ -11,21 +10,21 @@ export default dbMethodHandler({
 });
 
 async function getUser(req: NextApiRequest, res: NextApiResponse) {
-  const session = await unstable_getServerSession(req, res, authOptions);
+  const uid = await getUserId(req);
 
   try {
-    if (!session) {
+    if (!uid) {
       res.status(500).send("Server auth Error");
     }
     /* ------------------------------ User Database ----------------------------- */
-    const user = await UserModel.findOne({ uid: session!.user.id }).lean();
+    const user = await UserModel.findOne({ uid }).lean();
 
     // New user
     if (!user) {
       console.log("[GET USER] New user found.");
 
       const newUser = new UserModel({
-        uid: session!.user.id,
+        uid,
         tags: {},
         pinnedTags: [],
       });

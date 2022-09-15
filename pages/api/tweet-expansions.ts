@@ -1,7 +1,6 @@
 import { tweetExpansions } from "lib/twitter/twitter";
 import { NextApiRequest, NextApiResponse } from "next";
-import { unstable_getServerSession } from "next-auth";
-import { authOptions } from "lib/nextAuth";
+import { getUserId } from "lib/nextAuth";
 import { useRedis } from "lib/redis";
 
 export default async function handler(
@@ -12,16 +11,16 @@ export default async function handler(
     return res.send([]);
   }
 
-  const session = await unstable_getServerSession(req, res, authOptions);
+  const uid = await getUserId(req);
 
-  if (!session) {
+  if (!uid) {
     return res.status(401).end();
   }
 
   const tweetIds: string[] = (req.query.ids as string).split(",");
 
   try {
-    const tweets = await useRedis(tweetExpansions(tweetIds, session.user.id));
+    const tweets = await useRedis(tweetExpansions(tweetIds, uid));
     res.send(tweets);
   } catch (e) {
     console.error(e);

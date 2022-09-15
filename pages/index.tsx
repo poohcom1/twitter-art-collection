@@ -5,17 +5,12 @@ import Image from "next/image";
 import { Banner, TwitterLogin } from "src/components";
 import { CANONICAL_URL, COLLECTION_URL } from "types/constants";
 import type { GetServerSidePropsContext } from "next";
-import { unstable_getServerSession } from "next-auth";
-import { authOptions } from "lib/nextAuth";
+import { getUserId } from "lib/nextAuth";
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions
-  );
+  const uid = await getUserId(context.req);
 
-  if (session) {
+  if (uid) {
     return {
       redirect: {
         destination: "/" + COLLECTION_URL,

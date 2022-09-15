@@ -1,5 +1,8 @@
-import { NextAuthOptions } from "next-auth";
+import { IncomingMessage, ServerResponse } from "http";
+import { NextAuthOptions, Session, unstable_getServerSession } from "next-auth";
+import { getToken } from "next-auth/jwt";
 import TwitterProvider from "next-auth/providers/twitter";
+import { NextApiRequestCookies } from "next/dist/server/api-utils";
 import { COLLECTION_URL } from "types/constants";
 
 const AUTH_VER = process.env.TWITTER_AUTH_VER ?? "1.0";
@@ -77,4 +80,20 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
+};
+
+export const getUserId = async (
+  req: IncomingMessage & { cookies: NextApiRequestCookies }
+): Promise<string | undefined> => (await getToken({ req }))?.uid;
+
+export const getServerSession = async (
+  req: IncomingMessage & { cookies: NextApiRequestCookies },
+  res: ServerResponse,
+  context: NextAuthOptions
+): Promise<Session | null> => {
+  console.log(await getToken({ req }));
+
+  const session = unstable_getServerSession(req, res, context);
+  console.log(await session);
+  return session;
 };

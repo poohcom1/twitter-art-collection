@@ -1,8 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import UserModel from "models/User";
 import { dbMethodHandler } from "lib/apiHelper";
-import { unstable_getServerSession } from "next-auth";
-import { authOptions } from "lib/nextAuth";
+import { getUserId } from "lib/nextAuth";
 import { convertToDBTag, validateTagName } from "lib/tagValidation";
 
 export default dbMethodHandler({
@@ -16,11 +15,11 @@ export default dbMethodHandler({
  * @deprecated All tags should be fetched from the user endpoint
  */
 async function getTags(req: NextApiRequest, res: NextApiResponse) {
-  const session = await unstable_getServerSession(req, res, authOptions);
+  const uid = await getUserId(req);
 
-  if (session) {
+  if (uid) {
     try {
-      const user = await UserModel.findOne({ uid: session.user.id });
+      const user = await UserModel.findOne({ uid });
 
       if (user) {
         res.status(200).send(user.tags);
@@ -35,9 +34,9 @@ async function getTags(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function postTag(req: NextApiRequest, res: NextApiResponse) {
-  const session = await unstable_getServerSession(req, res, authOptions);
+  const uid = await getUserId(req);
 
-  if (!session) {
+  if (!uid) {
     return res.status(500).send("");
   }
 
@@ -52,7 +51,7 @@ async function postTag(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     await UserModel.updateOne(
-      { uid: session.user.id },
+      { uid },
       { $set: { [`tags.${tag.name}`]: convertToDBTag(tag) } }
     );
 
@@ -64,13 +63,13 @@ async function postTag(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function putTag(req: NextApiRequest, res: NextApiResponse) {
-  const session = await unstable_getServerSession(req, res, authOptions);
+  const uid = await getUserId(req);
   const tag: PutTagBody = req.body;
 
   console.info("[PUT tag] Tag set: " + tag.name);
   try {
     await UserModel.updateOne(
-      { uid: session!.user.id },
+      { uid },
       {
         $set: {
           [`tags.${tag.name}`]: convertToDBTag(tag),
@@ -86,10 +85,10 @@ async function putTag(req: NextApiRequest, res: NextApiResponse) {
 }
 
 async function deleteTag(req: NextApiRequest, res: NextApiResponse) {
-  const session = await unstable_getServerSession(req, res, authOptions);
+  const uid = await getUserId(req);
   try {
     await UserModel.updateOne(
-      { uid: session!.user.id },
+      { uid },
       { $unset: { [`tags.${req.query.tag}`]: 1 } }
     );
 

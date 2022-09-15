@@ -5,8 +5,7 @@ import { useEffect, useState } from "react";
 import { CANONICAL_URL } from "types/constants";
 import { useStore } from "src/stores/rootStore";
 import type { GetServerSidePropsContext, GetServerSidePropsResult } from "next";
-import { unstable_getServerSession } from "next-auth";
-import { authOptions } from "lib/nextAuth";
+import { getUserId } from "lib/nextAuth";
 import { FetchState } from "src/stores/ImageList";
 import { createGlobalStyle, useTheme } from "styled-components";
 import { LoadingScene, Tweet } from "src/components";
@@ -16,13 +15,9 @@ import MobileTweetsGallery from "src/components/TweetsGallery/MobileTweetsGaller
 export async function getServerSideProps(
   context: GetServerSidePropsContext
 ): Promise<GetServerSidePropsResult<Record<string, unknown>>> {
-  const session = await unstable_getServerSession(
-    context.req,
-    context.res,
-    authOptions
-  );
+  const uid = await getUserId(context.req);
 
-  if (!session) {
+  if (!uid) {
     return {
       redirect: {
         destination: "/",
@@ -30,7 +25,6 @@ export async function getServerSideProps(
       },
     };
   }
-  session.user.email = null;
 
   return { props: {} };
 }

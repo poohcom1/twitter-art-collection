@@ -1,9 +1,8 @@
 import { getMongoConnection } from "lib/mongodb";
-import { authOptions } from "lib/nextAuth";
+import { getUserId } from "lib/nextAuth";
 import { validateTagName } from "lib/tagValidation";
 import UserModel from "models/User";
 import { NextApiRequest, NextApiResponse } from "next";
-import { unstable_getServerSession } from "next-auth";
 
 /**
  *
@@ -14,12 +13,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const [session, _mongo] = await Promise.all([
-    unstable_getServerSession(req, res, authOptions),
+  const [uid, _mongo] = await Promise.all([
+    getUserId(req),
     getMongoConnection(),
   ]);
 
-  if (!session) {
+  if (!uid) {
     return res.status(401).end();
   }
 
@@ -39,7 +38,7 @@ export default async function handler(
   try {
     if (oldName !== newName) {
       await UserModel.updateOne(
-        { uid: session.user.id },
+        { uid },
         {
           $rename: { [`tags.${oldName}`]: `tags.${newName}` },
         }
