@@ -23,7 +23,7 @@ export async function removeDeletedTweets(
   userId: string,
   deletedTweetIds: string[]
 ): Promise<void> {
-  const user = await UserModel.findOne({ uid: userId });
+  const user = await UserModel.findOne({ uid: userId }).lean();
 
   if (user) {
     Object.values(user.tags).forEach((tag) => {

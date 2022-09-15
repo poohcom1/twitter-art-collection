@@ -104,7 +104,7 @@ export function tweetExpansions(
   userIdToCheckDeleted?: string
 ) {
   return async (redis: RedisClient | null): Promise<TweetSchema[]> => {
-    const tweets = redis
+    let tweets = redis
       ? await getTweetCache(tweetIds)(redis)
       : tweetIdsToSchema(tweetIds);
 
@@ -141,6 +141,8 @@ export function tweetExpansions(
               deletedTweetIds
             );
           }
+
+          tweets = tweets.filter((t) => !deletedTweetIds.includes(t.id));
         }
 
         completeTweetFields(tweets, payload);

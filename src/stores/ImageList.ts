@@ -144,6 +144,12 @@ export class TagList implements ImageList {
       if (res.error === null) {
         const tweetIds = this._tweets.map((t) => t.id);
 
+        // Remove deleted images
+        this._tweets = this._tweets.filter(
+          (t) => !!res.data.find((resTweet) => resTweet.id == t.id)
+        );
+
+        // Fill images data
         res.data.forEach((t) => {
           const tweetIndex = tweetIds.indexOf(t.id);
 
