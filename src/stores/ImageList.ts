@@ -86,16 +86,15 @@ export class TagList implements ImageList {
   }
 
   get tweets() {
-    for (const tweet of this._tweets) {
-      // FIXME why is tweet undefined?
-      if (!tweet) continue;
+    const tweets = this._tweets.filter(t => !!t)
 
+    for (const tweet of tweets) {
       if (!tweet.data) {
         tweet.data = this.tweetsMap.get(tweet.id)?.data;
       }
     }
 
-    return [...this._tweets].reverse();
+    return [...tweets].reverse();
   }
 
   constructor(
