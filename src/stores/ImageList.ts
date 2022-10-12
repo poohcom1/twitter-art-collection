@@ -87,6 +87,9 @@ export class TagList implements ImageList {
 
   get tweets() {
     for (const tweet of this._tweets) {
+      // FIXME why is tweet undefined?
+      if (!tweet) continue;
+
       if (!tweet.data) {
         tweet.data = this.tweetsMap.get(tweet.id)?.data;
       }
