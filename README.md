@@ -1,6 +1,4 @@
-# [Twitter Art Collection](https://twitter-art-collection.vercel.app)
-
-[![Join the chat at https://gitter.im/twitter-art-collection/community](https://badges.gitter.im/twitter-art-collection/community.svg)](https://gitter.im/twitter-art-collection/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# Twitter Art Collection
 
 ![Sample image](public/assets/sample_image.jpeg)
 
